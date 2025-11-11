@@ -22,6 +22,9 @@
         <label for="surname">Surname:</label>
         <input type="text" name="surname" id="surname" value="{{ old('surname') }}" required>
 
+         <label for="surname">Phone Number:</label>
+        <input type="text" name="phone" id="phone" value="{{ old('phone') }}" required>
+
         <label for="age">Age:</label>
         <input type="number" name="age" id="age" value="{{ old('age') }}" required>
 

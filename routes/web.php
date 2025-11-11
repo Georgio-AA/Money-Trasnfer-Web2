@@ -17,6 +17,8 @@ Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
     ->name('home')
     ->middleware('auth.session');
 
+
+
 Route::get('/session-check', function () {
     if(session()->has('user')) {
         return session('user'); // will display user array
@@ -27,6 +29,12 @@ Route::get('/session-check', function () {
  Route::get('/services', [AuthController::class, 'services'])
     ->name('services')
     ->middleware('auth.session');
+
+
+Route::get('/verify/{token}', [AuthController::class, 'verifyEmail'])->name('verify.email');
+
+
+
 
 
 

@@ -2,10 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Str;
+
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
+use App\Mail\VerificationMail;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
+
 
 class AuthController extends Controller
 {
@@ -31,6 +37,7 @@ class AuthController extends Controller
             'surname' => 'required|string|max:100',
             'age' => 'required|integer|min:1|max:120',
             'email' => 'required|email|unique:users,email',
+            'phone' => 'required|string|max:20|unique:users,phone',
             'password' => [
                 'required',
                 'confirmed',             // must match password_confirmation
@@ -44,13 +51,18 @@ class AuthController extends Controller
             'password.regex' => 'Password must contain upper, lower, number, and special character.',
         ]);
 
+        $token = Str::random(64);
+
         // Create user
         $user = User::create([
             'name' => $request->name,
             'surname' => $request->surname,
             'age' => $request->age,
+            'phone' => $request->phone,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+              'verification_token' => $token,
+            'verification_due' => now()->addDay(),
         ]);
 
         // Log the user in immediately after signup
@@ -58,9 +70,18 @@ class AuthController extends Controller
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
-        ]);
+            'phone' => $request->phone,
 
-        return redirect()->route('home')->with('success', 'Account created successfully!');
+        ]);
+        // Send verification email
+        try {
+            Mail::to($user->email)->send(new VerificationMail($user));
+        } catch (\Throwable $e) {
+            Log::error('Failed to send verification email: ' . $e->getMessage());
+        }
+        return redirect()->route('home')->with('name', $user->name)->with('success', 'Email verified successfully!');
+
+        // return redirect()->route('home')->with('success', 'Account created successfully!');
     }
 
     // -----------------------------
@@ -100,6 +121,29 @@ class AuthController extends Controller
 
         return back()->with('error', 'Invalid email or password.');
     }
+
+
+    public function verifyEmail($token)
+{
+    $user = User::where('verification_token', $token)->first();
+
+    if (!$user) {
+        return redirect()->route('login')->with('error', 'Invalid verification link.');
+    }
+
+    if ($user->verification_due < now()) {
+        return redirect()->route('login')->with('error', 'Verification link has expired.');
+    }
+
+    $user->update([
+        'is_verified' => true,
+        'verification_token' => null,
+        'verification_due' => null,
+    ]);
+
+    return redirect()->route('login')->with('success', 'Email verified successfully! You can now log in.');
+}
+
 
     public function logout()
     {
