@@ -12,12 +12,25 @@
         <div class="logo">SwiftPay</div>
         <nav>
             <ul>
-                <li><a href="index.php">Home</a></li>
-                <li><a href="services.php">Services</a></li>
-                <li><a href="agents.php">Agents</a></li>
-                <li><a href="send.php">Send Money</a></li>
-                <li><a href="login.php">Login</a></li>
-                <li><a href="signup.php" class="signup-btn">Sign Up</a></li>
+                <li><a href="{{ route('home') }}">Home</a></li>
+                <li><a href="{{ route('services') }}">Services</a></li>
+                <li><a href="{{ route('agents') }}">Agents</a></li>
+                <li><a href="{{ route('send') }}">Send Money</a></li>
+
+                @if(session()->has('user'))
+                    {{-- User is logged in --}}
+                    <li>Welcome, {{ session('user.name') }}</li>
+                    <li>
+                        <form action="{{ route('logout') }}" method="POST" style="display:inline;">
+                            @csrf
+                            <button type="submit" class="logout-btn">Logout</button>
+                        </form>
+                    </li>
+                @else
+                    {{-- User is not logged in --}}
+                    <li><a href="{{ route('login') }}">Login</a></li>
+                    <li><a href="{{ route('signup') }}" class="signup-btn">Sign Up</a></li>
+                @endif
             </ul>
         </nav>
     </div>
