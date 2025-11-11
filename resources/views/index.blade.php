@@ -1,3 +1,4 @@
+
 @include('includes.header')
 <section class="hero">
     <h1>Fast, Secure, and Affordable Money Transfers Worldwide</h1>
