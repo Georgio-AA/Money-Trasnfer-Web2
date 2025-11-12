@@ -6,7 +6,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // No-op: Users table is defined by 0001_01_01_000000_create_users_table
+        // No-op: Replaced by 2025_11_11_194321_create_payment_transactions_table with correct ordering.
     }
 
     public function down(): void
