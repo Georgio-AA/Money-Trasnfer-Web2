@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Admin\AgentApprovalController;
 use App\Http\Controllers\Admin\DashboardController;
 use Illuminate\Support\Facades\Session;
 // -----------------------------
@@ -60,5 +61,8 @@ Route::middleware(['auth.session', 'admin'])
     ->name('admin.')
     ->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/agents', [AgentApprovalController::class, 'index'])->name('agents.index');
+        Route::post('/agents/{agent}/approve', [AgentApprovalController::class, 'approve'])->name('agents.approve');
+        Route::post('/agents/{agent}/revoke', [AgentApprovalController::class, 'revoke'])->name('agents.revoke');
     });
 

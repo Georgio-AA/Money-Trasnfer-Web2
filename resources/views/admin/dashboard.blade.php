@@ -24,6 +24,7 @@
     <header class="admin-header">
         <h1>SwiftPay Admin</h1>
         <nav>
+            <a href="{{ route('admin.agents.index') }}">Agent Approvals</a>
             <a href="{{ url('/') }}">View Site</a>
             <a href="#">Settings</a>
         </nav>
