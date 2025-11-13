@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\AgentApprovalController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\BankAccountController;
 use Illuminate\Support\Facades\Session;
 // -----------------------------
 // PUBLIC ROUTES (no login required)
@@ -36,12 +37,21 @@ Route::get('/session-check', function () {
 Route::get('/verify/{token}', [AuthController::class, 'verifyEmail'])->name('verify.email');
 
 
-
-
-
-
 Route::middleware('auth.session')->group(function () {
    
+    // Bank Account Management Routes
+    Route::get('/bank-accounts', [BankAccountController::class, 'index'])->name('bank-accounts.index');
+    Route::get('/bank-accounts/create', [BankAccountController::class, 'create'])->name('bank-accounts.create');
+    Route::post('/bank-accounts', [BankAccountController::class, 'store'])->name('bank-accounts.store');
+    Route::get('/bank-accounts/{bankAccount}', [BankAccountController::class, 'show'])->name('bank-accounts.show');
+    Route::get('/bank-accounts/{bankAccount}/edit', [BankAccountController::class, 'edit'])->name('bank-accounts.edit');
+    Route::put('/bank-accounts/{bankAccount}', [BankAccountController::class, 'update'])->name('bank-accounts.update');
+    Route::delete('/bank-accounts/{bankAccount}', [BankAccountController::class, 'destroy'])->name('bank-accounts.destroy');
+    
+    // Bank Account Verification Routes
+    Route::get('/bank-accounts/{bankAccount}/verify', [BankAccountController::class, 'showVerificationForm'])->name('bank-accounts.verify-form');
+    Route::post('/bank-accounts/{bankAccount}/verify', [BankAccountController::class, 'verify'])->name('bank-accounts.verify');
+    Route::post('/bank-accounts/{bankAccount}/start-micro-verification', [BankAccountController::class, 'startMicroTransferVerification'])->name('bank-accounts.start-micro-verification');
 
    
 
