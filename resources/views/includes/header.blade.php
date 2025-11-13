@@ -16,6 +16,9 @@
                 <li><a href="{{ route('services') }}">Services</a></li>
                 <li><a href="{{ route('agents') }}">Agents</a></li>
                 <li><a href="{{ route('send') }}">Send Money</a></li>
+                @if(session()->has('user'))
+                    <li><a href="{{ route('bank-accounts.index') }}">My Accounts</a></li>
+                @endif
 
                 @if(session()->has('user'))
                     {{-- User is logged in --}}
