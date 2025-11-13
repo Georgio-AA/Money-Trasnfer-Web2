@@ -27,6 +27,7 @@ class User extends Authenticatable
                 'verification_token',
                 'verification_due',
                 'is_verified',
+                'role',
     ];
 
     /**
