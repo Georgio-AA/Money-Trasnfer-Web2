@@ -19,6 +19,9 @@
 
                 @if(session()->has('user'))
                     {{-- User is logged in --}}
+                    @if(session('user.is_admin'))
+                        <li><a href="{{ route('admin.dashboard') }}">Admin</a></li>
+                    @endif
                     <li>Welcome, {{ session('user.name') }}</li>
                     <li>
                         <form action="{{ route('logout') }}" method="POST" style="display:inline;">

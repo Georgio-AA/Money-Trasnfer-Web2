@@ -18,15 +18,16 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-                    'name',
-                'surname',
-                'age',
-                'email',
-                'phone',
-                'password',
-                'verification_token',
-                'verification_due',
-                'is_verified',
+        'name',
+        'surname',
+        'age',
+        'email',
+        'phone',
+        'password',
+        'verification_token',
+        'verification_due',
+        'is_verified',
+        'is_admin',
     ];
 
     /**
@@ -47,7 +48,8 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'verification_due' => 'datetime',
-        'is_verified' => 'boolean',
+    'is_verified' => 'boolean',
+    'is_admin' => 'boolean',
 
         'password' => 'hashed',
     ];
