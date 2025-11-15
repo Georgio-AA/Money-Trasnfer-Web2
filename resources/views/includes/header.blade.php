@@ -18,6 +18,9 @@
                 <li><a href="{{ route('send') }}">Send Money</a></li>
                 @if(session()->has('user'))
                     <li><a href="{{ route('bank-accounts.index') }}">My Accounts</a></li>
+                    @if(session('user.role') === 'admin')
+                        <li><a href="{{ route('admin.dashboard') }}" style="color: #f59e0b; font-weight: 600;">Admin Panel</a></li>
+                    @endif
                 @endif
 
                 @if(session()->has('user'))

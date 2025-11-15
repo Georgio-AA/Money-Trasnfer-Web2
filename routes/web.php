@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BankAccountController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\AgentApprovalController;
 use Illuminate\Support\Facades\Session;
 // -----------------------------
 // PUBLIC ROUTES (no login required)
@@ -68,3 +70,15 @@ Route::middleware('auth.session')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
 
+// -----------------------------
+// ADMIN ROUTES (requires auth.session + admin role)
+// -----------------------------
+Route::middleware(['auth.session', 'admin'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/agents', [AgentApprovalController::class, 'index'])->name('agents.index');
+        Route::post('/agents/{agent}/approve', [AgentApprovalController::class, 'approve'])->name('agents.approve');
+        Route::post('/agents/{agent}/revoke', [AgentApprovalController::class, 'revoke'])->name('agents.revoke');
+    });
