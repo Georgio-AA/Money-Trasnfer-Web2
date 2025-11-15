@@ -48,7 +48,8 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'verification_due' => 'datetime',
-        'is_verified' => 'boolean',
+    'is_verified' => 'boolean',
+    'is_admin' => 'boolean',
 
         'password' => 'hashed',
     ];
