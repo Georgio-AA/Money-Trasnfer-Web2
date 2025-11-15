@@ -33,7 +33,7 @@ class DashboardController extends Controller
         // Transfer volume by month (last 6 months)
         $transferVolume = $this->getTransferVolume();
 
-        $recentActivity = Transfer::with(['sender', 'receiver'])
+        $recentActivity = Transfer::with(['sender', 'beneficiary'])
             ->latest()
             ->take(10)
             ->get();

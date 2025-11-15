@@ -88,8 +88,14 @@ body { background-color: #f3f4f6; }
 </div>
 <div class="stat-card clickable">
 <a href="{{ route('admin.settings') }}">
-<h3> Settings</h3>
+<h3>⚙️ Settings</h3>
 <div class="value" style="font-size: 18px; color: #3b82f6;">Configure</div>
+</a>
+</div>
+<div class="stat-card clickable">
+<a href="{{ route('admin.compliance') }}">
+<h3>🛡️ Compliance</h3>
+<div class="value" style="font-size: 18px; color: #10b981;">Monitor</div>
 </a>
 </div>
 </div>
@@ -161,7 +167,7 @@ body { background-color: #f3f4f6; }
 <!-- Recent Activity -->
 <div class="activity-section">
 <h2>Recent Transfers</h2>
-@@if($recentActivity->count() > 0)
+@if($recentActivity->count() > 0)
 <table class="activity-table">
 <thead>
 <tr>
@@ -174,11 +180,11 @@ body { background-color: #f3f4f6; }
 </tr>
 </thead>
 <tbody>
-@@foreach($recentActivity as $transfer)
+@foreach($recentActivity as $transfer)
 <tr>
 <td>#{{ $transfer->id }}</td>
 <td>{{ $transfer->sender->name ?? 'N/A' }}</td>
-<td>{{ $transfer->receiver->name ?? 'N/A' }}</td>
+<td>{{ $transfer->beneficiary->full_name ?? 'N/A' }}</td>
 <td>${{ number_format($transfer->amount, 2) }}</td>
 <td>
 <span class="status-badge status-{{ $transfer->status }}">
@@ -187,12 +193,12 @@ body { background-color: #f3f4f6; }
 </td>
 <td>{{ $transfer->created_at->format('M d, Y H:i') }}</td>
 </tr>
-@@endforeach
+@endforeach
 </tbody>
 </table>
-@@else
+@else
 <p style="color: #718096; text-align: center; padding: 40px 0;">No recent activity</p>
-@@endif
+@endif
 </div>
 </div>
 

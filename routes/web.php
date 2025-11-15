@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\AgentApprovalController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Admin\TransferManagementController;
 use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Admin\ComplianceController;
 use Illuminate\Support\Facades\Session;
 // -----------------------------
 // PUBLIC ROUTES (no login required)
@@ -103,4 +104,10 @@ Route::middleware(['auth.session', 'admin'])
         // System Settings
         Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
         Route::post('/settings', [SettingsController::class, 'update'])->name('settings.update');
+        
+        // Compliance & Monitoring
+        Route::get('/compliance', [ComplianceController::class, 'index'])->name('compliance');
+        Route::post('/compliance/flag/{transfer}', [ComplianceController::class, 'flagTransaction'])->name('compliance.flag');
+        Route::post('/compliance/resolve/{alertId}', [ComplianceController::class, 'resolveAlert'])->name('compliance.resolve');
+        Route::get('/audit-log', [ComplianceController::class, 'auditLog'])->name('audit-log');
     });
