@@ -2,7 +2,7 @@
 
 <section class="page-header">
     <h1>Verify Bank Account</h1>
-    <p>Complete the verification process for {{ $bankAccount->bank_name }}</p>
+    <p>Email verification for {{ $bankAccount->bank_name }}</p>
 </section>
 
 <section class="verification">
@@ -36,133 +36,31 @@
         @endif
 
         <div class="verification-methods">
-            <h3>Choose Verification Method</h3>
-            
-            <div class="method-tabs">
-                <button class="tab-btn active" onclick="showTab('document')">Document Upload</button>
-                <button class="tab-btn" onclick="showTab('micro')">Micro-transfers</button>
-            </div>
+            <h3>Email Verification</h3>
 
-            <!-- Document Upload Method -->
-            <div id="document-tab" class="tab-content active">
-                <div class="method-card">
-                    <div class="method-header">
-                        <h4>📄 Document Upload</h4>
-                        <p>Upload a bank statement or void check to verify your account instantly</p>
-                    </div>
-
-                    <form action="{{ route('bank-accounts.verify', $bankAccount) }}" method="POST" enctype="multipart/form-data">
-                        @csrf
-                        <input type="hidden" name="verification_method" value="document">
-
-                        <div class="form-group">
-                            <label for="document">Upload Document *</label>
-                            <div class="file-upload-area" onclick="document.getElementById('document').click()">
-                                <div class="upload-placeholder">
-                                    <div class="upload-icon">📁</div>
-                                    <p>Click to select file or drag and drop</p>
-                                    <p class="file-info">Accepted: JPG, PNG, PDF (Max: 2MB)</p>
-                                </div>
-                                <input type="file" id="document" name="document" accept=".jpg,.jpeg,.png,.pdf" required style="display: none;" onchange="updateFileName(this)">
-                            </div>
-                            <div id="file-name" class="file-name"></div>
-                            @error('document')
-                                <span class="error-text">{{ $message }}</span>
-                            @enderror
-                        </div>
-
-                        <div class="requirements">
-                            <h5>Document Requirements:</h5>
-                            <ul>
-                                <li>✓ Must clearly show your name and account number</li>
-                                <li>✓ Document must be recent (within last 3 months)</li>
-                                <li>✓ All information must be legible</li>
-                                <li>✓ Bank letterhead or official stamp required</li>
-                            </ul>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary btn-full">Upload & Verify</button>
-                    </form>
+            <div class="method-card">
+                <div class="method-header">
+                    <h4>📧 Verify via Email Link</h4>
+                    <p>We’ll send a secure verification link to your email. Click the link to verify this bank account.</p>
                 </div>
-            </div>
 
-            <!-- Micro-transfer Method -->
-            <div id="micro-tab" class="tab-content">
-                <div class="method-card">
-                    <div class="method-header">
-                        <h4>💰 Micro-transfers</h4>
-                        <p>We'll send small amounts to your account for verification</p>
-                    </div>
-
-                    <div class="micro-steps">
-                        <div class="step">
-                            <div class="step-number">1</div>
-                            <div class="step-content">
-                                <h5>Request Micro-transfers</h5>
-                                <p>We'll send 2 small deposits to your account</p>
-                            </div>
-                        </div>
-                        <div class="step">
-                            <div class="step-number">2</div>
-                            <div class="step-content">
-                                <h5>Check Your Account</h5>
-                                <p>Look for the amounts in 1-2 business days</p>
-                            </div>
-                        </div>
-                        <div class="step">
-                            <div class="step-number">3</div>
-                            <div class="step-content">
-                                <h5>Enter Amounts</h5>
-                                <p>Return here and enter the exact amounts</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    @if(!$bankAccount->micro_transfer_sent_at)
-                        <form action="{{ route('bank-accounts.start-micro-verification', $bankAccount) }}" method="POST">
-                            @csrf
-                            <button type="submit" class="btn btn-primary btn-full">Start Micro-transfer Process</button>
-                        </form>
+                <div class="status-info" style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:1rem;margin-bottom:1rem;">
+                    @if($bankAccount->verification_sent_at)
+                        <p><strong>Last sent:</strong> {{ $bankAccount->verification_sent_at->format('M d, Y \a\t g:i A') }}</p>
                     @else
-                        <div class="micro-status">
-                            <div class="status-info">
-                                <h5>✅ Micro-transfers Initiated</h5>
-                                <p><strong>Sent:</strong> {{ $bankAccount->micro_transfer_sent_at->format('M d, Y \a\t g:i A') }}</p>
-                                <p><strong>Expires:</strong> {{ $bankAccount->verification_expires_at->format('M d, Y \a\t g:i A') }}</p>
-                                <p><strong>Attempts used:</strong> {{ $bankAccount->verification_attempts }}/3</p>
-                                <p><em>Check your email for the verification amounts.</em></p>
-                            </div>
-                        </div>
-
-                        <form action="{{ route('bank-accounts.verify', $bankAccount) }}" method="POST">
-                            @csrf
-                            <input type="hidden" name="verification_method" value="micro_transfer">
-
-                            <div class="micro-amounts">
-                                <p>Enter the two micro-transfer amounts you received:</p>
-                                <div class="amount-inputs">
-                                    <div class="form-group">
-                                        <label for="micro_amount_1">First Amount (e.g., 0.23)</label>
-                                        <input type="number" id="micro_amount_1" name="micro_amount_1" 
-                                               step="0.01" min="0.01" max="0.99" required 
-                                               placeholder="0.00" value="{{ old('micro_amount_1') }}">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="micro_amount_2">Second Amount (e.g., 0.47)</label>
-                                        <input type="number" id="micro_amount_2" name="micro_amount_2" 
-                                               step="0.01" min="0.01" max="0.99" required 
-                                               placeholder="0.00" value="{{ old('micro_amount_2') }}">
-                                    </div>
-                                </div>
-                                @error('micro_amounts')
-                                    <span class="error-text">{{ $message }}</span>
-                                @enderror
-                            </div>
-
-                            <button type="submit" class="btn btn-primary btn-full">Verify Amounts</button>
-                        </form>
+                        <p>No verification email sent yet.</p>
+                    @endif
+                    @if($bankAccount->verification_expires_at)
+                        <p><strong>Link expires:</strong> {{ $bankAccount->verification_expires_at->format('M d, Y \a\t g:i A') }}</p>
                     @endif
                 </div>
+
+                <form action="{{ route('bank-accounts.send-verification-email', $bankAccount) }}" method="POST">
+                    @csrf
+                    <button type="submit" class="btn btn-primary btn-full">
+                        {{ $bankAccount->verification_sent_at ? 'Resend Verification Email' : 'Send Verification Email' }}
+                    </button>
+                </form>
             </div>
         </div>
 
@@ -547,34 +445,6 @@
 }
 </style>
 
-<script>
-function showTab(tabName) {
-    // Hide all tabs
-    document.querySelectorAll('.tab-content').forEach(tab => {
-        tab.classList.remove('active');
-    });
-    
-    // Remove active class from all buttons
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    
-    // Show selected tab
-    document.getElementById(tabName + '-tab').classList.add('active');
-    
-    // Add active class to clicked button
-    event.target.classList.add('active');
-}
-
-function updateFileName(input) {
-    const fileName = document.getElementById('file-name');
-    if (input.files.length > 0) {
-        fileName.textContent = `Selected: ${input.files[0].name}`;
-        fileName.style.display = 'block';
-    } else {
-        fileName.style.display = 'none';
-    }
-}
-</script>
+<script></script>
 
 @include('includes.footer')

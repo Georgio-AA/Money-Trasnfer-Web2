@@ -50,10 +50,9 @@ Route::middleware('auth.session')->group(function () {
     Route::put('/bank-accounts/{bankAccount}', [BankAccountController::class, 'update'])->name('bank-accounts.update');
     Route::delete('/bank-accounts/{bankAccount}', [BankAccountController::class, 'destroy'])->name('bank-accounts.destroy');
     
-    // Bank Account Verification Routes
+    // Bank Account Verification Routes (Email-only)
     Route::get('/bank-accounts/{bankAccount}/verify', [BankAccountController::class, 'showVerificationForm'])->name('bank-accounts.verify-form');
-    Route::post('/bank-accounts/{bankAccount}/verify', [BankAccountController::class, 'verify'])->name('bank-accounts.verify');
-    Route::post('/bank-accounts/{bankAccount}/start-micro-verification', [BankAccountController::class, 'startMicroTransferVerification'])->name('bank-accounts.start-micro-verification');
+    Route::post('/bank-accounts/{bankAccount}/send-verification-email', [BankAccountController::class, 'sendVerificationEmail'])->name('bank-accounts.send-verification-email');
 
    
 
@@ -67,4 +66,8 @@ Route::middleware('auth.session')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
+
+// Email verification link endpoint (does not require session)
+Route::get('/bank-accounts/verify-email/{bankAccount}/{token}', [BankAccountController::class, 'verifyByEmail'])
+    ->name('bank-accounts.verify-email');
 

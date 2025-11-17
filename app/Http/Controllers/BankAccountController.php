@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\BankAccount;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
-use App\Mail\MicroTransferVerificationMail;
+use Illuminate\Support\Str;
+use App\Mail\BankAccountVerificationMail;
 
 class BankAccountController extends Controller
 {
@@ -63,8 +63,26 @@ class BankAccountController extends Controller
 
         $bankAccount = BankAccount::create($validated);
 
+        // Generate verification token and send verification email
+        $token = Str::random(64);
+        $bankAccount->update([
+            'verification_token' => $token,
+            'verification_expires_at' => now()->addDays(7),
+            'verification_sent_at' => now(),
+        ]);
+
+        try {
+            $bankAccount = $bankAccount->fresh(['user']);
+            Mail::to($user['email'])->send(new BankAccountVerificationMail($bankAccount));
+            $info = 'Verification email sent. Please check your inbox to verify this bank account.';
+        } catch (\Exception $e) {
+            \Log::error('Failed to send bank account verification email: ' . $e->getMessage());
+            $info = 'Bank account created. We could not send the verification email (' . $e->getMessage() . '). You can resend it from the verification page.';
+        }
+
         return redirect()->route('bank-accounts.index')
-            ->with('success', 'Bank account added successfully! Please verify it to enable transfers.');
+            ->with('success', 'Bank account added successfully!')
+            ->with('info', $info);
     }
 
     /**
@@ -149,7 +167,7 @@ class BankAccountController extends Controller
     }
 
     /**
-     * Show the verification form for a bank account.
+     * Show verification info (email-only flow) and allow resending the email.
      */
     public function showVerificationForm(BankAccount $bankAccount)
     {
@@ -167,9 +185,9 @@ class BankAccountController extends Controller
     }
 
     /**
-     * Process verification for a bank account.
+     * Resend verification email for a bank account.
      */
-    public function verify(Request $request, BankAccount $bankAccount)
+    public function sendVerificationEmail(BankAccount $bankAccount)
     {
         $user = Session::get('user');
         if (!$user || $bankAccount->user_id !== $user['id']) {
@@ -181,109 +199,47 @@ class BankAccountController extends Controller
                 ->with('info', 'This bank account is already verified.');
         }
 
-        $validated = $request->validate([
-            'verification_method' => 'required|string|in:document,micro_transfer',
-            'document' => 'required_if:verification_method,document|file|mimes:jpg,jpeg,png,pdf|max:2048',
-            'micro_amount_1' => 'required_if:verification_method,micro_transfer|numeric|between:0.01,0.99',
-            'micro_amount_2' => 'required_if:verification_method,micro_transfer|numeric|between:0.01,0.99'
-        ]);
-
-        if ($validated['verification_method'] === 'document') {
-            // Store the uploaded document
-            $documentPath = $request->file('document')->store('verification_documents', 'public');
-            
-            // In a real application, you would send this for manual review
-            // For demo purposes, we'll auto-approve
-            $bankAccount->update([
-                'is_verified' => true,
-                'verification_document' => $documentPath
-            ]);
-
-            $message = 'Bank account verified successfully via document upload!';
-        
-        } elseif ($validated['verification_method'] === 'micro_transfer') {
-            // Check if verification has expired
-            if ($bankAccount->verification_expires_at && 
-                $bankAccount->verification_expires_at->isPast()) {
-                return back()->withErrors([
-                    'micro_amounts' => 'Verification has expired. Please start the process again.'
-                ]);
-            }
-
-            // Check if too many attempts
-            if ($bankAccount->verification_attempts >= 3) {
-                return back()->withErrors([
-                    'micro_amounts' => 'Too many verification attempts. Please contact support.'
-                ]);
-            }
-
-            // Increment verification attempts
-            $bankAccount->increment('verification_attempts');
-
-            // Verify the micro amounts against what was sent
-            if (abs($validated['micro_amount_1'] - $bankAccount->micro_amount_1) < 0.01 && 
-                abs($validated['micro_amount_2'] - $bankAccount->micro_amount_2) < 0.01) {
-                
-                $bankAccount->update(['is_verified' => true]);
-                $message = 'Bank account verified successfully via micro-transfer!';
-            } else {
-                return back()->withErrors([
-                    'micro_amounts' => 'The micro-transfer amounts do not match. Please try again. Attempts remaining: ' . (3 - $bankAccount->verification_attempts)
-                ]);
-            }
-        }
-
-        return redirect()->route('bank-accounts.index')->with('success', $message);
-    }
-
-    /**
-     * Start the micro-transfer verification process.
-     */
-    public function startMicroTransferVerification(BankAccount $bankAccount)
-    {
-        $user = Session::get('user');
-        if (!$user || $bankAccount->user_id !== $user['id']) {
-            abort(403, 'Unauthorized action.');
-        }
-
-        // Generate two random micro amounts
-        $microAmount1 = round(mt_rand(1, 99) / 100, 2);
-        $microAmount2 = round(mt_rand(1, 99) / 100, 2);
-        
-        // Make sure they're different
-        while ($microAmount2 === $microAmount1) {
-            $microAmount2 = round(mt_rand(1, 99) / 100, 2);
-        }
-
-        // Update bank account with micro transfer details
+        $token = Str::random(64);
         $bankAccount->update([
-            'micro_amount_1' => $microAmount1,
-            'micro_amount_2' => $microAmount2,
-            'micro_transfer_sent_at' => now(),
+            'verification_token' => $token,
             'verification_expires_at' => now()->addDays(7),
-            'verification_attempts' => 0
+            'verification_sent_at' => now(),
         ]);
 
         try {
-            // Reload the bank account to ensure we have the fresh instance with all relationships
             $bankAccount = $bankAccount->fresh(['user']);
-            
-            // Send email notification
-            Mail::to($user['email'])->send(new MicroTransferVerificationMail($bankAccount, [
-                'amount1' => $microAmount1,
-                'amount2' => $microAmount2
-            ]));
-
-            $message = 'Micro-transfers have been initiated! Check your email for detailed instructions. The amounts will appear in your account within 1-2 business days.';
+            Mail::to($user['email'])->send(new BankAccountVerificationMail($bankAccount));
+            return back()->with('success', 'Verification email has been sent. Please check your inbox.');
         } catch (\Exception $e) {
-            // Log the error for debugging
-            \Log::error('Failed to send micro-transfer verification email: ' . $e->getMessage());
-            
-            $message = 'Micro-transfers have been initiated! The amounts will appear in your account within 1-2 business days. (Note: Email notification could not be sent - ' . $e->getMessage() . ')';
+            \Log::error('Failed to send bank account verification email: ' . $e->getMessage());
+            return back()->with('error', 'Could not send the verification email: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Verify by email link: mark account verified if token matches and not expired.
+     */
+    public function verifyByEmail(BankAccount $bankAccount, string $token)
+    {
+        if ($bankAccount->is_verified) {
+            return redirect()->route('bank-accounts.index')
+                ->with('info', 'This bank account is already verified.');
         }
 
-        return redirect()->route('bank-accounts.verify-form', $bankAccount)
-            ->with('info', $message)
-            ->with('micro_started', true);
+        if (!$bankAccount->verification_token || !hash_equals($bankAccount->verification_token, $token)) {
+            return redirect()->route('bank-accounts.index')->with('error', 'Invalid verification link.');
+        }
+
+        if ($bankAccount->verification_expires_at && $bankAccount->verification_expires_at->isPast()) {
+            return redirect()->route('bank-accounts.verify-form', $bankAccount)
+                ->with('error', 'Verification link has expired. Please resend the verification email.');
+        }
+
+        $bankAccount->update([
+            'is_verified' => true,
+            'verification_token' => null,
+        ]);
+
+        return redirect()->route('bank-accounts.index')->with('success', 'Bank account verified successfully!');
     }
 }

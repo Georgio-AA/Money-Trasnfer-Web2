@@ -58,6 +58,10 @@
                             
                             @if(!$account->is_verified)
                                 <a href="{{ route('bank-accounts.verify-form', $account) }}" class="btn btn-primary">Verify</a>
+                                <form action="{{ route('bank-accounts.send-verification-email', $account) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    <button type="submit" class="btn btn-secondary">Resend Email</button>
+                                </form>
                             @endif
                             
                             <form action="{{ route('bank-accounts.destroy', $account) }}" method="POST" style="display:inline;" 
