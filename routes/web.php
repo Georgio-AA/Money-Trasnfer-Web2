@@ -50,10 +50,10 @@ Route::middleware('auth.session')->group(function () {
     Route::put('/bank-accounts/{bankAccount}', [BankAccountController::class, 'update'])->name('bank-accounts.update');
     Route::delete('/bank-accounts/{bankAccount}', [BankAccountController::class, 'destroy'])->name('bank-accounts.destroy');
     
-    // Bank Account Verification Routes
+    // Bank Account Verification Routes (Email-only)
     Route::get('/bank-accounts/{bankAccount}/verify', [BankAccountController::class, 'showVerificationForm'])->name('bank-accounts.verify-form');
-    Route::post('/bank-accounts/{bankAccount}/verify', [BankAccountController::class, 'verify'])->name('bank-accounts.verify');
-    Route::post('/bank-accounts/{bankAccount}/start-micro-verification', [BankAccountController::class, 'startMicroTransferVerification'])->name('bank-accounts.start-micro-verification');
+    Route::post('/bank-accounts/{bankAccount}/send-verification-email', [BankAccountController::class, 'sendVerificationEmail'])->name('bank-accounts.send-verification-email');
+
 
    
 
@@ -65,6 +65,38 @@ Route::middleware('auth.session')->group(function () {
         return view('send');
     })->name('send');
 
+    // Transfer services search
+    Route::get('/transfer-services', [\App\Http\Controllers\TransferServiceController::class, 'index'])
+        ->name('transfer-services.index');
+
+    // Beneficiary Management Routes
+    Route::get('/beneficiaries', [\App\Http\Controllers\BeneficiaryController::class, 'index'])->name('beneficiaries.index');
+    Route::get('/beneficiaries/create', [\App\Http\Controllers\BeneficiaryController::class, 'create'])->name('beneficiaries.create');
+    Route::post('/beneficiaries', [\App\Http\Controllers\BeneficiaryController::class, 'store'])->name('beneficiaries.store');
+    Route::get('/beneficiaries/{id}', [\App\Http\Controllers\BeneficiaryController::class, 'show'])->name('beneficiaries.show');
+    Route::get('/beneficiaries/{id}/edit', [\App\Http\Controllers\BeneficiaryController::class, 'edit'])->name('beneficiaries.edit');
+    Route::put('/beneficiaries/{id}', [\App\Http\Controllers\BeneficiaryController::class, 'update'])->name('beneficiaries.update');
+    Route::delete('/beneficiaries/{id}', [\App\Http\Controllers\BeneficiaryController::class, 'destroy'])->name('beneficiaries.destroy');
+
+    // Wallet Routes
+    Route::get('/wallet', [\App\Http\Controllers\WalletController::class, 'index'])->name('wallet.index');
+    Route::get('/wallet/deposit', [\App\Http\Controllers\WalletController::class, 'showDepositForm'])->name('wallet.deposit.form');
+    Route::post('/wallet/deposit', [\App\Http\Controllers\WalletController::class, 'deposit'])->name('wallet.deposit');
+    Route::get('/wallet/withdraw', [\App\Http\Controllers\WalletController::class, 'showWithdrawForm'])->name('wallet.withdraw.form');
+    Route::post('/wallet/withdraw', [\App\Http\Controllers\WalletController::class, 'withdraw'])->name('wallet.withdraw');
+
+    // Money Transfer Routes
+    Route::get('/transfers', [\App\Http\Controllers\TransferController::class, 'index'])->name('transfers.index');
+    Route::get('/transfers/create', [\App\Http\Controllers\TransferController::class, 'create'])->name('transfers.create');
+    Route::post('/transfers', [\App\Http\Controllers\TransferController::class, 'store'])->name('transfers.store');
+    Route::get('/transfers/{id}', [\App\Http\Controllers\TransferController::class, 'show'])->name('transfers.show');
+    Route::post('/transfers/calculate-quote', [\App\Http\Controllers\TransferController::class, 'calculateQuote'])->name('transfers.calculate-quote');
+    Route::post('/transfers/{id}/update-status', [\App\Http\Controllers\TransferController::class, 'updateStatus'])->name('transfers.update-status');
+
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
+
+// Email verification link endpoint (does not require session)
+Route::get('/bank-accounts/verify-email/{bankAccount}/{token}', [BankAccountController::class, 'verifyByEmail'])
+    ->name('bank-accounts.verify-email');
 
