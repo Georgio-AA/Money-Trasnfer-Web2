@@ -11,13 +11,23 @@ class PaymentTransaction extends Model
 
     protected $fillable = [
         'transfer_id',
+        'user_id',
+        'transaction_type',
+        'amount',
+        'currency',
         'payment_method',
         'payment_reference',
         'status',
+        'description',
     ];
 
     public function transfer()
     {
         return $this->belongsTo(Transfer::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

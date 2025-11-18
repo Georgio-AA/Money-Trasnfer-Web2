@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\BankAccount;
+use App\Models\ExchangeRate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Mail;
@@ -55,7 +56,7 @@ class BankAccountController extends Controller
                 })
             ],
             'account_type' => 'nullable|string|in:checking,savings,business,current',
-            'currency' => 'required|string|size:3|in:USD,EUR,GBP,JPY,CAD,AUD,CHF,CNY,SEK,NZD,MXN,SGD,HKD,NOK,KRW,TRY,RUB,INR,BRL,ZAR'
+            'currency' => 'required|string|size:3|in:USD,EUR,GBP,JPY,CAD,AUD,CHF,CNY,SEK,NZD,MXN,SGD,HKD,NOK,KRW,TRY,RUB,INR,BRL,ZAR,LBP'
         ]);
 
         $validated['user_id'] = $user['id'];
@@ -132,8 +133,24 @@ class BankAccountController extends Controller
                 })->ignore($bankAccount->id)
             ],
             'account_type' => 'nullable|string|in:checking,savings,business,current',
-            'currency' => 'required|string|size:3|in:USD,EUR,GBP,JPY,CAD,AUD,CHF,CNY,SEK,NZD,MXN,SGD,HKD,NOK,KRW,TRY,RUB,INR,BRL,ZAR'
+            'currency' => 'required|string|size:3|in:USD,EUR,GBP,JPY,CAD,AUD,CHF,CNY,SEK,NZD,MXN,SGD,HKD,NOK,KRW,TRY,RUB,INR,BRL,ZAR,LBP'
         ]);
+
+        // Check if currency changed and convert balance
+        if ($bankAccount->currency !== $validated['currency']) {
+            $exchangeRate = ExchangeRate::where('base_currency', $bankAccount->currency)
+                ->where('target_currency', $validated['currency'])
+                ->first();
+            
+            if (!$exchangeRate) {
+                return back()->with('error', 
+                    'Cannot change currency: No exchange rate found from ' . $bankAccount->currency . 
+                    ' to ' . $validated['currency'] . '. Please contact support.');
+            }
+            
+            // Convert the balance to the new currency
+            $validated['balance'] = $bankAccount->balance * $exchangeRate->rate;
+        }
 
         // If account details are changed, mark as unverified
         if ($bankAccount->account_number !== $validated['account_number'] || 

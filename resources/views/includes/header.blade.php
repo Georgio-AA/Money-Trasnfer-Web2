@@ -16,6 +16,7 @@
                 <li><a href="{{ route('services') }}">Services</a></li>
                 <li><a href="{{ route('agents') }}">Agents</a></li>
                 @if(session()->has('user'))
+                    <li><a href="{{ route('wallet.index') }}" class="wallet-link">💰 My Wallet</a></li>
                     <li><a href="{{ route('transfers.create') }}" class="send-money-link">Send Money</a></li>
                     <li><a href="{{ route('transfers.index') }}">My Transfers</a></li>
                     <li><a href="{{ route('beneficiaries.index') }}">Beneficiaries</a></li>

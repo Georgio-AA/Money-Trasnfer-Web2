@@ -11,6 +11,15 @@
             <div class="alert alert-error">{{ session('error') }}</div>
         @endif
         
+        <!-- Balance Display -->
+        <div class="balance-card">
+            <div class="balance-icon">💰</div>
+            <div class="balance-info">
+                <span class="balance-label">Your Available Balance</span>
+                <span class="balance-amount">{{ session('user')['currency'] ?? 'USD' }} {{ number_format(session('user')['balance'] ?? 0, 2) }}</span>
+            </div>
+        </div>
+        
         <form method="POST" action="{{ route('transfers.store') }}" class="transfer-form" id="transferForm">
             @csrf
             
@@ -159,6 +168,11 @@
 .container{max-width:900px;margin:0 auto;padding:0 1rem}
 .alert{padding:1rem;border-radius:8px;margin-bottom:1.5rem}
 .alert-error{background:#fef2f2;border:1px solid #fecaca;color:#991b1b}
+.balance-card{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;padding:1.5rem;border-radius:12px;display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;box-shadow:0 4px 12px rgba(79,70,229,0.3)}
+.balance-icon{font-size:2.5rem}
+.balance-info{display:flex;flex-direction:column}
+.balance-label{font-size:0.875rem;opacity:0.9}
+.balance-amount{font-size:1.75rem;font-weight:700;margin-top:0.25rem}
 .transfer-form{background:#fff;padding:2rem;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
 .form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.5rem;margin-bottom:2rem}
 .form-group.full-width{grid-column:1/-1}

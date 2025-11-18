@@ -15,6 +15,7 @@ class BankAccount extends Model
         'account_number',
         'account_type',
         'currency',
+        'balance',
         'is_verified',
         'verification_document',
         'verification_token',

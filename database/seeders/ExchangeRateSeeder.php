@@ -9,49 +9,54 @@ class ExchangeRateSeeder extends Seeder
 {
     public function run(): void
     {
-        $rows = [
-            // USD to other currencies
-            ['base_currency' => 'USD', 'target_currency' => 'EUR', 'rate' => 0.92],
-            ['base_currency' => 'USD', 'target_currency' => 'GBP', 'rate' => 0.80],
-            ['base_currency' => 'USD', 'target_currency' => 'CAD', 'rate' => 1.35],
-            ['base_currency' => 'USD', 'target_currency' => 'AUD', 'rate' => 1.52],
-            ['base_currency' => 'USD', 'target_currency' => 'PHP', 'rate' => 56.0],
-            ['base_currency' => 'USD', 'target_currency' => 'INR', 'rate' => 83.0],
-            ['base_currency' => 'USD', 'target_currency' => 'PKR', 'rate' => 278.0],
-            ['base_currency' => 'USD', 'target_currency' => 'BDT', 'rate' => 109.5],
-            ['base_currency' => 'USD', 'target_currency' => 'NGN', 'rate' => 1500.0],
-            ['base_currency' => 'USD', 'target_currency' => 'KES', 'rate' => 129.0],
-            ['base_currency' => 'USD', 'target_currency' => 'GHS', 'rate' => 12.5],
-            ['base_currency' => 'USD', 'target_currency' => 'EGP', 'rate' => 30.9],
-            ['base_currency' => 'USD', 'target_currency' => 'MXN', 'rate' => 17.2],
-            ['base_currency' => 'USD', 'target_currency' => 'JPY', 'rate' => 149.5],
-            ['base_currency' => 'USD', 'target_currency' => 'CNY', 'rate' => 7.24],
-            ['base_currency' => 'USD', 'target_currency' => 'BRL', 'rate' => 4.98],
-            ['base_currency' => 'USD', 'target_currency' => 'ZAR', 'rate' => 18.5],
-            ['base_currency' => 'USD', 'target_currency' => 'AED', 'rate' => 3.67],
-            ['base_currency' => 'USD', 'target_currency' => 'SAR', 'rate' => 3.75],
-            ['base_currency' => 'USD', 'target_currency' => 'LBP', 'rate' => 89500.0],
-            
-            // EUR to other currencies
-            ['base_currency' => 'EUR', 'target_currency' => 'USD', 'rate' => 1.09],
-            ['base_currency' => 'EUR', 'target_currency' => 'GBP', 'rate' => 0.87],
-            ['base_currency' => 'EUR', 'target_currency' => 'INR', 'rate' => 90.3],
-            ['base_currency' => 'EUR', 'target_currency' => 'PHP', 'rate' => 60.9],
-            
-            // GBP to other currencies
-            ['base_currency' => 'GBP', 'target_currency' => 'USD', 'rate' => 1.25],
-            ['base_currency' => 'GBP', 'target_currency' => 'EUR', 'rate' => 1.15],
-            ['base_currency' => 'GBP', 'target_currency' => 'INR', 'rate' => 103.7],
-            ['base_currency' => 'GBP', 'target_currency' => 'PKR', 'rate' => 347.5],
-        ];
+        $currencies = ['USD', 'EUR', 'GBP', 'JPY', 'CAD', 'AUD', 'CHF', 'CNY', 'SEK', 'NZD', 'MXN', 'SGD', 'HKD', 'NOK', 'KRW', 'TRY', 'RUB', 'INR', 'BRL', 'ZAR', 'LBP'];
         
-        foreach ($rows as $r) {
-            ExchangeRate::updateOrCreate([
-                'base_currency' => $r['base_currency'],
-                'target_currency' => $r['target_currency'],
-            ], [
-                'rate' => $r['rate'],
-            ]);
+        // Exchange rates relative to 1 USD
+        $rates = [
+            'USD' => 1,
+            'EUR' => 0.92,
+            'GBP' => 0.79,
+            'JPY' => 149.50,
+            'CAD' => 1.36,
+            'AUD' => 1.53,
+            'CHF' => 0.88,
+            'CNY' => 7.24,
+            'SEK' => 10.87,
+            'NZD' => 1.67,
+            'MXN' => 17.12,
+            'SGD' => 1.35,
+            'HKD' => 7.83,
+            'NOK' => 10.92,
+            'KRW' => 1320.50,
+            'TRY' => 32.15,
+            'RUB' => 92.50,
+            'INR' => 83.12,
+            'BRL' => 4.97,
+            'ZAR' => 18.65,
+            'LBP' => 89500
+        ];
+
+        $count = 0;
+        foreach ($currencies as $base) {
+            foreach ($currencies as $target) {
+                if ($base !== $target) {
+                    // Calculate cross rate: how much target currency you get for 1 base currency
+                    $rate = $rates[$target] / $rates[$base];
+                    
+                    ExchangeRate::updateOrCreate(
+                        [
+                            'base_currency' => $base,
+                            'target_currency' => $target
+                        ],
+                        [
+                            'rate' => $rate
+                        ]
+                    );
+                    $count++;
+                }
+            }
         }
+        
+        echo "Created/Updated {$count} exchange rates for all currency pairs.\n";
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Beneficiary;
 use App\Models\BankAccount;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class BeneficiaryController extends Controller
@@ -45,12 +46,39 @@ class BeneficiaryController extends Controller
             'mobile_wallet_provider' => 'nullable|string|max:50',
         ]);
         
+        // Check if the phone number exists in the users table
+        $recipientUser = User::where('phone', $validated['phone_number'])->first();
+        
+        if (!$recipientUser) {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['phone_number' => 'This phone number is not registered in our system. The beneficiary must have an account to receive transfers.']);
+        }
+        
+        // Prevent adding yourself as beneficiary
+        if ($recipientUser->id == $user['id']) {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['phone_number' => 'You cannot add yourself as a beneficiary.']);
+        }
+        
+        // Check if beneficiary already exists for this user
+        $existingBeneficiary = Beneficiary::where('user_id', $user['id'])
+            ->where('phone_number', $validated['phone_number'])
+            ->first();
+        
+        if ($existingBeneficiary) {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['phone_number' => 'This beneficiary already exists in your list.']);
+        }
+        
         $validated['user_id'] = $user['id'];
         
         $beneficiary = Beneficiary::create($validated);
         
         return redirect()->route('beneficiaries.index')
-            ->with('success', 'Beneficiary added successfully!');
+            ->with('success', 'Beneficiary added successfully! They are registered in our system.');
     }
     
     public function show($id)
