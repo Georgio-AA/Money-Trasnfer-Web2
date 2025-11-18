@@ -64,6 +64,10 @@ Route::middleware('auth.session')->group(function () {
         return view('send');
     })->name('send');
 
+    // Transfer services search
+    Route::get('/transfer-services', [\App\Http\Controllers\TransferServiceController::class, 'index'])
+        ->name('transfer-services.index');
+
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
 
