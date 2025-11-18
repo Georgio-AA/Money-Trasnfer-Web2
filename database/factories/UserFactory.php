@@ -38,6 +38,7 @@ class UserFactory extends Factory
             'is_verified' => true,
             'role' => 'user',
             'remember_token' => Str::random(10),
+            'is_admin' => false,
         ];
     }
 

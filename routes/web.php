@@ -3,6 +3,12 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BankAccountController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\AgentApprovalController;
+use App\Http\Controllers\Admin\UserManagementController;
+use App\Http\Controllers\Admin\TransferManagementController;
+use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Admin\ComplianceController;
 use Illuminate\Support\Facades\Session;
 // -----------------------------
 // PUBLIC ROUTES (no login required)
@@ -96,6 +102,43 @@ Route::middleware('auth.session')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
 
+// -----------------------------
+// ADMIN ROUTES (requires auth.session + admin role)
+// -----------------------------
+Route::middleware(['auth.session', 'admin'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+        
+        // Agent Management
+        Route::get('/agents', [AgentApprovalController::class, 'index'])->name('agents.index');
+        Route::post('/agents/{agent}/approve', [AgentApprovalController::class, 'approve'])->name('agents.approve');
+        Route::post('/agents/{agent}/revoke', [AgentApprovalController::class, 'revoke'])->name('agents.revoke');
+        
+        // User Management
+        Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
+        Route::get('/users/{user}', [UserManagementController::class, 'show'])->name('users.show');
+        Route::get('/users/{user}/edit', [UserManagementController::class, 'edit'])->name('users.edit');
+        Route::put('/users/{user}', [UserManagementController::class, 'update'])->name('users.update');
+        Route::delete('/users/{user}', [UserManagementController::class, 'destroy'])->name('users.destroy');
+        
+        // Transfer Management
+        Route::get('/transfers', [TransferManagementController::class, 'index'])->name('transfers.index');
+        Route::get('/transfers/{transfer}', [TransferManagementController::class, 'show'])->name('transfers.show');
+        Route::post('/transfers/{transfer}/cancel', [TransferManagementController::class, 'cancel'])->name('transfers.cancel');
+        Route::post('/transfers/{transfer}/update-status', [TransferManagementController::class, 'updateStatus'])->name('transfers.updateStatus');
+        
+        // System Settings
+        Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
+        Route::post('/settings', [SettingsController::class, 'update'])->name('settings.update');
+        
+        // Compliance & Monitoring
+        Route::get('/compliance', [ComplianceController::class, 'index'])->name('compliance');
+        Route::post('/compliance/flag/{transfer}', [ComplianceController::class, 'flagTransaction'])->name('compliance.flag');
+        Route::post('/compliance/resolve/{alertId}', [ComplianceController::class, 'resolveAlert'])->name('compliance.resolve');
+        Route::get('/audit-log', [ComplianceController::class, 'auditLog'])->name('audit-log');
+    });
 // Email verification link endpoint (does not require session)
 Route::get('/bank-accounts/verify-email/{bankAccount}/{token}', [BankAccountController::class, 'verifyByEmail'])
     ->name('bank-accounts.verify-email');

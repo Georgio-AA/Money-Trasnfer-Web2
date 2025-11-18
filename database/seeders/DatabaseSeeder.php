@@ -22,10 +22,10 @@ class DatabaseSeeder extends Seeder
             'email' => 'test@example.com',
         ]);
 
-        // Seed transfer services
-        $this->call([
-            TransferServiceSeeder::class,
-            ExchangeRateSeeder::class,
+        User::factory()->create([
+            'name' => 'Admin User',
+            'email' => 'admin@example.com',
+            'is_admin' => true,
         ]);
     }
 }
