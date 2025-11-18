@@ -7,29 +7,28 @@
 
 <section class="filters">
     <div class="container">
-        <form method="GET" action="{{ route('transfer-services.index') }}" class="filter-form">
+        <form method="GET" action="{{ route('transfer-services.index') }}" class="filter-form" onsubmit="return true;">
             <div class="grid">
                 <div class="field">
-                    <label>Source Currency</label>
-                    <input type="text" name="source_currency" value="{{ $filters['source_currency'] }}" placeholder="USD">
-                </div>
-                <div class="field">
-                    <label>Destination Currency</label>
-                    <input type="text" name="target_currency" value="{{ $filters['target_currency'] }}" placeholder="EUR">
-                </div>
-                <div class="field">
                     <label>Destination Country</label>
-                    <input type="text" name="destination_country" value="{{ $filters['destination_country'] }}" placeholder="FR">
+                    <select name="destination_country" id="dest-country">
+                        <option value="">Any</option>
+                        @foreach($countries as $code=>$name)
+                            <option value="{{ $code }}" {{ $filters['destination_country']===$code ? 'selected' : '' }}>{{ $name }} ({{ $code }})</option>
+                        @endforeach
+                    </select>
+                    <small class="hint">Pick where the money will be received.</small>
                 </div>
                 <div class="field">
-                    <label>Max Fee %</label>
-                    <input type="number" step="0.01" name="max_fee_percent" value="{{ $filters['max_fee_percent'] }}" placeholder="e.g. 2.5">
+                    <label>Transfer fees and exchange rates</label>
+                    <input type="text" name="fees_rates" value="{{ $filters['fees_rates'] ?? '' }}" placeholder="e.g. 2.5% or 'cheap/best rate' or 'low fees'">
+                    <small class="hint">Enter a percent (like 2.5%) or words like 'cheap', 'best rate'.</small>
                 </div>
                 <div class="field">
                     <label>Transfer Speed</label>
                     <select name="speed">
                         <option value="">Any</option>
-                        @foreach(['instant'=>'Instant','same_day'=>'Same Day','next_day'=>'Next Day','standard'=>'Standard'] as $k=>$v)
+                        @foreach($speeds as $k=>$v)
                             <option value="{{ $k }}" {{ $filters['speed']===$k ? 'selected' : '' }}>{{ $v }}</option>
                         @endforeach
                     </select>
@@ -38,7 +37,7 @@
                     <label>Payout Method</label>
                     <select name="payout_method">
                         <option value="">Any</option>
-                        @foreach(['bank_deposit'=>'Bank Deposit','cash_pickup'=>'Cash Pickup','mobile_wallet'=>'Mobile Wallet'] as $k=>$v)
+                        @foreach($payoutMethods as $k=>$v)
                             <option value="{{ $k }}" {{ $filters['payout_method']===$k ? 'selected' : '' }}>{{ $v }}</option>
                         @endforeach
                     </select>
@@ -49,12 +48,12 @@
                     </label>
                 </div>
             </div>
-            <button class="btn btn-primary" type="submit">Search</button>
+            <div class="actions">
+                <button class="btn btn-primary" type="submit">Search</button>
+                <a class="btn btn-secondary" href="{{ route('transfer-services.index') }}">Clear</a>
+            </div>
         </form>
 
-        @if($midRate)
-            <div class="midrate">Mid-market rate {{ $filters['source_currency'] }}→{{ $filters['target_currency'] }}: <strong>{{ $midRate }}</strong></div>
-        @endif
     </div>
 </section>
 
@@ -74,16 +73,35 @@
                             <div><strong>Speed:</strong> {{ str_replace('_',' ',ucfirst($svc->transfer_speed)) }}</div>
                             <div><strong>Fees:</strong> {{ rtrim(rtrim(number_format($svc->fee_percent,2), '0'),'.') }}% + {{ number_format($svc->fee_fixed,2) }}</div>
                             <div><strong>Payout:</strong> {{ implode(', ', array_map('ucwords', str_replace('_',' ', $svc->payout_methods ?? []))) }}</div>
-                            @if($svc->indicative_rate)
-                                <div><strong>Indicative Rate:</strong> {{ $filters['source_currency'] }}→{{ $filters['target_currency'] }} = {{ $svc->indicative_rate }}</div>
-                            @endif
+                            <div><strong>FX Margin:</strong> {{ number_format($svc->fx_margin_percent ?? 0,2) }}%</div>
                             <div class="meta">Supports: {{ implode(', ', $svc->destination_countries ?? []) }}</div>
                         </div>
                     </div>
                 @endforeach
             </div>
         @else
-            <div class="empty">No services match your filters. Try broadening your search.</div>
+            <div class="empty">No exact matches. Try broadening your search or check these suggested services:</div>
+            @if(isset($suggested) && $suggested->count())
+                <div class="cards">
+                    @foreach($suggested as $svc)
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>{{ $svc->name }}</h3>
+                                @if($svc->has_promotions)
+                                    <span class="badge promo">Promo</span>
+                                @endif
+                            </div>
+                            <div class="card-body">
+                                <div><strong>Speed:</strong> {{ str_replace('_',' ',ucfirst($svc->transfer_speed)) }}</div>
+                                <div><strong>Fees:</strong> {{ rtrim(rtrim(number_format($svc->fee_percent,2), '0'),'.') }}% + {{ number_format($svc->fee_fixed,2) }}</div>
+                                <div><strong>Payout:</strong> {{ implode(', ', array_map('ucwords', str_replace('_',' ', $svc->payout_methods ?? []))) }}</div>
+                                <div><strong>FX Margin:</strong> {{ number_format($svc->fx_margin_percent ?? 0,2) }}%</div>
+                                <div class="meta">Supports: {{ implode(', ', $svc->destination_countries ?? []) }}</div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
         @endif
     </div>
 </section>
@@ -94,16 +112,23 @@
 .filter-form .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:12px}
 .field label{display:block;font-weight:600;margin-bottom:6px}
 .field input,.field select{width:100%;padding:.5rem;border:1px solid #e5e7eb;border-radius:6px}
+.hint{color:#6b7280;font-size:.8rem}
+.actions{margin-top:.5rem;display:flex;gap:.5rem}
+.presets{display:none}
 .field.checkbox{display:flex;align-items:end}
 .btn{padding:.6rem 1rem;border:none;border-radius:8px;cursor:pointer}
 .btn-primary{background:#2563eb;color:#fff}
+.btn-secondary{background:#6b7280;color:#fff}
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
 .card{border:1px solid #e5e7eb;border-radius:10px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.06)}
 .card-header{display:flex;justify-content:space-between;align-items:center;padding:.9rem 1rem;border-bottom:1px solid #f3f4f6}
 .card-body{padding:1rem;color:#374151}
+.estimate{display:none}
 .badge.promo{background:#fde68a;color:#92400e;border-radius:999px;padding:.2rem .6rem;font-size:.8rem}
-.midrate{margin:.75rem 0;color:#1f2937}
+.midrate{display:none}
 .empty{padding:2rem;text-align:center;color:#6b7280}
 </style>
+
+<script></script>
 
 @include('includes.footer')

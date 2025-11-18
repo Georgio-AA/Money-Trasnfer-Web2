@@ -18,6 +18,7 @@
                 <li><a href="{{ route('send') }}">Send Money</a></li>
                 @if(session()->has('user'))
                     <li><a href="{{ route('bank-accounts.index') }}">My Accounts</a></li>
+                    <li><a href="{{ route('transfer-services.index') }}">Transfer Services</a></li>
                 @endif
 
                 @if(session()->has('user'))
