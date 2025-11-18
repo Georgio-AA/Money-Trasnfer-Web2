@@ -14,6 +14,12 @@
                 </div>
             @endif
 
+            @if(session('error'))
+                <div class="alert alert-error">
+                    {{ session('error') }}
+                </div>
+            @endif
+
             <form action="{{ route('bank-accounts.update', $bankAccount) }}" method="POST">
                 @csrf
                 @method('PUT')
@@ -72,6 +78,7 @@
                         <option value="INR" {{ old('currency', $bankAccount->currency) == 'INR' ? 'selected' : '' }}>INR - Indian Rupee</option>
                         <option value="BRL" {{ old('currency', $bankAccount->currency) == 'BRL' ? 'selected' : '' }}>BRL - Brazilian Real</option>
                         <option value="ZAR" {{ old('currency', $bankAccount->currency) == 'ZAR' ? 'selected' : '' }}>ZAR - South African Rand</option>
+                        <option value="LBP" {{ old('currency', $bankAccount->currency) == 'LBP' ? 'selected' : '' }}>LBP - Lebanese Pound</option>
                     </select>
                     @error('currency')
                         <span class="error-text">{{ $message }}</span>
@@ -231,6 +238,12 @@
     background-color: #d1fae5;
     color: #065f46;
     border: 1px solid #a7f3d0;
+}
+
+.alert-error {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
 }
 
 @media (max-width: 768px) {

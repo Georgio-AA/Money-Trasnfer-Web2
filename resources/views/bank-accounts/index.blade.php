@@ -49,6 +49,7 @@
                             <p><strong>Account Number:</strong> ****{{ substr($account->account_number, -4) }}</p>
                             <p><strong>Account Type:</strong> {{ ucfirst($account->account_type) ?? 'Not specified' }}</p>
                             <p><strong>Currency:</strong> {{ $account->currency }}</p>
+                            <p><strong>Balance:</strong> <span class="account-balance">{{ $account->currency }} {{ number_format($account->balance, 2) }}</span></p>
                             <p><strong>Added:</strong> {{ $account->created_at->format('M d, Y') }}</p>
                         </div>
 
@@ -58,6 +59,10 @@
                             
                             @if(!$account->is_verified)
                                 <a href="{{ route('bank-accounts.verify-form', $account) }}" class="btn btn-primary">Verify</a>
+                                <form action="{{ route('bank-accounts.send-verification-email', $account) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    <button type="submit" class="btn btn-secondary">Resend Email</button>
+                                </form>
                             @endif
                             
                             <form action="{{ route('bank-accounts.destroy', $account) }}" method="POST" style="display:inline;" 
@@ -154,6 +159,11 @@
     color: #92400e;
 }
 
+.status.primary {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
 .account-details {
     margin-bottom: 1.5rem;
 }
@@ -161,6 +171,12 @@
 .account-details p {
     margin: 0.5rem 0;
     color: #6b7280;
+}
+
+.account-balance {
+    color: #059669;
+    font-weight: 700;
+    font-size: 1.1rem;
 }
 
 .account-actions {
@@ -188,6 +204,23 @@
 
 .btn-primary:hover {
     background-color: #2563eb;
+}
+
+.btn-primary-action {
+    background-color: #f59e0b;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-primary-action:hover {
+    background-color: #d97706;
 }
 
 .btn-secondary {

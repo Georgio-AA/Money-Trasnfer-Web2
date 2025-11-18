@@ -3,7 +3,11 @@
 <section class="hero">
     <h1>Fast, Secure, and Affordable Money Transfers Worldwide</h1>
     <p>Send money to your loved ones anywhere in the world with the best exchange rates and lowest fees.</p>
-    <a href="send.php" class="cta-btn">Start Sending Now</a>
+    @if(session()->has('user'))
+        <a href="{{ route('transfers.create') }}" class="cta-btn">Start Sending Now</a>
+    @else
+        <a href="{{ route('login') }}" class="cta-btn">Start Sending Now</a>
+    @endif
 </section>
 
 <section class="features">

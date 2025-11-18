@@ -65,6 +65,7 @@
                         <option value="INR" {{ old('currency') == 'INR' ? 'selected' : '' }}>INR - Indian Rupee</option>
                         <option value="BRL" {{ old('currency') == 'BRL' ? 'selected' : '' }}>BRL - Brazilian Real</option>
                         <option value="ZAR" {{ old('currency') == 'ZAR' ? 'selected' : '' }}>ZAR - South African Rand</option>
+                        <option value="LBP" {{ old('currency') == 'LBP' ? 'selected' : '' }}>LBP - Lebanese Pound</option>
                     </select>
                     @error('currency')
                         <span class="error-text">{{ $message }}</span>

@@ -15,19 +15,23 @@ class BankAccount extends Model
         'account_number',
         'account_type',
         'currency',
+        'balance',
         'is_verified',
         'verification_document',
+        'verification_token',
         'micro_amount_1',
         'micro_amount_2',
         'micro_transfer_sent_at',
         'verification_expires_at',
-        'verification_attempts'
+        'verification_attempts',
+        'verification_sent_at'
     ];
 
     protected $casts = [
         'is_verified' => 'boolean',
         'micro_transfer_sent_at' => 'datetime',
         'verification_expires_at' => 'datetime',
+        'verification_sent_at' => 'datetime',
     ];
 
     public function user()

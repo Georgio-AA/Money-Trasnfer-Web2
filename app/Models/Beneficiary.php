@@ -9,7 +9,21 @@ class Beneficiary extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id','full_name','country','bank_account_id','preferred_payout_method'];
+    protected $fillable = [
+        'user_id',
+        'full_name',
+        'phone_number',
+        'email',
+        'relationship',
+        'country',
+        'address',
+        'city',
+        'postal_code',
+        'bank_account_id',
+        'mobile_wallet_number',
+        'mobile_wallet_provider',
+        'preferred_payout_method'
+    ];
 
     public function user()
     {
