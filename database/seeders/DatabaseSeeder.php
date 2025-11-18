@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
         // Seed transfer services
         $this->call([
             TransferServiceSeeder::class,
+            ExchangeRateSeeder::class,
         ]);
     }
 }

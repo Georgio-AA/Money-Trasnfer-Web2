@@ -68,6 +68,22 @@ Route::middleware('auth.session')->group(function () {
     Route::get('/transfer-services', [\App\Http\Controllers\TransferServiceController::class, 'index'])
         ->name('transfer-services.index');
 
+    // Beneficiary Management Routes
+    Route::get('/beneficiaries', [\App\Http\Controllers\BeneficiaryController::class, 'index'])->name('beneficiaries.index');
+    Route::get('/beneficiaries/create', [\App\Http\Controllers\BeneficiaryController::class, 'create'])->name('beneficiaries.create');
+    Route::post('/beneficiaries', [\App\Http\Controllers\BeneficiaryController::class, 'store'])->name('beneficiaries.store');
+    Route::get('/beneficiaries/{id}', [\App\Http\Controllers\BeneficiaryController::class, 'show'])->name('beneficiaries.show');
+    Route::get('/beneficiaries/{id}/edit', [\App\Http\Controllers\BeneficiaryController::class, 'edit'])->name('beneficiaries.edit');
+    Route::put('/beneficiaries/{id}', [\App\Http\Controllers\BeneficiaryController::class, 'update'])->name('beneficiaries.update');
+    Route::delete('/beneficiaries/{id}', [\App\Http\Controllers\BeneficiaryController::class, 'destroy'])->name('beneficiaries.destroy');
+
+    // Money Transfer Routes
+    Route::get('/transfers', [\App\Http\Controllers\TransferController::class, 'index'])->name('transfers.index');
+    Route::get('/transfers/create', [\App\Http\Controllers\TransferController::class, 'create'])->name('transfers.create');
+    Route::post('/transfers', [\App\Http\Controllers\TransferController::class, 'store'])->name('transfers.store');
+    Route::get('/transfers/{id}', [\App\Http\Controllers\TransferController::class, 'show'])->name('transfers.show');
+    Route::post('/transfers/calculate-quote', [\App\Http\Controllers\TransferController::class, 'calculateQuote'])->name('transfers.calculate-quote');
+
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
 
