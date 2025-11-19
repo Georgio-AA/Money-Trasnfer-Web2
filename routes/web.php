@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Admin\TransferManagementController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\ComplianceController;
+use App\Http\Controllers\Admin\ExchangeRateController;
 use Illuminate\Support\Facades\Session;
 // -----------------------------
 // PUBLIC ROUTES (no login required)
@@ -138,6 +139,14 @@ Route::middleware(['auth.session', 'admin'])
         Route::post('/compliance/flag/{transfer}', [ComplianceController::class, 'flagTransaction'])->name('compliance.flag');
         Route::post('/compliance/resolve/{alertId}', [ComplianceController::class, 'resolveAlert'])->name('compliance.resolve');
         Route::get('/audit-log', [ComplianceController::class, 'auditLog'])->name('audit-log');
+        
+        // Exchange Rates & Fee Management
+        Route::get('/exchange-rates', [ExchangeRateController::class, 'index'])->name('exchange-rates');
+        Route::post('/exchange-rates/update-rate', [ExchangeRateController::class, 'updateRate'])->name('exchange-rates.update-rate');
+        Route::delete('/exchange-rates/delete-rate/{key}', [ExchangeRateController::class, 'deleteRate'])->name('exchange-rates.delete-rate');
+        Route::post('/exchange-rates/update-fee', [ExchangeRateController::class, 'updateFee'])->name('exchange-rates.update-fee');
+        Route::delete('/exchange-rates/delete-fee/{currency}', [ExchangeRateController::class, 'deleteFee'])->name('exchange-rates.delete-fee');
+        Route::post('/exchange-rates/sync', [ExchangeRateController::class, 'syncRates'])->name('exchange-rates.sync');
     });
 // Email verification link endpoint (does not require session)
 Route::get('/bank-accounts/verify-email/{bankAccount}/{token}', [BankAccountController::class, 'verifyByEmail'])

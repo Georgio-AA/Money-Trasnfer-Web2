@@ -9,6 +9,7 @@ use App\Models\TransferService;
 use App\Models\Promotion;
 use App\Models\User;
 use App\Models\PaymentTransaction;
+use App\Http\Controllers\Admin\ExchangeRateController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -238,11 +239,12 @@ class TransferController extends Controller
         return view('transfers.index', compact('transfers'));
     }
     
-    private function calculateFee($amount, $speed)
+    private function calculateFee($amount, $speed, $currency = 'USD')
     {
-        // Base fee calculation - adjust as needed
-        $baseFee = 2.99;
+        // Use the ExchangeRateController to calculate base fee
+        $baseFee = ExchangeRateController::calculateFee($amount, $currency);
         
+        // Apply speed multiplier
         switch ($speed) {
             case 'instant':
                 $speedMultiplier = 2.0;
@@ -257,9 +259,7 @@ class TransferController extends Controller
                 $speedMultiplier = 1.0;
         }
         
-        $percentageFee = $amount * 0.01; // 1% of amount
-        
-        return ($baseFee + $percentageFee) * $speedMultiplier;
+        return $baseFee * $speedMultiplier;
     }
     
     public function calculateQuote(Request $request)
@@ -271,33 +271,27 @@ class TransferController extends Controller
             'transfer_speed' => 'required|string',
         ]);
         
-        // Get exchange rate
-        if ($validated['source_currency'] === $validated['target_currency']) {
-            // Same currency, no conversion needed
-            $rate = 1.0;
-        } else {
-            $exchangeRate = ExchangeRate::where('base_currency', $validated['source_currency'])
-                ->where('target_currency', $validated['target_currency'])
-                ->first();
-            
-            if (!$exchangeRate) {
-                return response()->json(['error' => 'Exchange rate not available'], 404);
-            }
-            
-            $rate = $exchangeRate->rate;
-        }
-        
         $amount = $validated['amount'];
-        $fee = $this->calculateFee($amount, $validated['transfer_speed']);
+        $sourceCurrency = $validated['source_currency'];
+        $targetCurrency = $validated['target_currency'];
+        
+        // Get exchange rate from ExchangeRateController
+        $rate = ExchangeRateController::getRate($sourceCurrency, $targetCurrency);
+        
+        // Calculate fee using ExchangeRateController
+        $fee = $this->calculateFee($amount, $validated['transfer_speed'], $sourceCurrency);
+        
         $totalPaid = $amount + $fee;
         $payoutAmount = $amount * $rate;
         
         return response()->json([
             'amount' => number_format($amount, 2),
-            'exchange_rate' => number_format($rate, 4),
+            'exchange_rate' => number_format($rate, 6),
             'transfer_fee' => number_format($fee, 2),
             'total_paid' => number_format($totalPaid, 2),
             'payout_amount' => number_format($payoutAmount, 2),
+            'source_currency' => $sourceCurrency,
+            'target_currency' => $targetCurrency,
         ]);
     }
     

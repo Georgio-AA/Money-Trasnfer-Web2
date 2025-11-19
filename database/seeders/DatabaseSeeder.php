@@ -20,12 +20,16 @@ class DatabaseSeeder extends Seeder
         User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
+            'is_verified' => true,
+            'role' => 'user',
         ]);
 
         User::factory()->create([
             'name' => 'Admin User',
             'email' => 'admin@example.com',
+            'is_verified' => true,
             'is_admin' => true,
+            'role' => 'admin',
         ]);
     }
 }
