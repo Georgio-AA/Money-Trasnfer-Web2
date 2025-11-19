@@ -27,6 +27,8 @@ class User extends Authenticatable
                 'verification_token',
                 'verification_due',
                 'is_verified',
+                'password_reset_token',
+                'password_reset_due',
     ];
 
     /**
@@ -47,6 +49,7 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'verification_due' => 'datetime',
+        'password_reset_due' => 'datetime',
         'is_verified' => 'boolean',
 
         'password' => 'hashed',

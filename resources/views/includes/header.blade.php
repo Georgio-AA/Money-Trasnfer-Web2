@@ -19,7 +19,7 @@
 
                 @if(session()->has('user'))
                     {{-- User is logged in --}}
-                    <li>Welcome, {{ session('user.name') }}</li>
+                    <li><a href="{{ route('profile') }}" style="color: inherit; text-decoration: none;">Welcome, {{ session('user.name') }}</a></li>
                     <li>
                         <form action="{{ route('logout') }}" method="POST" style="display:inline;">
                             @csrf
