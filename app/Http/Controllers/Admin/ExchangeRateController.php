@@ -158,10 +158,14 @@ class ExchangeRateController extends Controller
             'USD_CAD' => ['from' => 'USD', 'to' => 'CAD', 'rate' => 1.36, 'updated_at' => now()->toDateTimeString()],
             'USD_AUD' => ['from' => 'USD', 'to' => 'AUD', 'rate' => 1.52, 'updated_at' => now()->toDateTimeString()],
             'USD_JPY' => ['from' => 'USD', 'to' => 'JPY', 'rate' => 149.50, 'updated_at' => now()->toDateTimeString()],
+            'USD_LBP' => ['from' => 'USD', 'to' => 'LBP', 'rate' => 89500.00, 'updated_at' => now()->toDateTimeString()],
             'EUR_USD' => ['from' => 'EUR', 'to' => 'USD', 'rate' => 1.09, 'updated_at' => now()->toDateTimeString()],
             'EUR_GBP' => ['from' => 'EUR', 'to' => 'GBP', 'rate' => 0.86, 'updated_at' => now()->toDateTimeString()],
+            'EUR_LBP' => ['from' => 'EUR', 'to' => 'LBP', 'rate' => 97500.00, 'updated_at' => now()->toDateTimeString()],
             'GBP_USD' => ['from' => 'GBP', 'to' => 'USD', 'rate' => 1.27, 'updated_at' => now()->toDateTimeString()],
             'GBP_EUR' => ['from' => 'GBP', 'to' => 'EUR', 'rate' => 1.16, 'updated_at' => now()->toDateTimeString()],
+            'LBP_USD' => ['from' => 'LBP', 'to' => 'USD', 'rate' => 0.000011, 'updated_at' => now()->toDateTimeString()],
+            'LBP_EUR' => ['from' => 'LBP', 'to' => 'EUR', 'rate' => 0.000010, 'updated_at' => now()->toDateTimeString()],
         ];
 
         File::put($this->ratesFile, json_encode($defaults, JSON_PRETTY_PRINT));
@@ -208,6 +212,15 @@ class ExchangeRateController extends Controller
                 'max_fee' => 65.00,
                 'updated_at' => now()->toDateTimeString(),
             ],
+            'LBP' => [
+                'currency' => 'LBP',
+                'fee_type' => 'percentage',
+                'fee_percentage' => 3.0,
+                'fee_fixed' => 100000.00,
+                'min_fee' => 50000.00,
+                'max_fee' => 5000000.00,
+                'updated_at' => now()->toDateTimeString(),
+            ],
         ];
 
         File::put($this->feesFile, json_encode($defaults, JSON_PRETTY_PRINT));
@@ -224,6 +237,7 @@ class ExchangeRateController extends Controller
             'CAD' => 'Canadian Dollar',
             'AUD' => 'Australian Dollar',
             'JPY' => 'Japanese Yen',
+            'LBP' => 'Lebanese Pound',
             'CHF' => 'Swiss Franc',
             'CNY' => 'Chinese Yuan',
             'INR' => 'Indian Rupee',
