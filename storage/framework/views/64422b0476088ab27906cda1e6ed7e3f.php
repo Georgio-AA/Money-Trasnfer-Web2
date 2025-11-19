@@ -15,12 +15,19 @@
                 <li><a href="<?php echo e(route('home')); ?>">Home</a></li>
                 <li><a href="<?php echo e(route('services')); ?>">Services</a></li>
                 <li><a href="<?php echo e(route('agents')); ?>">Agents</a></li>
-                <li><a href="<?php echo e(route('send')); ?>">Send Money</a></li>
                 <?php if(session()->has('user')): ?>
+                    <li><a href="<?php echo e(route('wallet.index')); ?>" class="wallet-link">💰 My Wallet</a></li>
+                    <li><a href="<?php echo e(route('transfers.create')); ?>" class="send-money-link">Send Money</a></li>
+                    <li><a href="<?php echo e(route('transfers.index')); ?>">My Transfers</a></li>
+                    <li><a href="<?php echo e(route('beneficiaries.index')); ?>">Beneficiaries</a></li>
                     <li><a href="<?php echo e(route('bank-accounts.index')); ?>">My Accounts</a></li>
+                    <li><a href="<?php echo e(route('support.index')); ?>">Support</a></li>
                     <?php if(session('user.role') === 'admin'): ?>
                         <li><a href="<?php echo e(route('admin.dashboard')); ?>" style="color: #f59e0b; font-weight: 600;">Admin Panel</a></li>
                     <?php endif; ?>
+                    <li><a href="<?php echo e(route('transfer-services.index')); ?>">Transfer Services</a></li>
+                <?php else: ?>
+                    <li><a href="<?php echo e(route('login')); ?>">Send Money</a></li>
                 <?php endif; ?>
 
                 <?php if(session()->has('user')): ?>

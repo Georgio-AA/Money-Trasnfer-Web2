@@ -29,6 +29,11 @@ class SupportController extends Controller
     public function index()
     {
         $user = session('user');
+        
+        if (!$user) {
+            return redirect()->route('login')->with('error', 'Please log in to access support');
+        }
+        
         $tickets = $this->getUserTickets($user['id']);
         
         return view('support.index', compact('tickets'));
@@ -166,81 +171,150 @@ class SupportController extends Controller
     // Generate bot response based on keywords
     protected function generateBotResponse($message)
     {
-        $message = strtolower($message);
+        $message = strtolower(trim($message));
+        
+        // Remove extra spaces
+        $message = preg_replace('/\s+/', ' ', $message);
 
-        // Transfer-related queries
-        if (strpos($message, 'transfer') !== false || strpos($message, 'send money') !== false) {
-            if (strpos($message, 'how') !== false) {
-                return "To send money, go to the 'Send' page, select a beneficiary, enter the amount, and choose your transfer speed. We support multiple currencies with competitive exchange rates!";
-            }
-            if (strpos($message, 'fee') !== false || strpos($message, 'cost') !== false) {
-                return "Transfer fees vary by currency and amount. Typically 2.5% with a minimum fee of $1. You can see the exact fee before confirming your transfer.";
-            }
-            if (strpos($message, 'time') !== false || strpos($message, 'long') !== false) {
-                return "Transfer speeds: Standard (1-3 days), Next Day, Same Day, or Instant. Choose the speed that works best for you!";
-            }
-            return "Our transfer service allows you to send money worldwide quickly and securely. What specific aspect would you like to know more about?";
+        // Check for specific questions first (most specific to least specific)
+        
+        // Greeting (check first to respond quickly)
+        if (preg_match('/^(hello|hi|hey|good morning|good afternoon|good evening|greetings)/', $message)) {
+            $responses = [
+                "Hello! 👋 I'm your SwiftPay assistant. How can I help you today?",
+                "Hi there! 😊 Welcome to SwiftPay support. What would you like to know?",
+                "Hey! 👋 I'm here to help with any questions about transfers, accounts, or anything else!",
+            ];
+            return $responses[array_rand($responses)];
+        }
+        
+        // Thanks
+        if (preg_match('/(thank you|thanks|thx|appreciate)/', $message)) {
+            $responses = [
+                "You're welcome! 😊 Anything else I can help with?",
+                "Happy to help! Is there anything else you'd like to know?",
+                "My pleasure! Feel free to ask if you have more questions.",
+            ];
+            return $responses[array_rand($responses)];
+        }
+        
+        // Goodbye
+        if (preg_match('/(bye|goodbye|see you|good night|cya)/', $message)) {
+            return "Goodbye! 👋 Feel free to come back anytime you need help. Have a great day!";
         }
 
-        // Account-related queries
-        if (strpos($message, 'account') !== false || strpos($message, 'profile') !== false) {
-            if (strpos($message, 'verify') !== false || strpos($message, 'verification') !== false) {
-                return "To verify your account, check your email for the verification link we sent during registration. If you didn't receive it, you can request a new one.";
-            }
-            if (strpos($message, 'password') !== false || strpos($message, 'reset') !== false) {
-                return "To reset your password, click 'Forgot Password' on the login page. We'll send you a reset link via email.";
-            }
-            return "You can manage your account settings from your profile page. Need help with something specific?";
+        // HOW TO SEND MONEY - Most common question
+        if (preg_match('/(how.*send|how.*transfer|send.*money|make.*transfer|steps.*send)/', $message)) {
+            return "📝 **How to Send Money (Step-by-Step):**\n\n1. Click 'Send Money' in the navigation menu\n2. Select or add a beneficiary (recipient)\n3. Enter the amount you want to send\n4. Choose your currency (USD, EUR, GBP, CAD, LBP, etc.)\n5. Select transfer speed (Instant, Same Day, Next Day, or Standard)\n6. Review the exchange rate and fees\n7. Confirm your transfer\n\n💡 **Pro Tip:** Add beneficiaries once, then send them money quickly anytime!\n\nNeed help with any specific step?";
         }
 
-        // Bank account queries
-        if (strpos($message, 'bank') !== false) {
-            if (strpos($message, 'add') !== false || strpos($message, 'link') !== false) {
-                return "You can add a bank account by going to Bank Accounts → Add New Account. You'll need to verify it via email for security.";
-            }
-            if (strpos($message, 'verify') !== false) {
-                return "Bank account verification is done via email. We'll send you a verification link to confirm ownership of the account.";
-            }
-            return "Bank accounts can be added and managed from the Bank Accounts section. Each account needs to be verified for security.";
+        // FEES - Very common question
+        if (preg_match('/(what.*fee|how much.*cost|transfer.*fee|fee.*transfer|charge|price|cost.*transfer)/', $message) && !preg_match('/(rate|exchange)/', $message)) {
+            return "💰 **Transfer Fees Explained:**\n\n• **Base Fee:** 2.5% of transfer amount\n• **Minimum:** $1 USD (varies by currency)\n• **Maximum:** $50 USD (varies by currency)\n\n**Speed Multipliers:**\n• Standard (1-3 days): 1x - No extra charge ✅\n• Next Day: 1.2x fee\n• Same Day: 1.5x fee  \n• Instant: 2x fee\n\n**Example:**\n$100 transfer = $2.50 base fee\n• Standard: $2.50\n• Instant: $5.00\n\n💡 **You'll see the exact fee BEFORE confirming!**\n\nWant to know about a specific currency?";
         }
 
-        // Beneficiary queries
-        if (strpos($message, 'beneficiary') !== false || strpos($message, 'recipient') !== false) {
-            return "You can add beneficiaries (recipients) from the Beneficiaries page. Save their details once, then send them money anytime!";
+        // TRANSFER SPEED/TIME
+        if (preg_match('/(how long|how fast|transfer.*time|speed|instant|same day|next day|standard)/', $message) && preg_match('/(transfer|send|money)/', $message)) {
+            return "⏱️ **Transfer Speed Options:**\n\n🐢 **Standard** (1-3 business days)\n   • Lowest fee (base rate)\n   • Best for non-urgent transfers\n\n📅 **Next Day** (Next business day)\n   • 1.2x fee\n   • Arrives tomorrow\n\n⚡ **Same Day** (Within 24 hours)\n   • 1.5x fee\n   • Arrives today\n\n🚀 **Instant** (Minutes)\n   • 2x fee  \n   • Arrives almost immediately\n\n💡 **Choose based on your urgency!** Faster speeds cost more but money arrives quicker.\n\nWhat speed works best for you?";
         }
 
-        // Exchange rate queries
-        if (strpos($message, 'rate') !== false || strpos($message, 'exchange') !== false) {
-            return "We offer competitive exchange rates for all major currencies including USD, EUR, GBP, CAD, and LBP. Rates are updated regularly and displayed during the transfer process.";
+        // EXCHANGE RATES
+        if (preg_match('/(exchange rate|currency rate|conversion|usd.*eur|eur.*usd|rate.*currency)/', $message)) {
+            return "💱 **Exchange Rates:**\n\nWe support multiple currencies:\n• 🇺🇸 USD (US Dollar)\n• 🇪🇺 EUR (Euro)\n• 🇬🇧 GBP (British Pound)\n• 🇨🇦 CAD (Canadian Dollar)\n• 🇱🇧 LBP (Lebanese Pound)\n• 🇯🇵 JPY (Japanese Yen)\n• And more!\n\n**How it works:**\n✅ Live rates updated regularly\n✅ Competitive market rates\n✅ See exact rate before confirming\n✅ Transparent - no hidden fees\n\n**Example:**\nSending $100 USD → EUR\n• You'll see: Exchange rate 0.92\n• Recipient gets: €92 (minus any recipient fees)\n\n� Rates change based on market conditions.\n\nNeed the current rate for a specific currency pair?";
+        }
+
+        // ACCOUNT VERIFICATION - Very important
+        if (preg_match('/(verify.*account|account.*verif|email.*verif|verif.*email|confirm.*account|activation)/', $message)) {
+            return "✅ **Account Verification:**\n\n**Step-by-Step:**\n1. Check your email inbox (and spam/junk folder)\n2. Look for email from SwiftPay\n3. Click the verification link in the email\n4. You'll be redirected to confirmation page\n5. Your account is now verified! ✅\n\n**Didn't receive the email?**\n• Wait 5-10 minutes (sometimes delayed)\n• Check your spam/junk folder\n• Verify you used the correct email address\n• Request a new verification link\n\n**Still having issues?**\nCreate a support ticket and we'll verify your account manually!\n\n💡 **Important:** You must verify your account to use all features.";
+        }
+
+        // PASSWORD RESET
+        if (preg_match('/(forgot.*password|reset.*password|change.*password|password.*reset|cant.*login|login.*problem)/', $message)) {
+            return "🔐 **Password Reset:**\n\n**Steps:**\n1. Go to the Login page\n2. Click 'Forgot Password' link\n3. Enter your registered email address\n4. Check your email for reset link\n5. Click the link (valid for 60 minutes)\n6. Enter your new password twice\n7. Log in with your new password\n\n**Password Requirements:**\n✅ Minimum 8 characters\n✅ At least one UPPERCASE letter\n✅ At least one lowercase letter\n✅ At least one number (0-9)\n✅ At least one special character (@$!%*?&)\n\n💡 **Pro Tip:** Use a password manager for strong, unique passwords!\n\n**Still can't log in?** Create a support ticket.";
+        }
+
+        // BANK ACCOUNT - Add
+        if (preg_match('/(add.*bank|link.*bank|connect.*bank|new.*bank|bank.*account.*add)/', $message)) {
+            return "🏦 **Adding a Bank Account:**\n\n**Step-by-Step:**\n1. Click 'My Accounts' in navigation menu\n2. Click 'Add New Account' button\n3. Fill in the form:\n   • Bank name (e.g., Chase, Bank of America)\n   • Account number\n   • Routing number / Sort code\n   • Account holder name (must match your name)\n   • Account type (Checking/Savings)\n4. Click 'Save'\n5. **Check your email** for verification link\n6. Click the verification link\n7. Your bank account is now verified! ✅\n\n**Important Notes:**\n⚠️ Account holder name must match your SwiftPay account\n⚠️ You must verify via email for security\n✅ You can add multiple bank accounts\n\n💡 Keep your bank details secure and never share them!\n\nNeed help with verification?";
+        }
+
+        // BANK ACCOUNT - Verify
+        if (preg_match('/(verify.*bank|bank.*verif|bank.*email)/', $message)) {
+            return "✉️ **Bank Account Verification:**\n\n**How it works:**\n1. After adding a bank account, we send you an email\n2. Check your email inbox (and spam folder)\n3. Open the email from SwiftPay\n4. Click the 'Verify Bank Account' button/link\n5. You'll be redirected to confirmation page\n6. Done! Your bank account is verified ✅\n\n**Why do we verify?**\n🔒 Security - Confirms you own the bank account\n🔒 Fraud prevention - Protects your money\n🔒 Compliance - Required by financial regulations\n\n**Didn't receive email?**\n• Check spam/junk folder\n• Wait 5-10 minutes\n• Try adding the account again\n• Create a support ticket\n\n💡 Each bank account must be verified before you can use it!";
+        }
+
+        // BENEFICIARY / RECIPIENT
+        if (preg_match('/(beneficiary|beneficiaries|recipient|who.*send.*to|add.*recipient)/', $message)) {
+            return "👥 **Managing Beneficiaries (Recipients):**\n\nBeneficiaries are people you send money to regularly.\n\n**How to Add:**\n1. Go to 'Beneficiaries' in menu\n2. Click 'Add New Beneficiary'\n3. Enter their information:\n   • Full name\n   • Email address (optional)\n   • Country\n   • Bank name\n   • Bank account number\n   • Routing/SWIFT code (if international)\n4. Click 'Save'\n\n**Benefits:**\n✅ Save time - enter details once\n✅ Quick transfers - select and send!\n✅ Multiple recipients - add as many as you need\n✅ Edit anytime - update their information\n\n**Pro Tips:**\n💡 Double-check account numbers before saving\n💡 Nickname them for easy identification\n💡 You can edit or delete beneficiaries anytime\n\nReady to add your first beneficiary?";
+        }
+
+        // WALLET
+        if (preg_match('/(wallet|balance.*wallet|my.*balance|add.*money.*wallet|deposit|withdraw)/', $message)) {
+            if (preg_match('/(deposit|add money|fund|top up|load)/', $message)) {
+                return "💰 **Deposit Money to Wallet:**\n\n**How to Deposit:**\n1. Click 'My Wallet' in menu\n2. Click 'Deposit' or 'Add Money' button\n3. Enter the amount\n4. Select payment method:\n   • Credit/Debit card\n   • Bank transfer\n   • Other payment options\n5. Complete the payment\n6. Money appears in wallet instantly! ⚡\n\n**Why use wallet?**\n✅ Faster transfers\n✅ Lower fees\n✅ Instant availability\n✅ Easy to manage\n\n**Minimum deposit:** $10 USD\n**Maximum deposit:** $10,000 USD per transaction\n\n💡 Keep funds in wallet for quick transfers!";
+            }
+            if (preg_match('/(withdraw|cash out|take.*money|transfer.*bank)/', $message)) {
+                return "💸 **Withdraw from Wallet:**\n\n**How to Withdraw:**\n1. Go to 'My Wallet'\n2. Click 'Withdraw' button\n3. Enter amount to withdraw\n4. Select your verified bank account\n5. Confirm withdrawal\n6. Money arrives in 1-3 business days\n\n**Requirements:**\n✅ Minimum withdrawal: $10 USD\n✅ Bank account must be verified\n✅ Sufficient wallet balance\n\n**Processing time:**\n• Request submitted: Instant\n• Bank processing: 1-3 business days\n• Weekends/holidays: May take longer\n\n💡 No fees for withdrawing to your bank account!\n\nNeed to verify a bank account first?";
+            }
+            return "💰 **Your Wallet:**\n\nYour digital wallet for easy money management!\n\n**Features:**\n• 💵 Store funds securely\n• 📤 Send money quickly\n• 📊 Track your balance\n• ⚡ Instant deposits\n• 🏦 Withdraw to your bank\n\n**Common Actions:**\n• Deposit money (add funds)\n• Withdraw money (cash out)\n• Check balance\n• View transaction history\n\nWhat would you like to do with your wallet?";
         }
 
         // Security queries
-        if (strpos($message, 'safe') !== false || strpos($message, 'secure') !== false || strpos($message, 'security') !== false) {
-            return "Your security is our priority! We use bank-level encryption, email verification, and secure payment processing. All transfers are monitored for compliance.";
+        if (strpos($message, 'safe') !== false || strpos($message, 'secure') !== false || strpos($message, 'security') !== false || strpos($message, 'fraud') !== false || strpos($message, 'scam') !== false) {
+            return "🔒 **Your Security is Our Priority:**\n\n**We protect you with:**\n✅ Bank-level 256-bit encryption\n✅ Email verification for all accounts\n✅ Secure payment processing\n✅ AML (Anti-Money Laundering) monitoring\n✅ Transaction fraud detection\n✅ Two-step bank account verification\n\n**Your Responsibilities:**\n• Never share your password\n• Use strong, unique passwords\n• Verify email links before clicking\n• Report suspicious activity immediately\n\n**Suspicious Activity?** Create a support ticket ASAP!";
         }
 
-        // Wallet queries
-        if (strpos($message, 'wallet') !== false || strpos($message, 'balance') !== false) {
-            return "Your wallet allows you to deposit funds and make quick transfers. You can deposit or withdraw money from the Wallet section.";
-        }
-
-        // Support queries
-        if (strpos($message, 'support') !== false || strpos($message, 'help') !== false || strpos($message, 'contact') !== false) {
-            return "You can create a support ticket from this page for any issues. Our team typically responds within 24 hours. You can also chat with me for quick answers!";
+        // Support queries  
+        if (strpos($message, 'support') !== false || strpos($message, 'help') !== false || strpos($message, 'contact') !== false || strpos($message, 'ticket') !== false) {
+            if (strpos($message, 'ticket') !== false || strpos($message, 'create') !== false) {
+                return "🎫 **Create a Support Ticket:**\n\n1. Click 'Create Ticket' tab on this page\n2. Choose a subject\n3. Select category (account, transfer, payment, etc.)\n4. Set priority (low, medium, high)\n5. Describe your issue in detail\n6. Submit ticket\n\n**Response Time:**\n• High priority: Within 4 hours\n• Medium priority: Within 12 hours\n• Low priority: Within 24 hours\n\nYou'll get updates via email and can reply in the ticket!";
+            }
+            if (strpos($message, 'hours') !== false || strpos($message, 'time') !== false || strpos($message, 'when') !== false) {
+                return "⏰ **Support Hours:**\n\n💬 **Chatbot:** 24/7 (Always available!)\n🎫 **Ticket Support:** 24/7 (We review tickets continuously)\n📧 **Email Response:** Within 24 hours\n📞 **Phone:** Coming soon!\n\n💡 For fastest help, use the chatbot for common questions or create a ticket for complex issues.";
+            }
+            return "💬 **Get Support:**\n\nI'm here 24/7 to answer questions! For complex issues:\n\n1. **Create a ticket** - Our team will help personally\n2. **Ask me questions** - I can answer most FAQs instantly\n\n**Common topics:**\n• Transfers and fees\n• Account verification\n• Bank accounts\n• Security concerns\n\nWhat can I help you with?";
         }
 
         // Greeting
-        if (strpos($message, 'hello') !== false || strpos($message, 'hi') !== false || strpos($message, 'hey') !== false) {
-            return "Hello! 👋 I'm your SwiftPay assistant. How can I help you today? You can ask about transfers, fees, account verification, or anything else!";
+        if (strpos($message, 'hello') !== false || strpos($message, 'hi') !== false || strpos($message, 'hey') !== false || strpos($message, 'good morning') !== false || strpos($message, 'good afternoon') !== false) {
+            $responses = [
+                "Hello! 👋 I'm your SwiftPay assistant. How can I help you today?",
+                "Hi there! 😊 Welcome to SwiftPay support. What would you like to know?",
+                "Hey! 👋 I'm here to help with any questions about transfers, accounts, or anything else!",
+            ];
+            return $responses[array_rand($responses)];
         }
 
-        // Thanks
-        if (strpos($message, 'thank') !== false || strpos($message, 'thanks') !== false) {
-            return "You're welcome! Is there anything else I can help you with?";
+        // SECURITY & FRAUD
+        if (preg_match('/(security|secure|safe|fraud|scam|hack|stolen|privacy|protect)/', $message)) {
+            return "🔒 **Security & Safety:**\n\nYour security is our top priority!\n\n**We protect you with:**\n✅ Bank-level encryption (SSL/TLS)\n✅ Two-factor authentication (2FA)\n✅ Fraud detection systems\n✅ Secure payment processing\n✅ Email verification for all accounts\n✅ Regular security audits\n\n**Keep yourself safe:**\n• Never share your password\n• Use strong, unique passwords\n• Enable 2FA if available\n• Verify beneficiary details before sending\n• Only use official SwiftPay website/app\n• Watch out for phishing emails\n\n**Warning signs of scams:**\n⚠️ Urgent requests for money\n⚠️ Requests to send to unknown people\n⚠️ Too-good-to-be-true offers\n⚠️ Emails asking for passwords\n\n**Suspicious activity?** Create a HIGH PRIORITY ticket immediately!\n\n💡 We'll NEVER ask for your password via email or chat.";
+        }
+
+        // SUPPORT TICKET / CONTACT
+        if (preg_match('/(create.*ticket|open.*ticket|contact.*support|speak.*human|talk.*person|real.*person)/', $message)) {
+            return "🎫 **Create a Support Ticket:**\n\n**When to create a ticket:**\n• Complex issues the chatbot can't solve\n• Account-specific problems\n• Technical difficulties\n• Transfer investigations\n• Security concerns\n\n**How to create:**\n1. Click the **'Create Ticket'** tab on the left\n2. Fill in the form:\n   • Subject (brief description)\n   • Category (select appropriate one)\n   • Priority (Low/Medium/High)\n   • Description (detailed explanation)\n3. Click 'Submit'\n4. Our team will respond within:\n   • High priority: 1-4 hours\n   • Medium priority: 4-12 hours\n   • Low priority: 12-24 hours\n\n**Track your tickets:**\nView all your tickets in the 'My Tickets' tab!\n\n💡 **Tip:** Be specific and include relevant details (IDs, dates, screenshots) for faster resolution!";
+        }
+
+        // PROBLEM / ERROR / ISSUE
+        if (preg_match('/(problem|issue|error|not working|broken|cant|wont|doesnt work|failed)/', $message)) {
+            return "😟 **Having Issues? Let's Fix It!**\n\n**Common Issues & Solutions:**\n\n**1️⃣ Can't log in:**\n• Reset your password\n• Check your email for verification link\n• Clear browser cache/cookies\n\n**2️⃣ Transfer failed:**\n• Check bank account is verified\n• Ensure sufficient funds\n• Verify beneficiary details\n\n**3️⃣ Email not received:**\n• Check spam/junk folder\n• Wait 10 minutes\n• Request new email\n\n**4️⃣ Bank account won't verify:**\n• Click the link in verification email\n• Check that email address is correct\n• Try adding account again\n\n**5️⃣ Payment declined:**\n• Check card details\n• Contact your bank\n• Try different payment method\n\n**Still not working?**\n👉 **Create a support ticket** with:\n• What you're trying to do\n• What page you're on\n• Error message (if any)\n• Screenshots (helpful!)\n\nOur team will investigate immediately! 🔍";
+        }
+
+        // MONEY / PAYMENT ISSUES
+        if (preg_match('/(refund|money.*back|return.*money|cancel.*transfer)/', $message)) {
+            return "💵 **Refunds & Cancellations:**\n\n**Transfer Cancellation:**\n• Can only cancel if status is 'Pending'\n• Go to 'My Transfers' → Find transfer → Click 'Cancel'\n• Refund processed automatically\n\n**Refund Timeline:**\n• Wallet balance: Instant refund\n• Credit/Debit card: 5-7 business days\n• Bank transfer: 3-5 business days\n\n**Refund Status:**\nCheck 'My Transfers' to see if refund was processed.\n\n**Refund not received?**\n1. Check your original payment method\n2. Wait full processing time\n3. Verify payment details are correct\n4. Create a support ticket with:\n   • Transfer ID\n   • Date of cancellation\n   • Payment method used\n\n💡 Refunds always go to the original payment method!\n\nNeed help tracking a refund?";
+        }
+
+        if (preg_match('/(money.*lost|money.*missing|didnt.*receive|havent.*received|where.*money|transfer.*not.*received)/', $message)) {
+            return "😰 **Money Not Received?**\n\nDon't worry, we'll help you track it down!\n\n**Step 1: Check Transfer Status**\n1. Go to **'My Transfers'**\n2. Find the transfer\n3. Check the status:\n   • ✅ **Completed** - Money was sent successfully\n   • ⏳ **Processing** - Still being processed\n   • ❌ **Failed** - Transfer failed (refund issued)\n   • ⏸️ **Pending** - Awaiting approval\n\n**Step 2: If Completed**\n• Bank transfers can take 1-2 business days\n• Check with recipient's bank\n• Verify account details were correct\n• Weekends/holidays may delay delivery\n\n**Step 3: If Processing**\n• Wait for processing to complete\n• International transfers: up to 3-5 days\n• Domestic transfers: 1-2 days\n\n**Step 4: If Still Missing**\nCreate a **HIGH PRIORITY** ticket with:\n• Transfer ID (very important!)\n• Date and time sent\n• Recipient name and account\n• Amount sent\n\n🚨 We'll investigate immediately and track your money!\n\n💡 **Pro Tip:** Save your Transfer ID for easy tracking!";
+        }
+
+        if (preg_match('/(money|payment|transaction|paid)/', $message)) {
+            return "💰 **Money & Payments:**\n\nI can help with:\n\n**Transfer Issues:**\n• Money not received by recipient\n• Transfer failed or pending\n• Wrong amount sent\n• Transfer taking too long\n\n**Refunds:**\n• Request refund\n• Refund status\n• Refund timeline\n\n**Payment Methods:**\n• Credit/Debit cards\n• Bank transfer\n• Wallet balance\n\n**Tracking:**\n• Find transfer status\n• Get Transfer ID\n• View history\n\nWhat specifically do you need help with?";
         }
 
         // Default response
-        return "I'm here to help! You can ask me about:\n• Sending money and transfer fees\n• Account verification\n• Adding bank accounts\n• Exchange rates\n• Security features\n• Wallet management\n\nOr create a support ticket for specific issues.";
+        return "I'm here to help! 🤖\n\n**I can answer questions about:**\n📤 Sending money & transfer fees\n✅ Account & email verification\n🏦 Adding & verifying bank accounts\n💱 Exchange rates & currencies\n💰 Wallet deposits & withdrawals\n🔒 Security & fraud protection\n🎫 Creating support tickets\n\n**Quick tips:**\n• Ask specific questions for better answers\n• Use keywords like 'how to', 'fees', 'verify', etc.\n• Create a ticket for complex issues\n\nWhat would you like to know?";
     }
 
     // Helper methods
