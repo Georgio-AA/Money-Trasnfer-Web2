@@ -21,6 +21,7 @@
                     <li><a href="{{ route('transfers.index') }}">My Transfers</a></li>
                     <li><a href="{{ route('beneficiaries.index') }}">Beneficiaries</a></li>
                     <li><a href="{{ route('bank-accounts.index') }}">My Accounts</a></li>
+                    <li><a href="{{ route('support.index') }}">Support</a></li>
                     @if(session('user.role') === 'admin')
                         <li><a href="{{ route('admin.dashboard') }}" style="color: #f59e0b; font-weight: 600;">Admin Panel</a></li>
                     @endif

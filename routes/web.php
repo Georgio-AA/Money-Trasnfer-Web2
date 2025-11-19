@@ -100,6 +100,14 @@ Route::middleware('auth.session')->group(function () {
     Route::post('/transfers/calculate-quote', [\App\Http\Controllers\TransferController::class, 'calculateQuote'])->name('transfers.calculate-quote');
     Route::post('/transfers/{id}/update-status', [\App\Http\Controllers\TransferController::class, 'updateStatus'])->name('transfers.update-status');
 
+    // Customer Support Routes
+    Route::get('/support', [\App\Http\Controllers\SupportController::class, 'index'])->name('support.index');
+    Route::post('/support/create-ticket', [\App\Http\Controllers\SupportController::class, 'createTicket'])->name('support.create-ticket');
+    Route::get('/support/ticket/{ticketId}', [\App\Http\Controllers\SupportController::class, 'showTicket'])->name('support.ticket');
+    Route::post('/support/ticket/{ticketId}/message', [\App\Http\Controllers\SupportController::class, 'addMessage'])->name('support.add-message');
+    Route::post('/support/ticket/{ticketId}/close', [\App\Http\Controllers\SupportController::class, 'closeTicket'])->name('support.close-ticket');
+    Route::post('/support/chatbot', [\App\Http\Controllers\SupportController::class, 'chatbot'])->name('support.chatbot');
+
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
 
