@@ -14,7 +14,11 @@
             <ul>
                 <li><a href="{{ route('home') }}">Home</a></li>
                 <li><a href="{{ route('services') }}">Services</a></li>
-                <li><a href="{{ route('agents') }}">Agents</a></li>
+                <li><a href="{{ route('agent.applytobeagent') }}">Become an Agent</a></li>
+                @if(session('user.role') === 'agent')
+                <li><a href="{{ route('agent.welcome') }}">Agent Dashboard</a></li>
+                @endif
+
                 @if(session()->has('user'))
                     <li><a href="{{ route('wallet.index') }}" class="wallet-link">💰 My Wallet</a></li>
                     <li><a href="{{ route('transfers.create') }}" class="send-money-link">Send Money</a></li>

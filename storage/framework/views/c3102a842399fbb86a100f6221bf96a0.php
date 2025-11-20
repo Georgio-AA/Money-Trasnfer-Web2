@@ -3,7 +3,11 @@
 <section class="hero">
     <h1>Fast, Secure, and Affordable Money Transfers Worldwide</h1>
     <p>Send money to your loved ones anywhere in the world with the best exchange rates and lowest fees.</p>
-    <a href="send.php" class="cta-btn">Start Sending Now</a>
+    <?php if(session()->has('user')): ?>
+        <a href="<?php echo e(route('transfers.create')); ?>" class="cta-btn">Start Sending Now</a>
+    <?php else: ?>
+        <a href="<?php echo e(route('login')); ?>" class="cta-btn">Start Sending Now</a>
+    <?php endif; ?>
 </section>
 
 <section class="features">
@@ -35,4 +39,4 @@
 </section>
 
 <?php echo $__env->make('includes.footer', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
-<?php /**PATH C:\xampp\htdocs\money-transfer\resources\views/index.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\Users\user\Desktop\Year 4 Sem 7\Web Programming 2\MoneyTransferWP2\WebProject\resources\views/index.blade.php ENDPATH**/ ?>

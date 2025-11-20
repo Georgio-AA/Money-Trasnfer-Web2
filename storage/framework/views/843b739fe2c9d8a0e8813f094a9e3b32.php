@@ -25,4 +25,4 @@
 </section>
 
 <?php echo $__env->make('includes.footer', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
-<?php /**PATH C:\xampp\htdocs\money-transfer\resources\views/login.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\Users\user\Desktop\Year 4 Sem 7\Web Programming 2\MoneyTransferWP2\WebProject\resources\views/login.blade.php ENDPATH**/ ?>
