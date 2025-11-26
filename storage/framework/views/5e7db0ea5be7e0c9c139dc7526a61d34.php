@@ -1,0 +1,1 @@
+<?php /**PATH C:\xampp\htdocs\money-transfer\WebProject\resources\views/agents.blade.php ENDPATH**/ ?>
