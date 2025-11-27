@@ -30,4 +30,4 @@
 </footer>
 </body>
 </html>
-<?php /**PATH C:\xampp\htdocs\money-transfer\resources\views/includes/footer.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\Users\user\Desktop\Year 4 Sem 7\Web Programming 2\MoneyTransferWP2\WebProject\resources\views/includes/footer.blade.php ENDPATH**/ ?>

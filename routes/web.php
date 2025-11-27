@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Admin\TransferManagementController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\ComplianceController;
+use App\Http\Controllers\AgentProfileController;
 use Illuminate\Support\Facades\Session;
 // -----------------------------
 // PUBLIC ROUTES (no login required)
@@ -71,9 +72,9 @@ Route::middleware('auth.session')->group(function () {
 
    
 
-    Route::get('/agents', function () {
-        return view('agents');
-    })->name('agents');
+   /* Route::get('/agents', function () {
+        return view('agent.agents');
+    })->name('agents');*/
 
     Route::get('/send', function () {
         return view('send');
@@ -158,3 +159,18 @@ Route::middleware(['auth.session', 'admin'])
 Route::get('/bank-accounts/verify-email/{bankAccount}/{token}', [BankAccountController::class, 'verifyByEmail'])
     ->name('bank-accounts.verify-email');
 
+Route::middleware(['auth.session', 'agent'])
+    ->prefix('agent')
+    ->name('agent.')
+    ->group(function () {
+
+        Route::get('/welcome', function () {
+            return view('agent.welcomeagent');
+        })->name('welcome');
+
+    });
+
+Route::post('/Apply/ApplicationSubmitted',[AgentProfileController::class, 'ApplyToBeAgent'])->name('Apply.submit');
+Route::get('/agent/applytobeagent', function () {
+    return view('agent.applytobeagent');
+})->name('agent.applytobeagent');
