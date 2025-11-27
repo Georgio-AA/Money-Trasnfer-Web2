@@ -1,76 +1,75 @@
-<?php include 'includes/header.php'; ?>
+@include('includes.header')
 
-<section class="dashboard">
-    <aside class="sidebar">
-        <h3>Welcome, User</h3>
-        <ul>
-            <li><a href="dashboard.php">Dashboard</a></li>
-            <li><a href="send.php">Send Money</a></li>
-            <li><a href="transactions.php">Transactions</a></li>
-            <li><a href="profile.php" class="active">Profile</a></li>
-            <li><a href="login.php">Logout</a></li>
-        </ul>
-    </aside>
 
-    <div class="main-content">
-        <h2>Profile Settings</h2>
-
-        <!-- Account Info -->
-        <div class="profile-card">
-            <h3>Account Information</h3>
-            <form method="POST" action="">
-                <label>Full Name:</label>
-                <input type="text" name="fullname" value="Michael Chen" required>
-
-                <label>Email Address:</label>
-                <input type="email" name="email" value="michael@swiftpay.com" required>
-
-                <label>Phone Number:</label>
-                <input type="text" name="phone" value="+44 7123 456789" required>
-
-                <button type="submit" name="updateProfile">Update Profile</button>
-            </form>
-
-            <?php
-            if (isset($_POST['updateProfile'])) {
-                $name = htmlspecialchars($_POST['fullname']);
-                $email = htmlspecialchars($_POST['email']);
-                $phone = htmlspecialchars($_POST['phone']);
-                echo "<p class='success'>Profile updated successfully for $name!</p>";
-            }
-            ?>
+<div class="profile-container" style="max-width: 600px; margin: 40px auto; padding: 20px; background: #f9f9f9; border-radius: 8px;">
+    <h1 style="color: #333; margin-bottom: 30px;">User Profile</h1>
+    
+    @if($message = session('success'))
+        <div style="background: #d4edda; color: #155724; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+            {{ $message }}
         </div>
-
-        <!-- Change Password -->
-        <div class="profile-card">
-            <h3>Change Password</h3>
-            <form method="POST" action="">
-                <label>Current Password:</label>
-                <input type="password" name="current" required>
-
-                <label>New Password:</label>
-                <input type="password" name="new" required>
-
-                <label>Confirm New Password:</label>
-                <input type="password" name="confirm" required>
-
-                <button type="submit" name="changePass">Update Password</button>
-            </form>
-
-            <?php
-            if (isset($_POST['changePass'])) {
-                $new = $_POST['new'];
-                $confirm = $_POST['confirm'];
-
-                if ($new !== $confirm) {
-                    echo "<p class='error'>New passwords do not match!</p>";
-                } else {
-                    echo "<p class='success'>Password updated successfully!</p>";
-                }
-            }
-            ?>
-        </div>
+    @endif
+    
+    <div class="profile-field" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 5px; border-left: 4px solid #4CAF50;">
+        <label style="font-weight: bold; color: #555;">Name:</label>
+        <p style="margin: 5px 0; color: #333;">{{ $user->name }}</p>
     </div>
-</section>
+    
+    <div class="profile-field" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 5px; border-left: 4px solid #4CAF50;">
+        <label style="font-weight: bold; color: #555;">Surname:</label>
+        <p style="margin: 5px 0; color: #333;">{{ $user->surname }}</p>
+    </div>
+    
+    <div class="profile-field" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 5px; border-left: 4px solid #4CAF50;">
+        <label style="font-weight: bold; color: #555;">Age:</label>
+        <p style="margin: 5px 0; color: #333;">{{ $user->age }}</p>
+    </div>
+    
+    <div class="profile-field" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 5px; border-left: 4px solid #4CAF50;">
+        <label style="font-weight: bold; color: #555;">Email:</label>
+        <p style="margin: 5px 0; color: #333;">{{ $user->email }}</p>
+    </div>
+    
+    <div class="profile-field" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 5px; border-left: 4px solid #4CAF50;">
+        <label style="font-weight: bold; color: #555;">Phone:</label>
+        <p style="margin: 5px 0; color: #333;">{{ $user->phone }}</p>
+    </div>
+    
+    <div class="profile-field" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 5px; border-left: 4px solid #4CAF50;">
+        <label style="font-weight: bold; color: #555;">Verified:</label>
+        <p style="margin: 5px 0; color: #333;">
+            @if($user->is_verified)
+                <span style="color: #4CAF50; font-weight: bold;">✓ Yes</span>
+            @else
+                <span style="color: #FF9800; font-weight: bold;">✗ No</span>
+            @endif
+        </p>
+    </div>
+    
+    <div class="profile-field" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 5px; border-left: 4px solid #4CAF50;">
+        <label style="font-weight: bold; color: #555;">Member Since:</label>
+        <p style="margin: 5px 0; color: #333;">{{ $user->created_at->format('F j, Y') }}</p>
+    </div>
+    
+    <div style="margin-top: 30px;">
+        <a href="{{ route('profile.edit') }}" style="display: inline-block; background: #2196F3; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-right: 10px;">Edit Profile</a>
+        <a href="{{ route('home') }}" style="display: inline-block; background: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Back to Home</a>
+    </div>
+</div>
 
-<?php include 'includes/footer.php'; ?>
+<!-- Password Change Section -->
+<div class="profile-container" style="max-width: 600px; margin: 30px auto; padding: 20px; background: #f9f9f9; border-radius: 8px;">
+    <h2 style="color: #333; margin-bottom: 30px;">Change Password</h2>
+    
+    <div style="background: white; padding: 20px; border-radius: 5px;">
+        <p style="color: #555; margin-bottom: 20px;">For security, we'll send a password reset link to your email. Click the link to change your password.</p>
+        
+        <form action="{{ route('password.send.reset.email') }}" method="POST">
+            @csrf
+            <input type="hidden" name="email" value="{{ $user->email }}">
+            <button type="submit" style="background: #FF9800; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">Send Reset Email</button>
+        </form>
+    </div>
+</div>
+
+@include('includes.footer')

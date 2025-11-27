@@ -1,3 +1,5 @@
+
+
 @include('includes.header')
 
 <section class="form-section">
@@ -41,5 +43,61 @@
         <p class="note">Already have an account? <a href="{{ route('login') }}">Login</a>.</p>
     </form>
 </section>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+
+
+<style>
+    .social-login-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        margin-top: 25px;
+    }
+
+    .social-btn {
+        display: block;
+        width: 200px;         /* Adjust width as needed */
+        text-align: center;
+        padding: 12px;
+        border-radius: 6px;
+        color: white;
+        font-weight: bold;
+        text-decoration: none;
+        font-size: 15px;
+        transition: 0.2s;
+    }
+
+    .google-btn {
+        background-color: #db4437;
+    }
+    .google-btn:hover {
+        background-color: #b33428;
+    }
+
+    .facebook-btn {
+        background-color: #1877F2;
+    }
+    .facebook-btn:hover {
+        background-color: #0f59c2;
+    }
+
+    .social-btn i {
+        margin-right: 8px;
+    }
+</style>
+
+<div class="social-login-wrapper">
+    <a href="{{ route('google.login') }}" class="social-btn google-btn">
+        <i class="fab fa-google"></i> Sign up with Google
+    </a>
+
+    <a href="{{ route('facebook.login') }}" class="social-btn facebook-btn">
+        <i class="fab fa-facebook"></i> Sign up with Facebook
+    </a>
+</div>
+
+
 
 @include('includes.footer')
