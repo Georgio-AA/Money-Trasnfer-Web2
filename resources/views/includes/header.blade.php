@@ -15,10 +15,25 @@
                 <li><a href="{{ route('home') }}">Home</a></li>
                 <li><a href="{{ route('services') }}">Services</a></li>
                 <li><a href="{{ route('agents') }}">Agents</a></li>
-                <li><a href="{{ route('send') }}">Send Money</a></li>
+                @if(session()->has('user'))
+                    <li><a href="{{ route('wallet.index') }}" class="wallet-link">💰 My Wallet</a></li>
+                    <li><a href="{{ route('transfers.create') }}" class="send-money-link">Send Money</a></li>
+                    <li><a href="{{ route('transfers.index') }}">My Transfers</a></li>
+                    <li><a href="{{ route('beneficiaries.index') }}">Beneficiaries</a></li>
+                    <li><a href="{{ route('bank-accounts.index') }}">My Accounts</a></li>
+                    @if(session('user.role') === 'admin')
+                        <li><a href="{{ route('admin.dashboard') }}" style="color: #f59e0b; font-weight: 600;">Admin Panel</a></li>
+                    @endif
+                    <li><a href="{{ route('transfer-services.index') }}">Transfer Services</a></li>
+                @else
+                    <li><a href="{{ route('login') }}">Send Money</a></li>
+                @endif
 
                 @if(session()->has('user'))
                     {{-- User is logged in --}}
+                    @if(session('user.is_admin'))
+                        <li><a href="{{ route('admin.dashboard') }}">Admin</a></li>
+                    @endif
                     <li><a href="{{ route('profile') }}" style="color: inherit; text-decoration: none;">Welcome, {{ session('user.name') }}</a></li>
                     <li>
                         <form action="{{ route('logout') }}" method="POST" style="display:inline;">

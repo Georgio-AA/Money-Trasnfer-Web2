@@ -1,0 +1,206 @@
+@include('includes.header')
+
+<section class="page-header">
+    <h1>Add Beneficiary</h1>
+    <p>Add someone to send money to</p>
+</section>
+
+<section class="form-section">
+    <div class="container">
+        @if(session('error'))
+            <div class="alert alert-error">{{ session('error') }}</div>
+        @endif
+        
+        <form method="POST" action="{{ route('beneficiaries.store') }}" class="beneficiary-form">
+            @csrf
+            
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <h3 class="section-title">Personal Information</h3>
+                </div>
+                
+                <div class="form-group">
+                    <label for="full_name">Full Name *</label>
+                    <input type="text" name="full_name" id="full_name" value="{{ old('full_name') }}" required placeholder="Enter full legal name">
+                    @error('full_name')
+                        <span class="error">{{ $message }}</span>
+                    @enderror
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone_number">Phone Number *</label>
+                    <input type="tel" name="phone_number" id="phone_number" value="{{ old('phone_number') }}" required placeholder="+1234567890">
+                    <small class="hint">Include country code (e.g., +1, +63, +234)</small>
+                    @error('phone_number')
+                        <span class="error">{{ $message }}</span>
+                    @enderror
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" name="email" id="email" value="{{ old('email') }}" placeholder="email@example.com">
+                    @error('email')
+                        <span class="error">{{ $message }}</span>
+                    @enderror
+                </div>
+                
+                <div class="form-group">
+                    <label for="relationship">Relationship</label>
+                    <select name="relationship" id="relationship">
+                        <option value="">-- Select relationship --</option>
+                        <option value="family" {{ old('relationship') == 'family' ? 'selected' : '' }}>Family</option>
+                        <option value="friend" {{ old('relationship') == 'friend' ? 'selected' : '' }}>Friend</option>
+                        <option value="business" {{ old('relationship') == 'business' ? 'selected' : '' }}>Business Partner</option>
+                        <option value="employee" {{ old('relationship') == 'employee' ? 'selected' : '' }}>Employee</option>
+                        <option value="other" {{ old('relationship') == 'other' ? 'selected' : '' }}>Other</option>
+                    </select>
+                    @error('relationship')
+                        <span class="error">{{ $message }}</span>
+                    @enderror
+                </div>
+                
+                <div class="form-group full-width">
+                    <h3 class="section-title">Location</h3>
+                </div>
+                
+                <div class="form-group">
+                    <label for="country">Country *</label>
+                    <select name="country" id="country" required>
+                        <option value="">-- Select country --</option>
+                        @foreach($countries as $code => $name)
+                            <option value="{{ $code }}" {{ old('country') == $code ? 'selected' : '' }}>
+                                {{ $name }} ({{ $code }})
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('country')
+                        <span class="error">{{ $message }}</span>
+                    @enderror
+                </div>
+                
+                <div class="form-group">
+                    <label for="city">City</label>
+                    <input type="text" name="city" id="city" value="{{ old('city') }}" placeholder="Enter city">
+                    @error('city')
+                        <span class="error">{{ $message }}</span>
+                    @enderror
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="address">Address</label>
+                    <input type="text" name="address" id="address" value="{{ old('address') }}" placeholder="Street address">
+                    @error('address')
+                        <span class="error">{{ $message }}</span>
+                    @enderror
+                </div>
+                
+                <div class="form-group">
+                    <label for="postal_code">Postal/ZIP Code</label>
+                    <input type="text" name="postal_code" id="postal_code" value="{{ old('postal_code') }}" placeholder="Postal code">
+                    @error('postal_code')
+                        <span class="error">{{ $message }}</span>
+                    @enderror
+                </div>
+                
+                <div class="form-group full-width">
+                    <h3 class="section-title">Payout Information</h3>
+                </div>
+                
+                <div class="form-group">
+                    <label for="preferred_payout_method">Preferred Payout Method *</label>
+                    <select name="preferred_payout_method" id="preferred_payout_method" required>
+                        <option value="">-- Select method --</option>
+                        @foreach($payoutMethods as $key => $label)
+                            <option value="{{ $key }}" {{ old('preferred_payout_method') == $key ? 'selected' : '' }}>
+                                {{ $label }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('preferred_payout_method')
+                        <span class="error">{{ $message }}</span>
+                    @enderror
+                </div>
+                
+                <div class="form-group" id="wallet-fields" style="display:none;">
+                    <label for="mobile_wallet_number">Mobile Wallet Number</label>
+                    <input type="text" name="mobile_wallet_number" id="mobile_wallet_number" value="{{ old('mobile_wallet_number') }}" placeholder="Enter wallet number">
+                    @error('mobile_wallet_number')
+                        <span class="error">{{ $message }}</span>
+                    @enderror
+                </div>
+                
+                <div class="form-group" id="wallet-provider-field" style="display:none;">
+                    <label for="mobile_wallet_provider">Wallet Provider</label>
+                    <select name="mobile_wallet_provider" id="mobile_wallet_provider">
+                        <option value="">-- Select provider --</option>
+                        <option value="gcash" {{ old('mobile_wallet_provider') == 'gcash' ? 'selected' : '' }}>GCash</option>
+                        <option value="paymaya" {{ old('mobile_wallet_provider') == 'paymaya' ? 'selected' : '' }}>PayMaya</option>
+                        <option value="mpesa" {{ old('mobile_wallet_provider') == 'mpesa' ? 'selected' : '' }}>M-Pesa</option>
+                        <option value="bkash" {{ old('mobile_wallet_provider') == 'bkash' ? 'selected' : '' }}>bKash</option>
+                        <option value="easypaisa" {{ old('mobile_wallet_provider') == 'easypaisa' ? 'selected' : '' }}>Easypaisa</option>
+                        <option value="jazzcash" {{ old('mobile_wallet_provider') == 'jazzcash' ? 'selected' : '' }}>JazzCash</option>
+                        <option value="other" {{ old('mobile_wallet_provider') == 'other' ? 'selected' : '' }}>Other</option>
+                    </select>
+                    @error('mobile_wallet_provider')
+                        <span class="error">{{ $message }}</span>
+                    @enderror
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Add Beneficiary</button>
+                <a href="{{ route('beneficiaries.index') }}" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</section>
+
+<style>
+.page-header{background:linear-gradient(135deg,#22c55e,#06b6d4);color:#fff;padding:2rem;text-align:center}
+.form-section{padding:2rem 0;min-height:60vh}
+.container{max-width:900px;margin:0 auto;padding:0 1rem}
+.alert{padding:1rem;border-radius:8px;margin-bottom:1.5rem}
+.alert-error{background:#fef2f2;border:1px solid #fecaca;color:#991b1b}
+.beneficiary-form{background:#fff;padding:2rem;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.5rem;margin-bottom:2rem}
+.form-group.full-width{grid-column:1/-1}
+.section-title{margin:0;padding-bottom:0.5rem;border-bottom:2px solid #e5e7eb;color:#374151;font-size:1rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+.form-group label{display:block;font-weight:600;margin-bottom:0.5rem;color:#374151}
+.form-group input,.form-group select{width:100%;padding:0.75rem;border:1px solid #d1d5db;border-radius:8px;font-size:1rem}
+.form-group input:focus,.form-group select:focus{outline:none;border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
+.hint{display:block;margin-top:0.25rem;font-size:0.75rem;color:#6b7280}
+.error{display:block;margin-top:0.25rem;font-size:0.875rem;color:#dc2626}
+.form-actions{display:flex;gap:1rem;justify-content:flex-end}
+.btn{padding:0.75rem 1.5rem;border:none;border-radius:8px;cursor:pointer;font-size:1rem;font-weight:500;text-decoration:none;display:inline-block}
+.btn-primary{background:#2563eb;color:#fff}
+.btn-primary:hover{background:#1d4ed8}
+.btn-outline{background:#fff;color:#374151;border:1px solid #d1d5db}
+.btn-outline:hover{background:#f9fafb}
+@media(max-width:768px){
+.form-grid{grid-template-columns:1fr}
+.form-actions{flex-direction:column}
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const payoutMethod = document.getElementById('preferred_payout_method');
+    const walletFields = document.getElementById('wallet-fields');
+    const walletProviderField = document.getElementById('wallet-provider-field');
+    
+    function toggleWalletFields() {
+        if (payoutMethod.value === 'mobile_wallet') {
+            walletFields.style.display = 'block';
+            walletProviderField.style.display = 'block';
+        } else {
+            walletFields.style.display = 'none';
+            walletProviderField.style.display = 'none';
+        }
+    }
+    
+    payoutMethod.addEventListener('change', toggleWalletFields);
+    toggleWalletFields(); // Check on page load
+});
+</script>
+
+@include('includes.footer')

@@ -148,7 +148,7 @@ class AuthController extends Controller
             'name' => $user->name,
             'email' => $user->email,
             'phone' => $request->phone,
-
+            'role' => $user->role,
         ]);
         // Send verification email
         try {
@@ -191,6 +191,7 @@ class AuthController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
+                'role' => $user->role,
             ]);
 
             return redirect()->route('home')->with('success', 'Welcome back, ' . $user->name . '!');

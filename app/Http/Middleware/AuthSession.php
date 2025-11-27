@@ -10,18 +10,20 @@ class AuthSession
 {
     public function handle(Request $request, Closure $next)
     {
-        $publicPaths = ['login', 'signup', '/']; // pages guests can access
+    $guestPatterns = ['login', 'signup'];
+    $path = $request->path();
+    $isRootRequest = $request->is('/') || $path === '' || $path === '/';
+        $isGuestRoute = $isRootRequest || $request->is($guestPatterns);
 
-        // Redirect logged-in users away from login/signup
-        if (in_array($request->path(), $publicPaths)) {
-            if (session()->has('user')) {
+        if (session()->has('user')) {
+            if ($isGuestRoute) {
                 return redirect()->route('home');
             }
+
             return $next($request);
         }
 
-        // Block guests from protected pages
-        if (!session()->has('user')) {
+        if (! $isGuestRoute) {
             return redirect()->route('signup')->with('error', 'Please create an account or log in to access this page.');
         }
 
