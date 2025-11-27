@@ -112,8 +112,26 @@ Route::middleware('auth.session')->group(function () {
     Route::get('/transfers/create', [\App\Http\Controllers\TransferController::class, 'create'])->name('transfers.create');
     Route::post('/transfers', [\App\Http\Controllers\TransferController::class, 'store'])->name('transfers.store');
     Route::get('/transfers/{id}', [\App\Http\Controllers\TransferController::class, 'show'])->name('transfers.show');
+    Route::get('/transfers/{id}/receipt', [\App\Http\Controllers\TransferController::class, 'receipt'])->name('transfers.receipt');
     Route::post('/transfers/calculate-quote', [\App\Http\Controllers\TransferController::class, 'calculateQuote'])->name('transfers.calculate-quote');
     Route::post('/transfers/{id}/update-status', [\App\Http\Controllers\TransferController::class, 'updateStatus'])->name('transfers.update-status');
+
+    // Review Routes
+    Route::get('/reviews', [\App\Http\Controllers\ReviewController::class, 'index'])->name('reviews.index');
+    Route::get('/reviews/create', [\App\Http\Controllers\ReviewController::class, 'create'])->name('reviews.create');
+    Route::post('/reviews', [\App\Http\Controllers\ReviewController::class, 'store'])->name('reviews.store');
+    Route::get('/reviews/{id}', [\App\Http\Controllers\ReviewController::class, 'show'])->name('reviews.show');
+    Route::get('/reviews/{id}/edit', [\App\Http\Controllers\ReviewController::class, 'edit'])->name('reviews.edit');
+    Route::put('/reviews/{id}', [\App\Http\Controllers\ReviewController::class, 'update'])->name('reviews.update');
+    Route::delete('/reviews/{id}', [\App\Http\Controllers\ReviewController::class, 'destroy'])->name('reviews.destroy');
+
+    // Dispute Routes
+    Route::get('/disputes', [\App\Http\Controllers\DisputeController::class, 'index'])->name('disputes.index');
+    Route::get('/disputes/create', [\App\Http\Controllers\DisputeController::class, 'create'])->name('disputes.create');
+    Route::post('/disputes', [\App\Http\Controllers\DisputeController::class, 'store'])->name('disputes.store');
+    Route::get('/disputes/{id}', [\App\Http\Controllers\DisputeController::class, 'show'])->name('disputes.show');
+    Route::post('/disputes/{id}/cancel', [\App\Http\Controllers\DisputeController::class, 'cancel'])->name('disputes.cancel');
+    Route::post('/disputes/{id}/request-refund', [\App\Http\Controllers\DisputeController::class, 'requestRefund'])->name('disputes.request-refund');
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });

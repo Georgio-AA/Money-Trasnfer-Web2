@@ -1,4 +1,4 @@
-@include('includes.header')
+<?php echo $__env->make('includes.header', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
 <section class="page-header">
     <h1>My Transfers</h1>
@@ -8,7 +8,7 @@
 <section class="transfers-list-section">
     <div class="container">
         <div class="page-actions">
-            <a href="{{ route('transfers.create') }}" class="btn btn-primary">
+            <a href="<?php echo e(route('transfers.create')); ?>" class="btn btn-primary">
                 <span>+</span> New Transfer
             </a>
             <button class="btn btn-refresh" onclick="location.reload()">
@@ -16,14 +16,14 @@
             </button>
         </div>
         
-        @if($transfers->isEmpty())
+        <?php if($transfers->isEmpty()): ?>
             <div class="empty-state">
                 <div class="empty-icon">📤</div>
                 <h3>No transfers yet</h3>
                 <p>Start sending money to your beneficiaries</p>
-                <a href="{{ route('transfers.create') }}" class="btn btn-primary">Initiate Transfer</a>
+                <a href="<?php echo e(route('transfers.create')); ?>" class="btn btn-primary">Initiate Transfer</a>
             </div>
-        @else
+        <?php else: ?>
             <div class="transfers-table">
                 <table>
                     <thead>
@@ -38,68 +38,71 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($transfers as $transfer)
+                        <?php $__currentLoopData = $transfers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $transfer): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <tr>
-                                <td>#{{ $transfer->id }}</td>
+                                <td>#<?php echo e($transfer->id); ?></td>
                                 <td>
                                     <div class="beneficiary-info">
-                                        <strong>{{ $transfer->beneficiary->full_name }}</strong>
-                                        <small>{{ $transfer->beneficiary->country }}</small>
+                                        <strong><?php echo e($transfer->beneficiary->full_name); ?></strong>
+                                        <small><?php echo e($transfer->beneficiary->country); ?></small>
                                     </div>
                                 </td>
                                 <td>
                                     <div class="amount-info">
-                                        <strong>{{ $transfer->source_currency }} {{ number_format($transfer->amount, 2) }}</strong>
-                                        <small>Fee: {{ number_format($transfer->transfer_fee, 2) }}</small>
+                                        <strong><?php echo e($transfer->source_currency); ?> <?php echo e(number_format($transfer->amount, 2)); ?></strong>
+                                        <small>Fee: <?php echo e(number_format($transfer->transfer_fee, 2)); ?></small>
                                     </div>
                                 </td>
                                 <td class="payout-amount">
-                                    {{ $transfer->target_currency }} {{ number_format($transfer->payout_amount, 2) }}
+                                    <?php echo e($transfer->target_currency); ?> <?php echo e(number_format($transfer->payout_amount, 2)); ?>
+
                                 </td>
                                 <td>
-                                    <span class="status-badge status-{{ $transfer->status }}">
-                                        @if($transfer->status === 'pending')
+                                    <span class="status-badge status-<?php echo e($transfer->status); ?>">
+                                        <?php if($transfer->status === 'pending'): ?>
                                             ⏳ Pending
-                                        @elseif($transfer->status === 'processing')
+                                        <?php elseif($transfer->status === 'processing'): ?>
                                             ⚙️ Processing
-                                        @elseif($transfer->status === 'completed')
+                                        <?php elseif($transfer->status === 'completed'): ?>
                                             ✓ Completed
-                                        @elseif($transfer->status === 'failed')
+                                        <?php elseif($transfer->status === 'failed'): ?>
                                             ✗ Failed
-                                        @elseif($transfer->status === 'refunded')
+                                        <?php elseif($transfer->status === 'refunded'): ?>
                                             ↩ Refunded
-                                        @else
-                                            {{ ucfirst($transfer->status) }}
-                                        @endif
+                                        <?php else: ?>
+                                            <?php echo e(ucfirst($transfer->status)); ?>
+
+                                        <?php endif; ?>
                                     </span>
                                 </td>
-                                <td>{{ $transfer->created_at->format('M d, Y') }}<br><small class="time">{{ $transfer->created_at->format('h:i A') }}</small></td>
+                                <td><?php echo e($transfer->created_at->format('M d, Y')); ?><br><small class="time"><?php echo e($transfer->created_at->format('h:i A')); ?></small></td>
                                 <td>
                                     <div class="action-buttons">
-                                        <a href="{{ route('transfers.show', $transfer->id) }}" class="btn-link">
-                                            @if(in_array($transfer->status, ['pending', 'processing']))
+                                        <a href="<?php echo e(route('transfers.show', $transfer->id)); ?>" class="btn-link">
+                                            <?php if(in_array($transfer->status, ['pending', 'processing'])): ?>
                                                 🔍 Track Status
-                                            @else
+                                            <?php else: ?>
                                                 View Details
-                                            @endif
+                                            <?php endif; ?>
                                         </a>
-                                        @if($transfer->status === 'completed')
-                                            <a href="{{ route('transfers.receipt', $transfer->id) }}" class="btn-link receipt-link" title="View Receipt">
+                                        <?php if($transfer->status === 'completed'): ?>
+                                            <a href="<?php echo e(route('transfers.receipt', $transfer->id)); ?>" class="btn-link receipt-link" title="View Receipt">
                                                 📄 Receipt
                                             </a>
-                                        @endif
+                                        <?php endif; ?>
                                     </div>
                                 </td>
                             </tr>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </tbody>
                 </table>
             </div>
             
             <div class="pagination-wrapper">
-                {{ $transfers->links() }}
+                <?php echo e($transfers->links()); ?>
+
             </div>
-        @endif
+        <?php endif; ?>
     </div>
 </section>
 
@@ -155,11 +158,12 @@ table{min-width:800px}
 
 <script>
 // Auto-refresh every 30 seconds if there are pending/processing transfers
-@if($transfers->whereIn('status', ['pending', 'processing'])->count() > 0)
+<?php if($transfers->whereIn('status', ['pending', 'processing'])->count() > 0): ?>
 setInterval(function() {
     location.reload();
 }, 30000);
-@endif
+<?php endif; ?>
 </script>
 
-@include('includes.footer')
+<?php echo $__env->make('includes.footer', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+<?php /**PATH C:\xampp\htdocs\money-transfer\WebProject\resources\views/transfers/index.blade.php ENDPATH**/ ?>

@@ -1,4 +1,4 @@
-@include('includes.header')
+<?php echo $__env->make('includes.header', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
 <section class="page-header">
     <h1>Transfer Details</h1>
@@ -7,94 +7,95 @@
 
 <section class="transfer-details-section">
     <div class="container">
-        @if(session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
+        <?php if(session('success')): ?>
+            <div class="alert alert-success"><?php echo e(session('success')); ?></div>
+        <?php endif; ?>
         
         <!-- Status Timeline -->
         <div class="status-timeline">
             <h3>Transfer Status Timeline</h3>
             <div class="timeline">
-                <div class="timeline-item {{ in_array($transfer->status, ['pending', 'processing', 'completed']) ? 'completed' : '' }}">
+                <div class="timeline-item <?php echo e(in_array($transfer->status, ['pending', 'processing', 'completed']) ? 'completed' : ''); ?>">
                     <div class="timeline-marker"></div>
                     <div class="timeline-content">
                         <h4>Transfer Initiated</h4>
-                        <p>{{ $transfer->created_at->format('M d, Y - h:i A') }}</p>
+                        <p><?php echo e($transfer->created_at->format('M d, Y - h:i A')); ?></p>
                         <small>Your transfer request has been received</small>
                     </div>
                 </div>
                 
-                <div class="timeline-item {{ in_array($transfer->status, ['processing', 'completed']) ? 'completed' : ($transfer->status === 'pending' ? 'current' : '') }}">
+                <div class="timeline-item <?php echo e(in_array($transfer->status, ['processing', 'completed']) ? 'completed' : ($transfer->status === 'pending' ? 'current' : '')); ?>">
                     <div class="timeline-marker"></div>
                     <div class="timeline-content">
                         <h4>Payment Processing</h4>
-                        @if(in_array($transfer->status, ['processing', 'completed']))
-                            <p>{{ $transfer->updated_at->format('M d, Y - h:i A') }}</p>
+                        <?php if(in_array($transfer->status, ['processing', 'completed'])): ?>
+                            <p><?php echo e($transfer->updated_at->format('M d, Y - h:i A')); ?></p>
                             <small>Payment is being processed</small>
-                        @else
+                        <?php else: ?>
                             <small>Waiting for payment confirmation</small>
-                        @endif
+                        <?php endif; ?>
                     </div>
                 </div>
                 
-                <div class="timeline-item {{ $transfer->status === 'completed' ? 'completed' : ($transfer->status === 'processing' ? 'current' : '') }}">
+                <div class="timeline-item <?php echo e($transfer->status === 'completed' ? 'completed' : ($transfer->status === 'processing' ? 'current' : '')); ?>">
                     <div class="timeline-marker"></div>
                     <div class="timeline-content">
                         <h4>Money Sent</h4>
-                        @if($transfer->status === 'completed')
-                            <p>{{ optional($transfer->completed_at)->format('M d, Y - h:i A') ?? 'Processing' }}</p>
+                        <?php if($transfer->status === 'completed'): ?>
+                            <p><?php echo e(optional($transfer->completed_at)->format('M d, Y - h:i A') ?? 'Processing'); ?></p>
                             <small>Money is on its way to recipient</small>
-                        @else
+                        <?php else: ?>
                             <small>Money will be sent once payment is confirmed</small>
-                        @endif
+                        <?php endif; ?>
                     </div>
                 </div>
                 
-                <div class="timeline-item {{ $transfer->status === 'completed' ? 'completed' : '' }}">
+                <div class="timeline-item <?php echo e($transfer->status === 'completed' ? 'completed' : ''); ?>">
                     <div class="timeline-marker"></div>
                     <div class="timeline-content">
                         <h4>Transfer Completed</h4>
-                        @if($transfer->status === 'completed' && $transfer->completed_at)
-                            <p>{{ $transfer->completed_at->format('M d, Y - h:i A') }}</p>
+                        <?php if($transfer->status === 'completed' && $transfer->completed_at): ?>
+                            <p><?php echo e($transfer->completed_at->format('M d, Y - h:i A')); ?></p>
                             <small>✓ Recipient has received the money</small>
-                        @else
+                        <?php else: ?>
                             <small>Recipient will receive money soon</small>
-                        @endif
+                        <?php endif; ?>
                     </div>
                 </div>
                 
-                @if($transfer->status === 'failed')
+                <?php if($transfer->status === 'failed'): ?>
                     <div class="timeline-item failed">
                         <div class="timeline-marker"></div>
                         <div class="timeline-content">
                             <h4>Transfer Failed</h4>
-                            <p>{{ $transfer->updated_at->format('M d, Y - h:i A') }}</p>
+                            <p><?php echo e($transfer->updated_at->format('M d, Y - h:i A')); ?></p>
                             <small>⚠ Transfer could not be completed. Please contact support.</small>
                         </div>
                     </div>
-                @endif
+                <?php endif; ?>
                 
-                @if($transfer->status === 'refunded')
+                <?php if($transfer->status === 'refunded'): ?>
                     <div class="timeline-item refunded">
                         <div class="timeline-marker"></div>
                         <div class="timeline-content">
                             <h4>Transfer Refunded</h4>
-                            <p>{{ $transfer->updated_at->format('M d, Y - h:i A') }}</p>
+                            <p><?php echo e($transfer->updated_at->format('M d, Y - h:i A')); ?></p>
                             <small>Money has been refunded to your account</small>
                         </div>
                     </div>
-                @endif
+                <?php endif; ?>
             </div>
         </div>
         
         <div class="transfer-card">
             <div class="transfer-header">
                 <div>
-                    <h2>Transfer #{{ $transfer->id }}</h2>
-                    <span class="status-badge status-{{ $transfer->status }}">{{ ucfirst($transfer->status) }}</span>
+                    <h2>Transfer #<?php echo e($transfer->id); ?></h2>
+                    <span class="status-badge status-<?php echo e($transfer->status); ?>"><?php echo e(ucfirst($transfer->status)); ?></span>
                 </div>
                 <div class="transfer-date">
-                    {{ $transfer->created_at->format('M d, Y - h:i A') }}
+                    <?php echo e($transfer->created_at->format('M d, Y - h:i A')); ?>
+
                 </div>
             </div>
             
@@ -103,15 +104,15 @@
                     <h3>Beneficiary Information</h3>
                     <div class="detail-row">
                         <span class="label">Name:</span>
-                        <span class="value">{{ $transfer->beneficiary->full_name }}</span>
+                        <span class="value"><?php echo e($transfer->beneficiary->full_name); ?></span>
                     </div>
                     <div class="detail-row">
                         <span class="label">Country:</span>
-                        <span class="value">{{ $transfer->beneficiary->country }}</span>
+                        <span class="value"><?php echo e($transfer->beneficiary->country); ?></span>
                     </div>
                     <div class="detail-row">
                         <span class="label">Payout Method:</span>
-                        <span class="value">{{ ucwords(str_replace('_', ' ', $transfer->beneficiary->preferred_payout_method ?? 'Bank Deposit')) }}</span>
+                        <span class="value"><?php echo e(ucwords(str_replace('_', ' ', $transfer->beneficiary->preferred_payout_method ?? 'Bank Deposit'))); ?></span>
                     </div>
                 </div>
                 
@@ -119,29 +120,29 @@
                     <h3>Transfer Details</h3>
                     <div class="detail-row">
                         <span class="label">Amount Sent:</span>
-                        <span class="value">{{ $transfer->source_currency }} {{ number_format($transfer->amount, 2) }}</span>
+                        <span class="value"><?php echo e($transfer->source_currency); ?> <?php echo e(number_format($transfer->amount, 2)); ?></span>
                     </div>
                     <div class="detail-row">
                         <span class="label">Exchange Rate:</span>
-                        <span class="value">1 {{ $transfer->source_currency }} = {{ number_format($transfer->exchange_rate, 4) }} {{ $transfer->target_currency }}</span>
+                        <span class="value">1 <?php echo e($transfer->source_currency); ?> = <?php echo e(number_format($transfer->exchange_rate, 4)); ?> <?php echo e($transfer->target_currency); ?></span>
                     </div>
                     <div class="detail-row">
                         <span class="label">Transfer Fee:</span>
-                        <span class="value">{{ $transfer->source_currency }} {{ number_format($transfer->transfer_fee, 2) }}</span>
+                        <span class="value"><?php echo e($transfer->source_currency); ?> <?php echo e(number_format($transfer->transfer_fee, 2)); ?></span>
                     </div>
-                    @if($transfer->promotion)
+                    <?php if($transfer->promotion): ?>
                         <div class="detail-row promotion">
                             <span class="label">Promotion Applied:</span>
-                            <span class="value">{{ $transfer->promotion->title }} (-{{ $transfer->promotion->discount_percent }}%)</span>
+                            <span class="value"><?php echo e($transfer->promotion->title); ?> (-<?php echo e($transfer->promotion->discount_percent); ?>%)</span>
                         </div>
-                    @endif
+                    <?php endif; ?>
                     <div class="detail-row highlight">
                         <span class="label"><strong>Total Paid:</strong></span>
-                        <span class="value"><strong>{{ $transfer->source_currency }} {{ number_format($transfer->total_paid, 2) }}</strong></span>
+                        <span class="value"><strong><?php echo e($transfer->source_currency); ?> <?php echo e(number_format($transfer->total_paid, 2)); ?></strong></span>
                     </div>
                     <div class="detail-row payout">
                         <span class="label"><strong>Recipient Receives:</strong></span>
-                        <span class="value"><strong>{{ $transfer->target_currency }} {{ number_format($transfer->payout_amount, 2) }}</strong></span>
+                        <span class="value"><strong><?php echo e($transfer->target_currency); ?> <?php echo e(number_format($transfer->payout_amount, 2)); ?></strong></span>
                     </div>
                 </div>
                 
@@ -149,18 +150,18 @@
                     <h3>Service Information</h3>
                     <div class="detail-row">
                         <span class="label">Transfer Speed:</span>
-                        <span class="value">{{ ucwords(str_replace('_', ' ', $transfer->transfer_speed)) }}</span>
+                        <span class="value"><?php echo e(ucwords(str_replace('_', ' ', $transfer->transfer_speed))); ?></span>
                     </div>
                     <div class="detail-row">
                         <span class="label">Status:</span>
-                        <span class="value">{{ ucfirst($transfer->status) }}</span>
+                        <span class="value"><?php echo e(ucfirst($transfer->status)); ?></span>
                     </div>
-                    @if($transfer->completed_at)
+                    <?php if($transfer->completed_at): ?>
                         <div class="detail-row">
                             <span class="label">Completed At:</span>
-                            <span class="value">{{ $transfer->completed_at->format('M d, Y - h:i A') }}</span>
+                            <span class="value"><?php echo e($transfer->completed_at->format('M d, Y - h:i A')); ?></span>
                         </div>
-                    @endif
+                    <?php endif; ?>
                 </div>
             </div>
             
@@ -168,17 +169,17 @@
             <div class="admin-controls">
                 <h3>🔧 Admin Controls (Testing Only)</h3>
                 <p>Manually change transfer status to test the money flow:</p>
-                <form method="POST" action="{{ route('transfers.update-status', $transfer->id) }}" class="status-form">
-                    @csrf
+                <form method="POST" action="<?php echo e(route('transfers.update-status', $transfer->id)); ?>" class="status-form">
+                    <?php echo csrf_field(); ?>
                     <div class="form-group">
                         <label for="status">Change Status To:</label>
                         <select name="status" id="status" required>
                             <option value="">-- Select Status --</option>
-                            <option value="pending" {{ $transfer->status === 'pending' ? 'selected' : '' }}>Pending</option>
-                            <option value="processing" {{ $transfer->status === 'processing' ? 'selected' : '' }}>Processing</option>
-                            <option value="sent" {{ $transfer->status === 'sent' ? 'selected' : '' }}>Sent</option>
-                            <option value="completed" {{ $transfer->status === 'completed' ? 'selected' : '' }}>Completed (Credits Recipient)</option>
-                            <option value="failed" {{ $transfer->status === 'failed' ? 'selected' : '' }}>Failed</option>
+                            <option value="pending" <?php echo e($transfer->status === 'pending' ? 'selected' : ''); ?>>Pending</option>
+                            <option value="processing" <?php echo e($transfer->status === 'processing' ? 'selected' : ''); ?>>Processing</option>
+                            <option value="sent" <?php echo e($transfer->status === 'sent' ? 'selected' : ''); ?>>Sent</option>
+                            <option value="completed" <?php echo e($transfer->status === 'completed' ? 'selected' : ''); ?>>Completed (Credits Recipient)</option>
+                            <option value="failed" <?php echo e($transfer->status === 'failed' ? 'selected' : ''); ?>>Failed</option>
                         </select>
                     </div>
                     <button type="submit" class="btn btn-admin">Update Status</button>
@@ -187,11 +188,11 @@
             </div>
             
             <div class="transfer-actions">
-                <a href="{{ route('transfers.index') }}" class="btn btn-primary">View All Transfers</a>
-                <a href="{{ route('transfers.create') }}" class="btn btn-secondary">New Transfer</a>
-                @if($transfer->status === 'completed')
-                    <a href="{{ route('transfers.receipt', $transfer->id) }}" class="btn btn-receipt">📄 View Receipt</a>
-                @endif
+                <a href="<?php echo e(route('transfers.index')); ?>" class="btn btn-primary">View All Transfers</a>
+                <a href="<?php echo e(route('transfers.create')); ?>" class="btn btn-secondary">New Transfer</a>
+                <?php if($transfer->status === 'completed'): ?>
+                    <a href="<?php echo e(route('transfers.receipt', $transfer->id)); ?>" class="btn btn-receipt">📄 View Receipt</a>
+                <?php endif; ?>
                 <button class="btn btn-refresh" onclick="location.reload()">🔄 Refresh Status</button>
             </div>
         </div>
@@ -291,11 +292,12 @@
 
 <script>
 // Auto-refresh every 30 seconds if transfer is not completed
-@if(in_array($transfer->status, ['pending', 'processing']))
+<?php if(in_array($transfer->status, ['pending', 'processing'])): ?>
 setInterval(function() {
     location.reload();
 }, 30000);
-@endif
+<?php endif; ?>
 </script>
 
-@include('includes.footer')
+<?php echo $__env->make('includes.footer', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+<?php /**PATH C:\xampp\htdocs\money-transfer\WebProject\resources\views/transfers/show.blade.php ENDPATH**/ ?>
