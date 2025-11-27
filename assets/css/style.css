@@ -14,6 +14,7 @@ body {
 }
 .navbar ul { list-style: none; display: flex; gap: 20px; }
 .navbar a { color: white; text-decoration: none; font-weight: 500; }
+.send-money-link { background: #ffb703 !important; padding: 8px 15px !important; border-radius: 5px !important; color: #004aad !important; font-weight: 600 !important; }
 .signup-btn { background: #ffb703; padding: 8px 15px; border-radius: 5px; }
 .hero { text-align: center; padding: 80px 20px; background: #e7f0ff; }
 .hero .cta-btn { background: #004aad; color: white; padding: 12px 25px; border-radius: 5px; text-decoration: none; }

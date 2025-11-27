@@ -1,0 +1,173 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\TransferService;
+use Illuminate\Database\Seeder;
+
+class TransferServiceSeeder extends Seeder
+{
+    public function run(): void
+    {
+        $services = [
+            [
+                'name' => 'WiseTransfer',
+                'destination_countries' => ['US', 'GB', 'CA', 'AU', 'FR', 'DE', 'ES', 'IT', 'NL', 'BE', 'IN', 'PH', 'PK', 'BD'],
+                'fee_fixed' => 2.50,
+                'fee_percent' => 0.50,
+                'fx_margin_bps' => 45,
+                'transfer_speed' => 'next_day',
+                'payout_methods' => ['bank_deposit'],
+                'has_promotions' => true,
+                'is_active' => true,
+            ],
+            [
+                'name' => 'Remitly',
+                'destination_countries' => ['PH', 'IN', 'MX', 'PK', 'BD', 'NG', 'KE', 'GH', 'US', 'CA'],
+                'fee_fixed' => 3.99,
+                'fee_percent' => 0.00,
+                'fx_margin_bps' => 200,
+                'transfer_speed' => 'instant',
+                'payout_methods' => ['bank_deposit', 'cash_pickup', 'mobile_wallet'],
+                'has_promotions' => false,
+                'is_active' => true,
+            ],
+            [
+                'name' => 'Western Union',
+                'destination_countries' => ['US', 'GB', 'CA', 'MX', 'PH', 'IN', 'PK', 'BD', 'NG', 'KE', 'GH', 'EG', 'AU', 'NZ', 'FR', 'DE', 'ES', 'IT', 'LB', 'JO', 'SA', 'AE'],
+                'fee_fixed' => 5.00,
+                'fee_percent' => 1.00,
+                'fx_margin_bps' => 300,
+                'transfer_speed' => 'same_day',
+                'payout_methods' => ['bank_deposit', 'cash_pickup'],
+                'has_promotions' => false,
+                'is_active' => true,
+            ],
+            [
+                'name' => 'MoneyGram',
+                'destination_countries' => ['US', 'MX', 'PH', 'IN', 'PK', 'BD', 'NG', 'KE', 'GH', 'ZA', 'BR', 'CO'],
+                'fee_fixed' => 4.99,
+                'fee_percent' => 0.50,
+                'fx_margin_bps' => 250,
+                'transfer_speed' => 'instant',
+                'payout_methods' => ['cash_pickup', 'mobile_wallet'],
+                'has_promotions' => true,
+                'is_active' => true,
+            ],
+            [
+                'name' => 'Xoom (PayPal)',
+                'destination_countries' => ['PH', 'IN', 'MX', 'CN', 'VN', 'PK', 'BD', 'US', 'CA', 'LB', 'JO', 'EG'],
+                'fee_fixed' => 4.99,
+                'fee_percent' => 0.00,
+                'fx_margin_bps' => 150,
+                'transfer_speed' => 'same_day',
+                'payout_methods' => ['bank_deposit', 'cash_pickup', 'mobile_wallet'],
+                'has_promotions' => true,
+                'is_active' => true,
+            ],
+            [
+                'name' => 'WorldRemit',
+                'destination_countries' => ['PH', 'IN', 'BD', 'PK', 'KE', 'GH', 'NG', 'UG', 'TZ', 'RW', 'ZA'],
+                'fee_fixed' => 2.99,
+                'fee_percent' => 0.00,
+                'fx_margin_bps' => 180,
+                'transfer_speed' => 'next_day',
+                'payout_methods' => ['bank_deposit', 'cash_pickup', 'mobile_wallet'],
+                'has_promotions' => false,
+                'is_active' => true,
+            ],
+            [
+                'name' => 'Ria Money Transfer',
+                'destination_countries' => ['US', 'MX', 'PH', 'IN', 'PK', 'BD', 'NG', 'KE', 'GH', 'EG', 'MA', 'DZ', 'LB', 'JO', 'SY', 'IQ'],
+                'fee_fixed' => 3.99,
+                'fee_percent' => 0.75,
+                'fx_margin_bps' => 220,
+                'transfer_speed' => 'instant',
+                'payout_methods' => ['bank_deposit', 'cash_pickup'],
+                'has_promotions' => false,
+                'is_active' => true,
+            ],
+            [
+                'name' => 'TransferGo',
+                'destination_countries' => ['GB', 'PL', 'UA', 'RO', 'IN', 'PK', 'BD', 'TR', 'DE', 'FR', 'ES'],
+                'fee_fixed' => 1.50,
+                'fee_percent' => 0.50,
+                'fx_margin_bps' => 100,
+                'transfer_speed' => 'next_day',
+                'payout_methods' => ['bank_deposit'],
+                'has_promotions' => true,
+                'is_active' => true,
+            ],
+            [
+                'name' => 'Azimo',
+                'destination_countries' => ['PH', 'IN', 'PK', 'BD', 'VN', 'TH', 'KE', 'GH', 'NG', 'ZA', 'PL', 'RO'],
+                'fee_fixed' => 2.99,
+                'fee_percent' => 0.00,
+                'fx_margin_bps' => 130,
+                'transfer_speed' => 'same_day',
+                'payout_methods' => ['bank_deposit', 'mobile_wallet'],
+                'has_promotions' => false,
+                'is_active' => true,
+            ],
+            [
+                'name' => 'OFX',
+                'destination_countries' => ['US', 'GB', 'CA', 'AU', 'NZ', 'EU', 'JP', 'SG', 'HK', 'ZA'],
+                'fee_fixed' => 0.00,
+                'fee_percent' => 0.00,
+                'fx_margin_bps' => 60,
+                'transfer_speed' => 'standard',
+                'payout_methods' => ['bank_deposit'],
+                'has_promotions' => false,
+                'is_active' => true,
+            ],
+            [
+                'name' => 'SendWave',
+                'destination_countries' => ['KE', 'GH', 'NG', 'UG', 'TZ', 'RW', 'SL', 'LR'],
+                'fee_fixed' => 0.00,
+                'fee_percent' => 0.00,
+                'fx_margin_bps' => 180,
+                'transfer_speed' => 'instant',
+                'payout_methods' => ['mobile_wallet'],
+                'has_promotions' => true,
+                'is_active' => true,
+            ],
+            [
+                'name' => 'Revolut',
+                'destination_countries' => ['US', 'GB', 'EU', 'CH', 'AU', 'CA', 'SG', 'JP'],
+                'fee_fixed' => 0.00,
+                'fee_percent' => 0.00,
+                'fx_margin_bps' => 50,
+                'transfer_speed' => 'instant',
+                'payout_methods' => ['bank_deposit'],
+                'has_promotions' => false,
+                'is_active' => true,
+            ],
+            [
+                'name' => 'OMT (Lebanon)',
+                'destination_countries' => ['LB'],
+                'fee_fixed' => 5.00,
+                'fee_percent' => 2.50,
+                'fx_margin_bps' => 200,
+                'transfer_speed' => 'same_day',
+                'payout_methods' => ['bank_deposit', 'cash_pickup'],
+                'has_promotions' => false,
+                'is_active' => true,
+            ],
+            [
+                'name' => 'BankMed Transfer',
+                'destination_countries' => ['LB', 'JO', 'EG', 'SA', 'AE'],
+                'fee_fixed' => 8.00,
+                'fee_percent' => 1.50,
+                'fx_margin_bps' => 250,
+                'transfer_speed' => 'next_day',
+                'payout_methods' => ['bank_deposit'],
+                'has_promotions' => false,
+                'is_active' => true,
+            ],
+        ];
+
+        foreach ($services as $service) {
+            TransferService::create($service);
+        }
+    }
+}
