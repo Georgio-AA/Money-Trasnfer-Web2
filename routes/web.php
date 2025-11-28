@@ -12,6 +12,9 @@ use App\Http\Controllers\Admin\ComplianceController;
 use App\Http\Controllers\Admin\ExchangeRateController;
 use App\Http\Controllers\Admin\ReportsController;
 use App\Http\Controllers\TransferController;
+use App\Http\Controllers\SupportController;
+use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\DisputeController;
 use App\Http\Controllers\AgentProfileController;
 use Illuminate\Support\Facades\Session;
 // -----------------------------
@@ -120,6 +123,31 @@ Route::middleware('auth.session')->group(function () {
     Route::post('/transfers/{id}/update-status', [\App\Http\Controllers\TransferController::class, 'updateStatus'])->name('transfers.update-status');
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+    // User Support & Tickets
+    Route::get('/support', [SupportController::class, 'index'])->name('support.index');
+    Route::post('/support/ticket', [SupportController::class, 'createTicket'])->name('support.create-ticket');
+    Route::get('/support/ticket/{ticketId}', [SupportController::class, 'showTicket'])->name('support.ticket');
+    Route::post('/support/ticket/{ticketId}/message', [SupportController::class, 'addMessage'])->name('support.ticket.message');
+    Route::post('/support/ticket/{ticketId}/close', [SupportController::class, 'closeTicket'])->name('support.ticket.close');
+    Route::post('/support/chatbot', [SupportController::class, 'chatbot'])->name('support.chatbot');
+
+    // Reviews (user feedback on completed transfers)
+    Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews.index');
+    Route::get('/reviews/create', [ReviewController::class, 'create'])->name('reviews.create');
+    Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
+    Route::get('/reviews/{id}', [ReviewController::class, 'show'])->name('reviews.show');
+    Route::get('/reviews/{id}/edit', [ReviewController::class, 'edit'])->name('reviews.edit');
+    Route::put('/reviews/{id}', [ReviewController::class, 'update'])->name('reviews.update');
+    Route::delete('/reviews/{id}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
+
+    // Disputes (issues with transfers)
+    Route::get('/disputes', [DisputeController::class, 'index'])->name('disputes.index');
+    Route::get('/disputes/create', [DisputeController::class, 'create'])->name('disputes.create');
+    Route::post('/disputes', [DisputeController::class, 'store'])->name('disputes.store');
+    Route::get('/disputes/{id}', [DisputeController::class, 'show'])->name('disputes.show');
+    Route::post('/disputes/{id}/cancel', [DisputeController::class, 'cancel'])->name('disputes.cancel');
+    Route::post('/disputes/{id}/request-refund', [DisputeController::class, 'requestRefund'])->name('disputes.request-refund');
 });
 
 // -----------------------------
