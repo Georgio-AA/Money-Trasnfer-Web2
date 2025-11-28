@@ -38,6 +38,9 @@ class ReportsController extends Controller
         
         // Support Ticket Stats
         $supportStats = $this->getSupportStats($startDate, $endDate);
+        
+        // User Feedback Stats
+        $feedbackStats = $this->getFeedbackStats($startDate, $endDate);
 
         return view('admin.reports.index', compact(
             'period',
@@ -48,6 +51,7 @@ class ReportsController extends Controller
             'topRoutes',
             'dailyTrends',
             'supportStats',
+            'feedbackStats',
             'startDate',
             'endDate'
         ));
@@ -200,6 +204,65 @@ class ReportsController extends Controller
         ];
     }
 
+    private function getFeedbackStats($startDate, $endDate)
+    {
+        $feedbackFile = storage_path('app/private/user_feedback.json');
+        
+        if (!File::exists($feedbackFile)) {
+            return [
+                'total_feedback' => 0,
+                'avg_rating' => 0,
+                'five_star' => 0,
+                'four_star' => 0,
+                'three_star' => 0,
+                'two_star' => 0,
+                'one_star' => 0,
+                'positive_sentiment' => 0,
+                'negative_sentiment' => 0,
+                'recent_feedback' => [],
+            ];
+        }
+
+        $allFeedback = json_decode(File::get($feedbackFile), true);
+        
+        // Filter feedback by date range
+        $filteredFeedback = array_filter($allFeedback, function($feedback) use ($startDate, $endDate) {
+            $createdAt = Carbon::parse($feedback['created_at']);
+            return $createdAt->between($startDate, $endDate);
+        });
+
+        // Calculate rating distribution
+        $ratings = array_column($filteredFeedback, 'rating');
+        $fiveStar = count(array_filter($ratings, fn($r) => $r == 5));
+        $fourStar = count(array_filter($ratings, fn($r) => $r == 4));
+        $threeStar = count(array_filter($ratings, fn($r) => $r == 3));
+        $twoStar = count(array_filter($ratings, fn($r) => $r == 2));
+        $oneStar = count(array_filter($ratings, fn($r) => $r == 1));
+        
+        // Calculate average rating
+        $avgRating = count($ratings) > 0 ? array_sum($ratings) / count($ratings) : 0;
+        
+        // Calculate sentiment (4-5 stars = positive, 1-2 stars = negative)
+        $positiveSentiment = $fiveStar + $fourStar;
+        $negativeSentiment = $oneStar + $twoStar;
+        
+        // Get recent feedback (last 5)
+        $recentFeedback = array_slice(array_reverse($filteredFeedback), 0, 5);
+
+        return [
+            'total_feedback' => count($filteredFeedback),
+            'avg_rating' => round($avgRating, 2),
+            'five_star' => $fiveStar,
+            'four_star' => $fourStar,
+            'three_star' => $threeStar,
+            'two_star' => $twoStar,
+            'one_star' => $oneStar,
+            'positive_sentiment' => $positiveSentiment,
+            'negative_sentiment' => $negativeSentiment,
+            'recent_feedback' => $recentFeedback,
+        ];
+    }
+
     public function export(Request $request)
     {
         $type = $request->get('type', 'transactions');
@@ -214,6 +277,8 @@ class ReportsController extends Controller
                 return $this->exportRevenue($startDate, $endDate);
             case 'users':
                 return $this->exportUsers($startDate, $endDate);
+            case 'feedback':
+                return $this->exportFeedback($startDate, $endDate);
             default:
                 return back()->with('error', 'Invalid export type');
         }
@@ -298,6 +363,43 @@ class ReportsController extends Controller
         }
 
         $filename = 'users_report_' . now()->format('Y-m-d') . '.csv';
+        
+        return response($csv, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ]);
+    }
+
+    private function exportFeedback($startDate, $endDate)
+    {
+        $feedbackFile = storage_path('app/private/user_feedback.json');
+        
+        if (!File::exists($feedbackFile)) {
+            return back()->with('error', 'No feedback data available');
+        }
+
+        $allFeedback = json_decode(File::get($feedbackFile), true);
+        
+        // Filter feedback by date range
+        $filteredFeedback = array_filter($allFeedback, function($feedback) use ($startDate, $endDate) {
+            $createdAt = Carbon::parse($feedback['created_at']);
+            return $createdAt->between($startDate, $endDate);
+        });
+
+        $csv = "User Name,Email,Rating,Comment,Category,Date\n";
+        
+        foreach($filteredFeedback as $feedback) {
+            $csv .= implode(',', [
+                '"' . ($feedback['user_name'] ?? 'Anonymous') . '"',
+                '"' . ($feedback['user_email'] ?? 'N/A') . '"',
+                $feedback['rating'] ?? 'N/A',
+                '"' . str_replace('"', '""', $feedback['comment'] ?? 'No comment') . '"',
+                '"' . ($feedback['category'] ?? 'General') . '"',
+                Carbon::parse($feedback['created_at'])->format('Y-m-d H:i:s'),
+            ]) . "\n";
+        }
+
+        $filename = 'feedback_report_' . now()->format('Y-m-d') . '.csv';
         
         return response($csv, 200, [
             'Content-Type' => 'text/csv',

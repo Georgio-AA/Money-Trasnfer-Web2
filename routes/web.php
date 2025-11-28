@@ -10,6 +10,9 @@ use App\Http\Controllers\Admin\TransferManagementController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\ComplianceController;
 use App\Http\Controllers\Admin\ExchangeRateController;
+use App\Http\Controllers\Admin\ReportsController;
+use App\Http\Controllers\TransferController;
+use App\Http\Controllers\AgentProfileController;
 use Illuminate\Support\Facades\Session;
 // -----------------------------
 // PUBLIC ROUTES (no login required)
@@ -40,11 +43,19 @@ Route::get('/session-check', function () {
 
 
 Route::get('/verify/{token}', [AuthController::class, 'verifyEmail'])->name('verify.email');
+Route::get('/reset-password/{token}', [AuthController::class, 'showResetPasswordForm'])->name('reset.password.form');
+Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('reset.password');
+
+//google
+Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('google.login');
+Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
+Route::get('/complete-profile', [AuthController::class, 'showCompleteProfile'])->name('profile.complete');
+Route::post('/complete-profile', [AuthController::class, 'saveCompleteProfile']);
 
 
-
-
-
+// facebook
+Route::get('/auth/facebook', [AuthController::class, 'redirectToFacebook'])->name('facebook.login');
+Route::get('/auth/facebook/callback', [AuthController::class, 'handleFacebookCallback']);
 
 Route::middleware('auth.session')->group(function () {
    
@@ -64,13 +75,20 @@ Route::middleware('auth.session')->group(function () {
 
    
 
-    Route::get('/agents', function () {
-        return view('agents');
-    })->name('agents');
+   /* Route::get('/agents', function () {
+        return view('agent.agents');
+    })->name('agents');*/
 
     Route::get('/send', function () {
         return view('send');
     })->name('send');
+
+    Route::get('/profile', [AuthController::class, 'profile'])->name('profile');
+    Route::get('/profile/edit', [AuthController::class, 'editProfile'])->name('profile.edit');
+    Route::post('/profile/update', [AuthController::class, 'updateProfile'])->name('profile.update');
+    Route::get('/password/request', [AuthController::class, 'requestPasswordReset'])->name('password.request');
+    Route::post('/password/send-reset-email', [AuthController::class, 'sendPasswordResetEmail'])->name('password.send.reset.email');
+    Route::post('/password/change', [AuthController::class, 'changePassword'])->name('password.change');
 
     // Transfer services search
     Route::get('/transfer-services', [\App\Http\Controllers\TransferServiceController::class, 'index'])
@@ -97,16 +115,9 @@ Route::middleware('auth.session')->group(function () {
     Route::get('/transfers/create', [\App\Http\Controllers\TransferController::class, 'create'])->name('transfers.create');
     Route::post('/transfers', [\App\Http\Controllers\TransferController::class, 'store'])->name('transfers.store');
     Route::get('/transfers/{id}', [\App\Http\Controllers\TransferController::class, 'show'])->name('transfers.show');
+    Route::get('/transfers/{id}/receipt', [\App\Http\Controllers\TransferController::class, 'receipt'])->name('transfers.receipt');
     Route::post('/transfers/calculate-quote', [\App\Http\Controllers\TransferController::class, 'calculateQuote'])->name('transfers.calculate-quote');
     Route::post('/transfers/{id}/update-status', [\App\Http\Controllers\TransferController::class, 'updateStatus'])->name('transfers.update-status');
-
-    // Customer Support Routes
-    Route::get('/support', [\App\Http\Controllers\SupportController::class, 'index'])->name('support.index');
-    Route::post('/support/create-ticket', [\App\Http\Controllers\SupportController::class, 'createTicket'])->name('support.create-ticket');
-    Route::get('/support/ticket/{ticketId}', [\App\Http\Controllers\SupportController::class, 'showTicket'])->name('support.ticket');
-    Route::post('/support/ticket/{ticketId}/message', [\App\Http\Controllers\SupportController::class, 'addMessage'])->name('support.add-message');
-    Route::post('/support/ticket/{ticketId}/close', [\App\Http\Controllers\SupportController::class, 'closeTicket'])->name('support.close-ticket');
-    Route::post('/support/chatbot', [\App\Http\Controllers\SupportController::class, 'chatbot'])->name('support.chatbot');
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
@@ -173,3 +184,18 @@ Route::middleware(['auth.session', 'admin'])
 Route::get('/bank-accounts/verify-email/{bankAccount}/{token}', [BankAccountController::class, 'verifyByEmail'])
     ->name('bank-accounts.verify-email');
 
+Route::middleware(['auth.session', 'agent'])
+    ->prefix('agent')
+    ->name('agent.')
+    ->group(function () {
+
+        Route::get('/welcome', function () {
+            return view('agent.welcomeagent');
+        })->name('welcome');
+
+    });
+
+Route::post('/Apply/ApplicationSubmitted',[AgentProfileController::class, 'ApplyToBeAgent'])->name('Apply.submit');
+Route::get('/agent/applytobeagent', function () {
+    return view('agent.applytobeagent');
+})->name('agent.applytobeagent');

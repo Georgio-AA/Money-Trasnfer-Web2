@@ -44,5 +44,6 @@ class Kernel extends HttpKernel
         'auth' => \App\Http\Middleware\Authenticate::class,
         'auth.session' => \App\Http\Middleware\AuthSession::class,
         'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
+        'agent' => \App\Http\Middleware\EnsureUserIsAgent::class,
     ];
 }

@@ -12,8 +12,13 @@ class Dispute extends Model
         'transfer_id',
         'user_id',
         'reason',
+        'description',
         'status',
         'resolved_at',
+    ];
+
+    protected $casts = [
+        'resolved_at' => 'datetime',
     ];
 
     public function transfer()

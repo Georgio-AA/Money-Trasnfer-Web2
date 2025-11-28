@@ -250,6 +250,25 @@ class TransferController extends Controller
         
         return view('transfers.show', compact('transfer'));
     }
+
+    public function receipt($id)
+    {
+        $user = session('user');
+        $transfer = Transfer::with(['beneficiary', 'promotion', 'sender'])->findOrFail($id);
+        
+        // Verify the transfer belongs to the user
+        if ($transfer->sender_id != $user['id']) {
+            abort(403, 'Unauthorized access.');
+        }
+        
+        // Only show receipt for completed or cancelled transfers
+        if (!in_array($transfer->status, ['completed', 'cancelled'])) {
+            return redirect()->route('transfers.show', $id)
+                ->with('error', 'Receipt is only available for completed or cancelled transfers.');
+        }
+        
+        return view('transfers.receipt', compact('transfer'));
+    }
     
     public function index()
     {

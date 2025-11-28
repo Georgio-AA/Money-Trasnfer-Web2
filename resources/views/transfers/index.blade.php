@@ -75,13 +75,20 @@
                                 </td>
                                 <td>{{ $transfer->created_at->format('M d, Y') }}<br><small class="time">{{ $transfer->created_at->format('h:i A') }}</small></td>
                                 <td>
-                                    <a href="{{ route('transfers.show', $transfer->id) }}" class="btn-link">
-                                        @if(in_array($transfer->status, ['pending', 'processing']))
-                                            🔍 Track Status
-                                        @else
-                                            View Details
+                                    <div class="action-buttons">
+                                        <a href="{{ route('transfers.show', $transfer->id) }}" class="btn-link">
+                                            @if(in_array($transfer->status, ['pending', 'processing']))
+                                                🔍 Track Status
+                                            @else
+                                                View Details
+                                            @endif
+                                        </a>
+                                        @if($transfer->status === 'completed')
+                                            <a href="{{ route('transfers.receipt', $transfer->id) }}" class="btn-link receipt-link" title="View Receipt">
+                                                📄 Receipt
+                                            </a>
                                         @endif
-                                    </a>
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach
@@ -137,6 +144,8 @@ tbody td{padding:1rem;color:#111827}
 }
 .btn-link{color:#2563eb;text-decoration:none;font-weight:600;font-size:0.875rem}
 .btn-link:hover{text-decoration:underline}
+.btn-link.receipt-link{color:#8b5cf6}
+.action-buttons{display:flex;flex-direction:column;gap:0.5rem}
 .pagination-wrapper{margin-top:2rem;display:flex;justify-content:center}
 @media(max-width:768px){
 .transfers-table{overflow-x:auto}

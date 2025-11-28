@@ -189,6 +189,9 @@
             <div class="transfer-actions">
                 <a href="{{ route('transfers.index') }}" class="btn btn-primary">View All Transfers</a>
                 <a href="{{ route('transfers.create') }}" class="btn btn-secondary">New Transfer</a>
+                @if($transfer->status === 'completed')
+                    <a href="{{ route('transfers.receipt', $transfer->id) }}" class="btn btn-receipt">📄 View Receipt</a>
+                @endif
                 <button class="btn btn-refresh" onclick="location.reload()">🔄 Refresh Status</button>
             </div>
         </div>
@@ -262,6 +265,8 @@
 .btn-secondary:hover{background:#4b5563}
 .btn-refresh{background:#22c55e;color:#fff}
 .btn-refresh:hover{background:#16a34a}
+.btn-receipt{background:#8b5cf6;color:#fff}
+.btn-receipt:hover{background:#7c3aed}
 .btn-admin{background:#f59e0b;color:#fff}
 .btn-admin:hover{background:#d97706}
 

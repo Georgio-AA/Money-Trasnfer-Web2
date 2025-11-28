@@ -224,6 +224,100 @@ body { background-color: #f3f4f6; }
             </div>
         </div>
     </div>
+
+    <!-- User Feedback & Ratings -->
+    <div class="section-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="margin: 0;">⭐ User Feedback & Ratings</h2>
+            <a href="<?php echo e(route('admin.reports.export', ['type' => 'feedback', 'period' => $period])); ?>" class="export-btn">
+                Export Feedback CSV
+            </a>
+        </div>
+        
+        <div class="stats-grid" style="margin-bottom: 30px;">
+            <div>
+                <h4 style="margin: 0 0 8px 0; color: #6b7280; font-size: 14px;">TOTAL FEEDBACK</h4>
+                <div style="font-size: 28px; font-weight: bold; color: #3b82f6;"><?php echo e(number_format($feedbackStats['total_feedback'])); ?></div>
+            </div>
+            <div>
+                <h4 style="margin: 0 0 8px 0; color: #6b7280; font-size: 14px;">AVERAGE RATING</h4>
+                <div style="font-size: 28px; font-weight: bold; color: #f59e0b;">
+                    <?php echo e($feedbackStats['avg_rating']); ?> <span style="font-size: 18px;">/ 5.0</span>
+                </div>
+            </div>
+            <div>
+                <h4 style="margin: 0 0 8px 0; color: #6b7280; font-size: 14px;">POSITIVE FEEDBACK</h4>
+                <div style="font-size: 28px; font-weight: bold; color: #10b981;"><?php echo e(number_format($feedbackStats['positive_sentiment'])); ?></div>
+                <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">4-5 stars</div>
+            </div>
+            <div>
+                <h4 style="margin: 0 0 8px 0; color: #6b7280; font-size: 14px;">NEGATIVE FEEDBACK</h4>
+                <div style="font-size: 28px; font-weight: bold; color: #dc2626;"><?php echo e(number_format($feedbackStats['negative_sentiment'])); ?></div>
+                <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">1-2 stars</div>
+            </div>
+        </div>
+
+        <!-- Rating Distribution -->
+        <div style="margin-bottom: 30px;">
+            <h3 style="margin: 0 0 15px 0; font-size: 16px; color: #374151;">Rating Distribution</h3>
+            <div style="display: grid; gap: 12px;">
+                <?php $__currentLoopData = [5 => 'five_star', 4 => 'four_star', 3 => 'three_star', 2 => 'two_star', 1 => 'one_star']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $stars => $key): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 80px; font-weight: 500; color: #374151;"><?php echo e($stars); ?> ⭐</div>
+                    <div style="flex: 1; background: #f3f4f6; height: 24px; border-radius: 6px; overflow: hidden;">
+                        <?php
+                            $percentage = $feedbackStats['total_feedback'] > 0 
+                                ? ($feedbackStats[$key] / $feedbackStats['total_feedback']) * 100 
+                                : 0;
+                            $color = $stars >= 4 ? '#10b981' : ($stars == 3 ? '#f59e0b' : '#dc2626');
+                        ?>
+                        <div style="width: <?php echo e($percentage); ?>%; height: 100%; background: <?php echo e($color); ?>; transition: width 0.3s;"></div>
+                    </div>
+                    <div style="width: 60px; text-align: right; font-weight: 500; color: #374151;">
+                        <?php echo e($feedbackStats[$key]); ?>
+
+                    </div>
+                </div>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+            </div>
+        </div>
+
+        <!-- Recent Feedback -->
+        <?php if(count($feedbackStats['recent_feedback']) > 0): ?>
+        <div>
+            <h3 style="margin: 0 0 15px 0; font-size: 16px; color: #374151;">Recent Feedback</h3>
+            <div style="display: grid; gap: 12px;">
+                <?php $__currentLoopData = $feedbackStats['recent_feedback']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $feedback): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <div style="padding: 15px; background: #f9fafb; border-radius: 8px; border-left: 4px solid #3b82f6;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <div style="font-weight: 600; color: #374151;">
+                            <?php echo e($feedback['user_name'] ?? 'Anonymous'); ?>
+
+                        </div>
+                        <div style="color: #f59e0b; font-weight: 500;">
+                            <?php for($i = 1; $i <= 5; $i++): ?>
+                                <?php if($i <= $feedback['rating']): ?>
+                                    ⭐
+                                <?php else: ?>
+                                    ☆
+                                <?php endif; ?>
+                            <?php endfor; ?>
+                        </div>
+                    </div>
+                    <div style="color: #6b7280; font-size: 14px; line-height: 1.5;">
+                        <?php echo e($feedback['comment'] ?? 'No comment provided'); ?>
+
+                    </div>
+                    <div style="margin-top: 8px; font-size: 12px; color: #9ca3af;">
+                        <?php echo e(\Carbon\Carbon::parse($feedback['created_at'])->format('M d, Y h:i A')); ?>
+
+                    </div>
+                </div>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+            </div>
+        </div>
+        <?php endif; ?>
+    </div>
 </div>
 
 <!-- Chart.js -->

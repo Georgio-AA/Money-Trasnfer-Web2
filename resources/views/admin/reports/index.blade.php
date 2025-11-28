@@ -223,6 +223,96 @@ body { background-color: #f3f4f6; }
             </div>
         </div>
     </div>
+
+    <!-- User Feedback & Ratings -->
+    <div class="section-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="margin: 0;">⭐ User Feedback & Ratings</h2>
+            <a href="{{ route('admin.reports.export', ['type' => 'feedback', 'period' => $period]) }}" class="export-btn">
+                Export Feedback CSV
+            </a>
+        </div>
+        
+        <div class="stats-grid" style="margin-bottom: 30px;">
+            <div>
+                <h4 style="margin: 0 0 8px 0; color: #6b7280; font-size: 14px;">TOTAL FEEDBACK</h4>
+                <div style="font-size: 28px; font-weight: bold; color: #3b82f6;">{{ number_format($feedbackStats['total_feedback']) }}</div>
+            </div>
+            <div>
+                <h4 style="margin: 0 0 8px 0; color: #6b7280; font-size: 14px;">AVERAGE RATING</h4>
+                <div style="font-size: 28px; font-weight: bold; color: #f59e0b;">
+                    {{ $feedbackStats['avg_rating'] }} <span style="font-size: 18px;">/ 5.0</span>
+                </div>
+            </div>
+            <div>
+                <h4 style="margin: 0 0 8px 0; color: #6b7280; font-size: 14px;">POSITIVE FEEDBACK</h4>
+                <div style="font-size: 28px; font-weight: bold; color: #10b981;">{{ number_format($feedbackStats['positive_sentiment']) }}</div>
+                <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">4-5 stars</div>
+            </div>
+            <div>
+                <h4 style="margin: 0 0 8px 0; color: #6b7280; font-size: 14px;">NEGATIVE FEEDBACK</h4>
+                <div style="font-size: 28px; font-weight: bold; color: #dc2626;">{{ number_format($feedbackStats['negative_sentiment']) }}</div>
+                <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">1-2 stars</div>
+            </div>
+        </div>
+
+        <!-- Rating Distribution -->
+        <div style="margin-bottom: 30px;">
+            <h3 style="margin: 0 0 15px 0; font-size: 16px; color: #374151;">Rating Distribution</h3>
+            <div style="display: grid; gap: 12px;">
+                @foreach([5 => 'five_star', 4 => 'four_star', 3 => 'three_star', 2 => 'two_star', 1 => 'one_star'] as $stars => $key)
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 80px; font-weight: 500; color: #374151;">{{ $stars }} ⭐</div>
+                    <div style="flex: 1; background: #f3f4f6; height: 24px; border-radius: 6px; overflow: hidden;">
+                        @php
+                            $percentage = $feedbackStats['total_feedback'] > 0 
+                                ? ($feedbackStats[$key] / $feedbackStats['total_feedback']) * 100 
+                                : 0;
+                            $color = $stars >= 4 ? '#10b981' : ($stars == 3 ? '#f59e0b' : '#dc2626');
+                        @endphp
+                        <div style="width: {{ $percentage }}%; height: 100%; background: {{ $color }}; transition: width 0.3s;"></div>
+                    </div>
+                    <div style="width: 60px; text-align: right; font-weight: 500; color: #374151;">
+                        {{ $feedbackStats[$key] }}
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        </div>
+
+        <!-- Recent Feedback -->
+        @if(count($feedbackStats['recent_feedback']) > 0)
+        <div>
+            <h3 style="margin: 0 0 15px 0; font-size: 16px; color: #374151;">Recent Feedback</h3>
+            <div style="display: grid; gap: 12px;">
+                @foreach($feedbackStats['recent_feedback'] as $feedback)
+                <div style="padding: 15px; background: #f9fafb; border-radius: 8px; border-left: 4px solid #3b82f6;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <div style="font-weight: 600; color: #374151;">
+                            {{ $feedback['user_name'] ?? 'Anonymous' }}
+                        </div>
+                        <div style="color: #f59e0b; font-weight: 500;">
+                            @for($i = 1; $i <= 5; $i++)
+                                @if($i <= $feedback['rating'])
+                                    ⭐
+                                @else
+                                    ☆
+                                @endif
+                            @endfor
+                        </div>
+                    </div>
+                    <div style="color: #6b7280; font-size: 14px; line-height: 1.5;">
+                        {{ $feedback['comment'] ?? 'No comment provided' }}
+                    </div>
+                    <div style="margin-top: 8px; font-size: 12px; color: #9ca3af;">
+                        {{ \Carbon\Carbon::parse($feedback['created_at'])->format('M d, Y h:i A') }}
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
+    </div>
 </div>
 
 <!-- Chart.js -->
