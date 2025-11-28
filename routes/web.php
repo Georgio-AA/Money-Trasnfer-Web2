@@ -164,6 +164,10 @@ Route::middleware(['auth.session', 'admin'])
         Route::post('/fraud/add-rule', [\App\Http\Controllers\Admin\FraudDetectionController::class, 'addRule'])->name('fraud.add-rule');
         Route::get('/fraud/toggle-rule/{ruleId}', [\App\Http\Controllers\Admin\FraudDetectionController::class, 'toggleRule'])->name('fraud.toggle-rule');
         Route::delete('/fraud/delete-rule/{ruleId}', [\App\Http\Controllers\Admin\FraudDetectionController::class, 'deleteRule'])->name('fraud.delete-rule');
+        
+        // Reports & Analytics
+        Route::get('/reports', [\App\Http\Controllers\Admin\ReportsController::class, 'index'])->name('reports.index');
+        Route::get('/reports/export', [\App\Http\Controllers\Admin\ReportsController::class, 'export'])->name('reports.export');
     });
 // Email verification link endpoint (does not require session)
 Route::get('/bank-accounts/verify-email/{bankAccount}/{token}', [BankAccountController::class, 'verifyByEmail'])

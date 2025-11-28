@@ -110,6 +110,12 @@ body { background-color: #f3f4f6; }
 <div class="value" style="font-size: 18px; color: #dc2626;">Protect</div>
 </a>
 </div>
+<div class="stat-card clickable">
+<a href="{{ route('admin.reports.index') }}">
+<h3>📊 Reports</h3>
+<div class="value" style="font-size: 18px; color: #6366f1;">Analytics</div>
+</a>
+</div>
 </div>
 
 <!-- Revenue Stats -->
