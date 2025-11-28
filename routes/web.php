@@ -9,6 +9,9 @@ use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Admin\TransferManagementController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\ComplianceController;
+use App\Http\Controllers\Admin\ExchangeRateController;
+use App\Http\Controllers\Admin\ReportsController;
+use App\Http\Controllers\TransferController;
 use App\Http\Controllers\AgentProfileController;
 use Illuminate\Support\Facades\Session;
 // -----------------------------
@@ -116,23 +119,6 @@ Route::middleware('auth.session')->group(function () {
     Route::post('/transfers/calculate-quote', [\App\Http\Controllers\TransferController::class, 'calculateQuote'])->name('transfers.calculate-quote');
     Route::post('/transfers/{id}/update-status', [\App\Http\Controllers\TransferController::class, 'updateStatus'])->name('transfers.update-status');
 
-    // Review Routes
-    Route::get('/reviews', [\App\Http\Controllers\ReviewController::class, 'index'])->name('reviews.index');
-    Route::get('/reviews/create', [\App\Http\Controllers\ReviewController::class, 'create'])->name('reviews.create');
-    Route::post('/reviews', [\App\Http\Controllers\ReviewController::class, 'store'])->name('reviews.store');
-    Route::get('/reviews/{id}', [\App\Http\Controllers\ReviewController::class, 'show'])->name('reviews.show');
-    Route::get('/reviews/{id}/edit', [\App\Http\Controllers\ReviewController::class, 'edit'])->name('reviews.edit');
-    Route::put('/reviews/{id}', [\App\Http\Controllers\ReviewController::class, 'update'])->name('reviews.update');
-    Route::delete('/reviews/{id}', [\App\Http\Controllers\ReviewController::class, 'destroy'])->name('reviews.destroy');
-
-    // Dispute Routes
-    Route::get('/disputes', [\App\Http\Controllers\DisputeController::class, 'index'])->name('disputes.index');
-    Route::get('/disputes/create', [\App\Http\Controllers\DisputeController::class, 'create'])->name('disputes.create');
-    Route::post('/disputes', [\App\Http\Controllers\DisputeController::class, 'store'])->name('disputes.store');
-    Route::get('/disputes/{id}', [\App\Http\Controllers\DisputeController::class, 'show'])->name('disputes.show');
-    Route::post('/disputes/{id}/cancel', [\App\Http\Controllers\DisputeController::class, 'cancel'])->name('disputes.cancel');
-    Route::post('/disputes/{id}/request-refund', [\App\Http\Controllers\DisputeController::class, 'requestRefund'])->name('disputes.request-refund');
-
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
 
@@ -172,6 +158,27 @@ Route::middleware(['auth.session', 'admin'])
         Route::post('/compliance/flag/{transfer}', [ComplianceController::class, 'flagTransaction'])->name('compliance.flag');
         Route::post('/compliance/resolve/{alertId}', [ComplianceController::class, 'resolveAlert'])->name('compliance.resolve');
         Route::get('/audit-log', [ComplianceController::class, 'auditLog'])->name('audit-log');
+        
+        // Exchange Rates & Fee Management
+        Route::get('/exchange-rates', [ExchangeRateController::class, 'index'])->name('exchange-rates');
+        Route::post('/exchange-rates/update-rate', [ExchangeRateController::class, 'updateRate'])->name('exchange-rates.update-rate');
+        Route::delete('/exchange-rates/delete-rate/{key}', [ExchangeRateController::class, 'deleteRate'])->name('exchange-rates.delete-rate');
+        Route::post('/exchange-rates/update-fee', [ExchangeRateController::class, 'updateFee'])->name('exchange-rates.update-fee');
+        Route::delete('/exchange-rates/delete-fee/{currency}', [ExchangeRateController::class, 'deleteFee'])->name('exchange-rates.delete-fee');
+        Route::post('/exchange-rates/sync', [ExchangeRateController::class, 'syncRates'])->name('exchange-rates.sync');
+        
+        // Fraud Detection & Prevention
+        Route::get('/fraud-detection', [\App\Http\Controllers\Admin\FraudDetectionController::class, 'index'])->name('fraud.index');
+        Route::post('/fraud/review-alert/{alertId}', [\App\Http\Controllers\Admin\FraudDetectionController::class, 'reviewAlert'])->name('fraud.review-alert');
+        Route::post('/fraud/block-user/{userId}', [\App\Http\Controllers\Admin\FraudDetectionController::class, 'blockUser'])->name('fraud.block-user');
+        Route::post('/fraud/unblock', [\App\Http\Controllers\Admin\FraudDetectionController::class, 'unblockEntity'])->name('fraud.unblock');
+        Route::post('/fraud/add-rule', [\App\Http\Controllers\Admin\FraudDetectionController::class, 'addRule'])->name('fraud.add-rule');
+        Route::get('/fraud/toggle-rule/{ruleId}', [\App\Http\Controllers\Admin\FraudDetectionController::class, 'toggleRule'])->name('fraud.toggle-rule');
+        Route::delete('/fraud/delete-rule/{ruleId}', [\App\Http\Controllers\Admin\FraudDetectionController::class, 'deleteRule'])->name('fraud.delete-rule');
+        
+        // Reports & Analytics
+        Route::get('/reports', [\App\Http\Controllers\Admin\ReportsController::class, 'index'])->name('reports.index');
+        Route::get('/reports/export', [\App\Http\Controllers\Admin\ReportsController::class, 'export'])->name('reports.export');
     });
 // Email verification link endpoint (does not require session)
 Route::get('/bank-accounts/verify-email/{bankAccount}/{token}', [BankAccountController::class, 'verifyByEmail'])

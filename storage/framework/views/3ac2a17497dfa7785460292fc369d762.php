@@ -98,6 +98,24 @@ body { background-color: #f3f4f6; }
 <div class="value" style="font-size: 18px; color: #10b981;">Monitor</div>
 </a>
 </div>
+<div class="stat-card clickable">
+<a href="<?php echo e(route('admin.exchange-rates')); ?>">
+<h3>💱 Exchange Rates</h3>
+<div class="value" style="font-size: 18px; color: #8b5cf6;">Manage</div>
+</a>
+</div>
+<div class="stat-card clickable">
+<a href="<?php echo e(route('admin.fraud.index')); ?>">
+<h3>🚨 Fraud Detection</h3>
+<div class="value" style="font-size: 18px; color: #dc2626;">Protect</div>
+</a>
+</div>
+<div class="stat-card clickable">
+<a href="<?php echo e(route('admin.reports.index')); ?>">
+<h3>📊 Reports</h3>
+<div class="value" style="font-size: 18px; color: #6366f1;">Analytics</div>
+</a>
+</div>
 </div>
 
 <!-- Revenue Stats -->

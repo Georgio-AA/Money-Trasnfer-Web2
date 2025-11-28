@@ -25,6 +25,7 @@
                     <li><a href="{{ route('transfers.index') }}">My Transfers</a></li>
                     <li><a href="{{ route('beneficiaries.index') }}">Beneficiaries</a></li>
                     <li><a href="{{ route('bank-accounts.index') }}">My Accounts</a></li>
+                    <li><a href="{{ route('support.index') }}">Support</a></li>
                     <li><a href="{{ route('reviews.index') }}">Reviews</a></li>
                     <li><a href="{{ route('disputes.index') }}">Disputes</a></li>
                     @if(session('user.role') === 'admin')

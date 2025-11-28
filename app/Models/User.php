@@ -32,6 +32,7 @@ class User extends Authenticatable
         'password_reset_token',
         'password_reset_due',
         'role',
+        'status',
     ];
 
 

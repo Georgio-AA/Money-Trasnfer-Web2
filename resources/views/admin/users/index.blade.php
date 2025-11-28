@@ -57,9 +57,14 @@ body { background-color: #f3f4f6; }
 </thead>
 <tbody>
 @forelse($users as $user)
-<tr>
+<tr style="{{ ($user->status ?? 'active') === 'blocked' ? 'background-color: #fee2e2;' : '' }}">
 <td>#{{ $user->id }}</td>
-<td>{{ $user->name }}</td>
+<td>
+{{ $user->name }}
+@if(($user->status ?? 'active') === 'blocked')
+<span style="color: #dc2626; font-size: 12px; font-weight: 600;">🚫 BLOCKED</span>
+@endif
+</td>
 <td>{{ $user->email }}</td>
 <td>{{ $user->phone ?? 'N/A' }}</td>
 <td><span class="badge badge-{{ $user->role }}">{{ ucfirst($user->role) }}</span></td>
