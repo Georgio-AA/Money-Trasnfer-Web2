@@ -188,6 +188,24 @@ class TransferController extends Controller
                 'promotion_id' => $validated['promotion_id'],
             ]);
             
+            // Run fraud detection check
+            $fraudController = new \App\Http\Controllers\Admin\FraudDetectionController();
+            $fraudResult = $fraudController->calculateFraudScore($transfer->id);
+            
+            // If fraud score is critical (>= 80), block the transfer immediately
+            if ($fraudResult['score'] >= 80) {
+                $transfer->status = 'fraud_blocked';
+                $transfer->save();
+                
+                // Refund the sender
+                $sender->balance += $amountToDeduct;
+                $sender->save();
+                
+                DB::commit();
+                
+                return back()->with('error', 'This transfer has been blocked due to suspicious activity. Please contact support if you believe this is an error.');
+            }
+            
             // Create payment transaction record
             PaymentTransaction::create([
                 'transfer_id' => $transfer->id,
@@ -204,6 +222,12 @@ class TransferController extends Controller
             session(['user' => $sender->toArray()]);
             
             DB::commit();
+            
+            // Show warning if fraud score is high but not critical
+            if ($fraudResult['score'] >= 60) {
+                return redirect()->route('transfers.show', $transfer->id)
+                    ->with('warning', 'Transfer initiated successfully! Note: This transfer is under review for security purposes.');
+            }
             
             return redirect()->route('transfers.show', $transfer->id)
                 ->with('success', 'Transfer initiated successfully! Your balance has been deducted.');

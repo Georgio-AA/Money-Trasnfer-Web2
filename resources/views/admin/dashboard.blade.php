@@ -104,6 +104,12 @@ body { background-color: #f3f4f6; }
 <div class="value" style="font-size: 18px; color: #8b5cf6;">Manage</div>
 </a>
 </div>
+<div class="stat-card clickable">
+<a href="{{ route('admin.fraud.index') }}">
+<h3>🚨 Fraud Detection</h3>
+<div class="value" style="font-size: 18px; color: #dc2626;">Protect</div>
+</a>
+</div>
 </div>
 
 <!-- Revenue Stats -->

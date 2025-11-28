@@ -30,6 +30,7 @@ class User extends Authenticatable
                 'verification_due',
                 'is_verified',
                 'role',
+                'status',
     ];
 
     /**

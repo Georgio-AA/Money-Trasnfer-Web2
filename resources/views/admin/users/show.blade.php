@@ -57,14 +57,55 @@ body { background-color: #f3f4f6; }
 <div class="actions">
 <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-primary">Edit User</a>
 @if($user->id !== session('user.id'))
-<form method="POST" action="{{ route('admin.users.destroy', $user->id) }}" onsubmit="return confirm('Are you sure you want to delete this user?');">
+<form method="POST" action="{{ route('admin.users.destroy', $user->id) }}" onsubmit="return confirm('Are you sure you want to delete this user?');" style="display: inline;">
 @csrf
 @method('DELETE')
 <button type="submit" class="btn btn-danger">Delete User</button>
 </form>
+@if(($user->status ?? 'active') !== 'blocked')
+<button type="button" class="btn btn-danger" onclick="showBlockModal()" style="margin-left: 10px;">🚫 Block User</button>
+@else
+<span class="badge" style="background: #fee2e2; color: #991b1b; padding: 10px 20px; margin-left: 10px;">🚫 USER BLOCKED</span>
+@endif
 @endif
 </div>
 </div>
+
+<!-- Block User Modal -->
+<div id="blockModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+<div style="background: white; border-radius: 8px; padding: 24px; max-width: 500px; width: 90%;">
+<h3 style="margin: 0 0 16px 0; color: #dc2626;">Block User: {{ $user->name }}</h3>
+<p style="color: #6b7280; margin-bottom: 20px;">This will block the user from making transfers and cancel all pending transactions. Please provide a reason:</p>
+<form method="POST" action="{{ route('admin.fraud.block-user', $user->id) }}">
+@csrf
+<div style="margin-bottom: 16px;">
+<label style="display: block; margin-bottom: 8px; font-weight: 600; color: #374151;">Reason for Blocking *</label>
+<textarea name="reason" rows="4" required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-family: inherit;" placeholder="E.g., Suspicious activity detected, Multiple failed verification attempts..."></textarea>
+</div>
+<div style="display: flex; gap: 10px; justify-content: flex-end;">
+<button type="button" onclick="closeBlockModal()" style="padding: 10px 20px; border: 1px solid #d1d5db; background: white; border-radius: 6px; cursor: pointer; font-weight: 600;">Cancel</button>
+<button type="submit" style="padding: 10px 20px; border: none; background: #dc2626; color: white; border-radius: 6px; cursor: pointer; font-weight: 600;">Block User</button>
+</div>
+</form>
+</div>
+</div>
+
+<script>
+function showBlockModal() {
+    document.getElementById('blockModal').style.display = 'flex';
+}
+
+function closeBlockModal() {
+    document.getElementById('blockModal').style.display = 'none';
+}
+
+// Close modal on outside click
+document.getElementById('blockModal')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeBlockModal();
+    }
+});
+</script>
 </div>
 
 </main></body></html>

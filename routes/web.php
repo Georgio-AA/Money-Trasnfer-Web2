@@ -155,6 +155,15 @@ Route::middleware(['auth.session', 'admin'])
         Route::post('/exchange-rates/update-fee', [ExchangeRateController::class, 'updateFee'])->name('exchange-rates.update-fee');
         Route::delete('/exchange-rates/delete-fee/{currency}', [ExchangeRateController::class, 'deleteFee'])->name('exchange-rates.delete-fee');
         Route::post('/exchange-rates/sync', [ExchangeRateController::class, 'syncRates'])->name('exchange-rates.sync');
+        
+        // Fraud Detection & Prevention
+        Route::get('/fraud-detection', [\App\Http\Controllers\Admin\FraudDetectionController::class, 'index'])->name('fraud.index');
+        Route::post('/fraud/review-alert/{alertId}', [\App\Http\Controllers\Admin\FraudDetectionController::class, 'reviewAlert'])->name('fraud.review-alert');
+        Route::post('/fraud/block-user/{userId}', [\App\Http\Controllers\Admin\FraudDetectionController::class, 'blockUser'])->name('fraud.block-user');
+        Route::post('/fraud/unblock', [\App\Http\Controllers\Admin\FraudDetectionController::class, 'unblockEntity'])->name('fraud.unblock');
+        Route::post('/fraud/add-rule', [\App\Http\Controllers\Admin\FraudDetectionController::class, 'addRule'])->name('fraud.add-rule');
+        Route::get('/fraud/toggle-rule/{ruleId}', [\App\Http\Controllers\Admin\FraudDetectionController::class, 'toggleRule'])->name('fraud.toggle-rule');
+        Route::delete('/fraud/delete-rule/{ruleId}', [\App\Http\Controllers\Admin\FraudDetectionController::class, 'deleteRule'])->name('fraud.delete-rule');
     });
 // Email verification link endpoint (does not require session)
 Route::get('/bank-accounts/verify-email/{bankAccount}/{token}', [BankAccountController::class, 'verifyByEmail'])
