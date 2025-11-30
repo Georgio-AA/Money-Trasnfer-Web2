@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SwiftPay - Money Transfer</title>
-    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    @vite('assets/css/style.css')
 </head>
 <body>
 <header>
