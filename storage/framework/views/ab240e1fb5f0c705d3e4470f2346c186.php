@@ -14,19 +14,20 @@
             <ul>
                 <li><a href="<?php echo e(route('home')); ?>">Home</a></li>
                 <li><a href="<?php echo e(route('services')); ?>">Services</a></li>
-                <li><a href="<?php echo e(route('agents')); ?>">Agents</a></li>
+                <li><a href="<?php echo e(route('agent.applytobeagent')); ?>">Become an Agent</a></li>
+                <?php if(session('user.role') === 'agent'): ?>
+                <li><a href="<?php echo e(route('agent.welcome')); ?>">Agent Dashboard</a></li>
+                <?php endif; ?>
+
                 <?php if(session()->has('user')): ?>
                     <li><a href="<?php echo e(route('wallet.index')); ?>" class="wallet-link">💰 My Wallet</a></li>
                     <li><a href="<?php echo e(route('transfers.create')); ?>" class="send-money-link">Send Money</a></li>
                     <li><a href="<?php echo e(route('transfers.index')); ?>">My Transfers</a></li>
                     <li><a href="<?php echo e(route('beneficiaries.index')); ?>">Beneficiaries</a></li>
                     <li><a href="<?php echo e(route('bank-accounts.index')); ?>">My Accounts</a></li>
-<<<<<<< HEAD:storage/framework/views/64422b0476088ab27906cda1e6ed7e3f.php
                     <li><a href="<?php echo e(route('support.index')); ?>">Support</a></li>
-=======
                     <li><a href="<?php echo e(route('reviews.index')); ?>">Reviews</a></li>
                     <li><a href="<?php echo e(route('disputes.index')); ?>">Disputes</a></li>
->>>>>>> 9fec4b96c8aef199753241ac99f27d062b8ad306:storage/framework/views/ab240e1fb5f0c705d3e4470f2346c186.php
                     <?php if(session('user.role') === 'admin'): ?>
                         <li><a href="<?php echo e(route('admin.dashboard')); ?>" style="color: #f59e0b; font-weight: 600;">Admin Panel</a></li>
                     <?php endif; ?>
@@ -40,7 +41,7 @@
                     <?php if(session('user.is_admin')): ?>
                         <li><a href="<?php echo e(route('admin.dashboard')); ?>">Admin</a></li>
                     <?php endif; ?>
-                    <li>Welcome, <?php echo e(session('user.name')); ?></li>
+                    <li><a href="<?php echo e(route('profile')); ?>" style="color: inherit; text-decoration: none;">Welcome, <?php echo e(session('user.name')); ?></a></li>
                     <li>
                         <form action="<?php echo e(route('logout')); ?>" method="POST" style="display:inline;">
                             <?php echo csrf_field(); ?>

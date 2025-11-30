@@ -561,4 +561,4 @@ window.onclick = function(event) {
 
 </body>
 </html>
-<?php /**PATH C:\xampp\htdocs\money-transfer\resources\views/admin/fraud-detection.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\xampp\htdocs\money-transfer\WebProject\resources\views/admin/fraud-detection.blade.php ENDPATH**/ ?>
