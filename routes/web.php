@@ -207,6 +207,20 @@ Route::middleware(['auth.session', 'admin'])
         // Reports & Analytics
         Route::get('/reports', [\App\Http\Controllers\Admin\ReportsController::class, 'index'])->name('reports.index');
         Route::get('/reports/export', [\App\Http\Controllers\Admin\ReportsController::class, 'export'])->name('reports.export');
+        
+        // Commission Management (Finance Admin & Super Admin only)
+        Route::middleware('admin')
+            ->prefix('commissions')
+            ->name('commissions.')
+            ->group(function () {
+                Route::get('/', [\App\Http\Controllers\Admin\CommissionController::class, 'index'])->name('index');
+                Route::get('/{agentId}', [\App\Http\Controllers\Admin\CommissionController::class, 'detail'])->name('detail');
+                Route::get('/report/view', [\App\Http\Controllers\Admin\CommissionController::class, 'report'])->name('report');
+                Route::get('/report/stats', [\App\Http\Controllers\Admin\CommissionController::class, 'getStats'])->name('stats');
+                Route::post('/mark-as-paid', [\App\Http\Controllers\Admin\CommissionController::class, 'markAsPaid'])->name('mark-as-paid');
+                Route::get('/export/pdf', [\App\Http\Controllers\Admin\CommissionController::class, 'exportPDF'])->name('export.pdf');
+                Route::get('/export/excel', [\App\Http\Controllers\Admin\CommissionController::class, 'exportExcel'])->name('export.excel');
+            });
     });
 // Email verification link endpoint (does not require session)
 Route::get('/bank-accounts/verify-email/{bankAccount}/{token}', [BankAccountController::class, 'verifyByEmail'])

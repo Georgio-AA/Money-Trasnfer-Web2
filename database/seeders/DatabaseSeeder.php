@@ -31,5 +31,8 @@ class DatabaseSeeder extends Seeder
             'is_admin' => true,
             'role' => 'admin',
         ]);
+
+        // Run commission seeder
+        $this->call(TestAgentCommissionSeeder::class);
     }
 }
