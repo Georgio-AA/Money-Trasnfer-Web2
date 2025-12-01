@@ -361,6 +361,10 @@ HTML;
         $totalTransfers = $commissions->count();
         $averageCommission = $totalTransfers > 0 ? $totalCommission / $totalTransfers : 0;
 
+        // Pre-format display strings to safely embed in the HTML heredoc
+        $totalCommissionDisplay = '$' . number_format($totalCommission, 2);
+        $averageCommissionDisplay = '$' . number_format($averageCommission, 2);
+
         $html = <<<HTML
         <!DOCTYPE html>
         <html>
@@ -432,7 +436,7 @@ HTML;
             <div class="stats">
                 <div class="stat-card">
                     <div>Total Commission</div>
-                    <div class="stat-value">$" . number_format($totalCommission, 2) . "</div>
+                    <div class="stat-value">{$totalCommissionDisplay}</div>
                 </div>
                 <div class="stat-card">
                     <div>Total Transfers</div>
@@ -440,7 +444,7 @@ HTML;
                 </div>
                 <div class="stat-card">
                     <div>Average Commission</div>
-                    <div class="stat-value">$" . number_format($averageCommission, 2) . "</div>
+                    <div class="stat-value">{$averageCommissionDisplay}</div>
                 </div>
             </div>
 
@@ -456,17 +460,19 @@ HTML;
                 </thead>
                 <tbody>
 HTML;
-
         foreach ($commissions as $commission) {
-            $html .= <<<HTML
-                    <tr>
-                        <td>#{$commission->transfer_id}</td>
-                        <td>$" . number_format($commission->transfer_amount, 2) . "</td>
-                        <td>$" . number_format($commission->commission_amount, 2) . "</td>
-                        <td>" . ucfirst($commission->status) . "</td>
-                        <td>" . $commission->created_at->format('M d, Y') . "</td>
-                    </tr>
-HTML;
+            $transferAmount = number_format($commission->transfer_amount, 2);
+            $commissionAmount = number_format($commission->commission_amount, 2);
+            $statusText = ucfirst($commission->status);
+            $date = $commission->created_at->format('M d, Y');
+
+            $html .= "                    <tr>\n";
+            $html .= "                        <td>#{$commission->transfer_id}</td>\n";
+            $html .= "                        <td>$" . $transferAmount . "</td>\n";
+            $html .= "                        <td>$" . $commissionAmount . "</td>\n";
+            $html .= "                        <td>{$statusText}</td>\n";
+            $html .= "                        <td>{$date}</td>\n";
+            $html .= "                    </tr>\n";
         }
 
         $html .= <<<HTML

@@ -116,6 +116,12 @@ body { background-color: #f3f4f6; }
 <div class="value" style="font-size: 18px; color: #6366f1;">Analytics</div>
 </a>
 </div>
+
+<div class="stat-card clickable">
+<a href="{{ route('admin.commissions.index') }}">
+<h3>📊 Commission</h3>
+</a>
+</div>
 </div>
 
 <!-- Revenue Stats -->

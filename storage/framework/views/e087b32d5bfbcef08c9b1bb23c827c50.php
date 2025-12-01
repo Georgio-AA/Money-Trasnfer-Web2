@@ -3,297 +3,277 @@
 <style>
 body { background-color: #f3f4f6; }
 .admin-container { max-width: 1400px; margin: 40px auto; padding: 0 20px; }
-.card { border: none; box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15); }
-.card-header { background-color: #007bff; color: white; font-weight: bold; }
-.border-left-primary { border-left: 0.25rem solid #007bff !important; }
-.border-left-success { border-left: 0.25rem solid #28a745 !important; }
-.border-left-warning { border-left: 0.25rem solid #ffc107 !important; }
-.status-badge { padding: 0.35rem 0.65rem; border-radius: 0.25rem; font-size: 0.875rem; }
-.status-pending { background-color: #ffc107; color: #000; }
-.status-approved { background-color: #17a2b8; color: white; }
-.status-paid { background-color: #28a745; color: white; }
+
+/* HEADER */
+.report-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+.report-header-title { font-size: 28px; font-weight: 700; color: #1a202c; }
+.report-header-subtitle { font-size: 15px; color: #718096; }
+
+/* FILTER inputs modern styling */
+.form-select, .form-control {
+    background: #ffffff;
+    border: 1px solid #cbd5e0;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 14px;
+    color: #2d3748;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    transition: border 0.2s, box-shadow 0.2s;
+}
+
+.form-select:focus, .form-control:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59,130,246,0.25);
+}
+
+/* FILTER labels */
+
+.filter-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+    flex-wrap: nowrap;
+    padding: 5px;
+}
+
+.filter-row > div {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #4a5568;
+    font-size: 14px;
+}
+
+/* BUTTONS */
+.btn-primary {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    border: none;
+    border-radius: 6px;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: white;
+    transition: opacity .2s, transform .2s;
+}
+
+.btn-primary:hover {
+    opacity: .90;
+    transform: translateY(-1px);
+}
+
+.btn-outline-secondary {
+    border: 1px solid #cbd5e0;
+    border-radius: 6px;
+    padding: 10px 16px;
+    font-size: 14px;
+    color: #4a5568;
+    font-weight: 600;
+    background: white;
+}
+
+.btn-outline-secondary:hover {
+    background: #edf2f7;
+}
+
+/* PDF + Excel buttons */
+.btn-outline-danger {
+    border: 1px solid #f87171;
+    color: #b91c1c;
+    border-radius: 6px;
+    padding: 10px 16px;
+    font-size: 14px;
+    background: white;
+}
+.btn-outline-danger:hover {
+    background: #fee2e2;
+}
+
+.btn-outline-success {
+    border: 1px solid #34d399;
+    color: #047857;
+    border-radius: 6px;
+    padding: 10px 16px;
+    font-size: 14px;
+    background: white;
+}
+.btn-outline-success:hover {
+    background: #d1fae5;
+}
+
+
+/* GRID STAT CARDS */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px; }
+.stat-card { background: white; border-radius: 8px; padding: 22px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+.stat-card h3 { font-size: 13px; color: #718096; text-transform: uppercase; margin: 0 0 8px 0; }
+.stat-card .value { font-size: 30px; font-weight: 700; color: #2d3748; }
+
+/* TABLE */
+.table-card { background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+.table-card-header { padding: 20px; font-size: 18px; font-weight: 600; border-bottom: 1px solid #e2e8f0; }
+.table { width: 100%; border-collapse: collapse; }
+.table thead th { font-size: 12px; text-transform: uppercase; color: #718096; border-bottom: 2px solid #e2e8f0; padding: 12px; }
+.table tbody td { padding: 14px; border-bottom: 1px solid #edf2f7; font-size: 14px; color: #2d3748; }
+
+.status-badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+.status-pending { background: #fef3c7; color: #92400e; }
+.status-approved { background: #dbeafe; color: #1e40af; }
+.status-paid { background: #d1fae5; color: #065f46; }
 </style>
 
 <div class="admin-container">
-    <div class="container-fluid">
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <h1 class="h3 mb-0">Commission Report</h1>
-            <small class="text-muted">Filter and analyze commission data</small>
+
+    <!-- HEADER -->
+    <div class="report-header">
+        <div>
+            <div class="report-header-title">Commission Report</div>
+            <div class="report-header-subtitle">Commission analytics & financial breakdown</div>
         </div>
-        <div class="col-md-4 text-end">
-            <a href="<?php echo e(route('admin.commissions.index')); ?>" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Back
-            </a>
-            <a href="<?php echo e(route('admin.commissions.export.pdf', request()->query())); ?>" class="btn btn-danger" target="_blank">
-                <i class="fas fa-file-pdf"></i> PDF
-            </a>
-            <a href="<?php echo e(route('admin.commissions.export.excel', request()->query())); ?>" class="btn btn-success">
-                <i class="fas fa-file-excel"></i> Excel
-            </a>
-        </div>
-    </div>
 
-    <!-- Filter Form -->
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <div class="card shadow">
-                <div class="card-header bg-light py-3">
-                    <h5 class="m-0 font-weight-bold">Filters</h5>
-                </div>
-                <div class="card-body">
-                    <form method="GET" action="<?php echo e(route('admin.commissions.report')); ?>" class="needs-validation">
-                        <div class="row">
-                            <div class="col-md-3">
-                                <label for="period" class="form-label">Period:</label>
-                                <select name="period" id="period" class="form-control" onchange="updateDateFields()">
-                                    <option value="daily" <?php echo e(request('period') === 'daily' ? 'selected' : ''); ?>>Daily</option>
-                                    <option value="weekly" <?php echo e(request('period') === 'weekly' ? 'selected' : ''); ?>>Weekly</option>
-                                    <option value="monthly" <?php echo e(request('period') === 'monthly' ? 'selected' : ''); ?>>Monthly</option>
-                                    <option value="yearly" <?php echo e(request('period') === 'yearly' ? 'selected' : ''); ?>>Yearly</option>
-                                    <option value="custom" <?php echo e(request('period') === 'custom' ? 'selected' : ''); ?>>Custom Range</option>
-                                </select>
-                            </div>
-
-                            <div class="col-md-3" id="start_date_container" style="display: <?php echo e(request('period') === 'custom' ? 'block' : 'none'); ?>;">
-                                <label for="start_date" class="form-label">From Date:</label>
-                                <input type="date" name="start_date" id="start_date" class="form-control" 
-                                       value="<?php echo e(request('start_date')); ?>">
-                            </div>
-
-                            <div class="col-md-3" id="end_date_container" style="display: <?php echo e(request('period') === 'custom' ? 'block' : 'none'); ?>;">
-                                <label for="end_date" class="form-label">To Date:</label>
-                                <input type="date" name="end_date" id="end_date" class="form-control" 
-                                       value="<?php echo e(request('end_date')); ?>">
-                            </div>
-
-                            <div class="col-md-3">
-                                <label for="agent_id" class="form-label">Agent:</label>
-                                <select name="agent_id" id="agent_id" class="form-control">
-                                    <option value="">-- All Agents --</option>
-                                    <?php $__currentLoopData = $agents; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $agent): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                        <option value="<?php echo e($agent->id); ?>" 
-                                                <?php echo e(request('agent_id') == $agent->id ? 'selected' : ''); ?>>
-                                            <?php echo e($agent->user->name ?? 'Unknown'); ?> (<?php echo e($agent->store_name ?? 'No Store'); ?>)
-                                        </option>
-                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="row mt-3">
-                            <div class="col-md-3">
-                                <label for="status" class="form-label">Status:</label>
-                                <select name="status" id="status" class="form-control">
-                                    <option value="">-- All Status --</option>
-                                    <option value="pending" <?php echo e(request('status') === 'pending' ? 'selected' : ''); ?>>Pending</option>
-                                    <option value="approved" <?php echo e(request('status') === 'approved' ? 'selected' : ''); ?>>Approved</option>
-                                    <option value="paid" <?php echo e(request('status') === 'paid' ? 'selected' : ''); ?>>Paid</option>
-                                </select>
-                            </div>
-
-                            <div class="col-md-3">
-                                <label for="calculation_method" class="form-label">Calculation Method:</label>
-                                <select name="calculation_method" id="calculation_method" class="form-control">
-                                    <option value="">-- All Methods --</option>
-                                    <option value="percentage" <?php echo e(request('calculation_method') === 'percentage' ? 'selected' : ''); ?>>Percentage</option>
-                                    <option value="fixed" <?php echo e(request('calculation_method') === 'fixed' ? 'selected' : ''); ?>>Fixed Fee</option>
-                                </select>
-                            </div>
-
-                            <div class="col-md-6 d-flex align-items-end gap-2">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-filter"></i> Apply Filters
-                                </button>
-                                <a href="<?php echo e(route('admin.commissions.report')); ?>" class="btn btn-secondary">
-                                    <i class="fas fa-redo"></i> Reset
-                                </a>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Summary Statistics -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card border-left-primary shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="text-primary text-uppercase text-xs font-weight-bold mb-1">
-                        Total Commission
-                    </div>
-                    <div class="h3 mb-0 font-weight-bold text-gray-800">
-                        $<?php echo e(number_format($totals['total_commission'] ?? 0, 2)); ?>
-
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card border-left-success shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="text-success text-uppercase text-xs font-weight-bold mb-1">
-                        Total Transfers
-                    </div>
-                    <div class="h3 mb-0 font-weight-bold text-gray-800">
-                        <?php echo e($totals['total_transfers'] ?? 0); ?>
-
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card border-left-info shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="text-info text-uppercase text-xs font-weight-bold mb-1">
-                        Average Commission
-                    </div>
-                    <div class="h3 mb-0 font-weight-bold text-gray-800">
-                        $<?php echo e(number_format($totals['average_commission'] ?? 0, 2)); ?>
-
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card border-left-warning shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="text-warning text-uppercase text-xs font-weight-bold mb-1">
-                        Commission by Status
-                    </div>
-                    <div class="small">
-                        <span class="text-warning">P: $<?php echo e(number_format($totals['pending'] ?? 0, 2)); ?></span> | 
-                        <span class="text-info">A: $<?php echo e(number_format($totals['approved'] ?? 0, 2)); ?></span> | 
-                        <span class="text-success">Pd: $<?php echo e(number_format($totals['paid'] ?? 0, 2)); ?></span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Commissions Table -->
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white py-3">
-                    <h5 class="m-0 font-weight-bold">Commission Details</h5>
-                </div>
-                <?php if($commissions->isEmpty()): ?>
-                    <div class="card-body">
-                        <div class="alert alert-info mb-0">
-                            <i class="fas fa-info-circle"></i> No commissions found matching your filters.
-                        </div>
-                    </div>
-                <?php else: ?>
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0 small">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Agent</th>
-                                    <th>Transfer ID</th>
-                                    <th>Transfer Amount</th>
-                                    <th>Commission Amount</th>
-                                    <th>Commission Rate</th>
-                                    <th>Method</th>
-                                    <th>Status</th>
-                                    <th>Created Date</th>
-                                    <th>Paid Date</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php $__currentLoopData = $commissions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $commission): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                    <tr>
-                                        <td>
-                                            <strong><?php echo e($commission->agent->user->name ?? 'N/A'); ?></strong>
-                                            <br>
-                                            <small class="text-muted">
-                                                <?php echo e($commission->agent->store_name ?? 'No Store'); ?>
-
-                                            </small>
-                                        </td>
-                                        <td>
-                                            <a href="<?php echo e(route('admin.transfers.show', $commission->transfer_id)); ?>" class="text-primary">
-                                                #<?php echo e($commission->transfer_id); ?>
-
-                                            </a>
-                                        </td>
-                                        <td>$<?php echo e(number_format($commission->transfer_amount, 2)); ?></td>
-                                        <td>
-                                            <strong class="text-success">
-                                                $<?php echo e(number_format($commission->commission_amount, 2)); ?>
-
-                                            </strong>
-                                        </td>
-                                        <td><?php echo e($commission->commission_rate); ?>%</td>
-                                        <td>
-                                            <span class="badge badge-secondary">
-                                                <?php echo e(ucfirst($commission->calculation_method)); ?>
-
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <?php if($commission->status === 'paid'): ?>
-                                                <span class="badge bg-success text-white">Paid</span>
-                                            <?php elseif($commission->status === 'approved'): ?>
-                                                <span class="badge bg-info text-white">Approved</span>
-                                            <?php else: ?>
-                                                <span class="badge bg-warning text-dark">Pending</span>
-                                            <?php endif; ?>
-                                        </td>
-                                        <td><?php echo e($commission->created_at->format('M d, Y')); ?></td>
-                                        <td>
-                                            <?php if($commission->paid_at): ?>
-                                                <?php echo e($commission->paid_at->format('M d, Y')); ?>
-
-                                            <?php else: ?>
-                                                <span class="text-muted">--</span>
-                                            <?php endif; ?>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="card-footer">
-                        <?php echo e($commissions->links()); ?>
-
-                    </div>
-                <?php endif; ?>
-            </div>
-        </div>
-    </div>
+        <div style="display: flex; gap: 8px;">
+            <div class="d-flex gap-2">
+    <a href="<?php echo e(route('admin.commissions.index')); ?>" class="btn btn-outline-secondary">
+        Back
+    </a>
+    <a href="<?php echo e(route('admin.commissions.export.pdf', request()->query())); ?>" 
+       class="btn btn-outline-danger" target="_blank">
+        PDF
+    </a>
+    <a href="<?php echo e(route('admin.commissions.export.excel', request()->query())); ?>" 
+       class="btn btn-outline-success">
+        Excel
+    </a>
 </div>
 
-<style>
-    .border-left-primary {
-        border-left: 0.25rem solid #007bff !important;
-    }
-    .border-left-success {
-        border-left: 0.25rem solid #28a745 !important;
-    }
-    .border-left-info {
-        border-left: 0.25rem solid #17a2b8 !important;
-    }
+        </div>
+    </div>
+
+    <form method="GET" action="<?php echo e(route('admin.commissions.report')); ?>">
+    <div class="filter-row">
+
+        <div>
+            <label class="form-label">Period</label>
+            <select name="period" class="form-select" onchange="updateDateFields()">
+                <option value="daily" <?php echo e(request('period')==='daily'?'selected':''); ?>>Daily</option>
+                <option value="weekly" <?php echo e(request('period')==='weekly'?'selected':''); ?>>Weekly</option>
+                <option value="monthly" <?php echo e(request('period')==='monthly'?'selected':''); ?>>Monthly</option>
+                <option value="yearly" <?php echo e(request('period')==='yearly'?'selected':''); ?>>Yearly</option>
+                <option value="custom" <?php echo e(request('period')==='custom'?'selected':''); ?>>Custom</option>
+            </select>
+        </div>
+
+        <div>
+            <label class="form-label">Agent</label>
+            <select name="agent_id" class="form-select">
+                <option value="">All Agents</option>
+                <?php $__currentLoopData = $agents; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $agent): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <option value="<?php echo e($agent->id); ?>" <?php echo e(request('agent_id')==$agent->id?'selected':''); ?>>
+                    <?php echo e($agent->user->name); ?>
+
+                </option>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+            </select>
+        </div>
+
+        <div>
+            <label class="form-label">Status</label>
+            <select name="status" class="form-select">
+                <option value="">All</option>
+                <option value="pending" <?php echo e(request('status')==='pending'?'selected':''); ?>>Pending</option>
+                <option value="approved" <?php echo e(request('status')==='approved'?'selected':''); ?>>Approved</option>
+                <option value="paid" <?php echo e(request('status')==='paid'?'selected':''); ?>>Paid</option>
+            </select>
+        </div>
+
+        <div>
+            <label class="form-label">Method</label>
+            <select name="calculation_method" class="form-select">
+                <option value="">All</option>
+                <option value="percentage" <?php echo e(request('calculation_method')==='percentage'?'selected':''); ?>>Percentage</option>
+                <option value="fixed" <?php echo e(request('calculation_method')==='fixed'?'selected':''); ?>>Fixed</option>
+            </select>
+        </div>
+
+        <div class="buttons">
+            <button type="submit" class="btn btn-primary">Apply</button>
+        </div>
+        <div class="buttons">
+            <a href="<?php echo e(route('admin.commissions.report')); ?>" class="btn btn-outline-secondary">Reset</a>
+        </div>
+
+    </div>
+</form>
+
+    <!-- STATS -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>Total Commission</h3>
+            <div class="value">$<?php echo e(number_format($totals['total_commission'],2)); ?></div>
+        </div>
+        <div class="stat-card">
+            <h3>Total Transfers</h3>
+            <div class="value"><?php echo e($totals['total_transfers']); ?></div>
+        </div>
+        <div class="stat-card">
+            <h3>Average Commission</h3>
+            <div class="value">$<?php echo e(number_format($totals['average_commission'],2)); ?></div>
+        </div>
+        <div class="stat-card">
+            <h3>Paid vs Pending</h3>
+            <div class="value">
+                <span style="color:#10b981;">$<?php echo e(number_format($totals['paid'],2)); ?></span>
+                <span style="color:#f59e0b; font-size:20px;"> | </span>
+                <span style="color:#92400e;">$<?php echo e(number_format($totals['pending'],2)); ?></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-card">
+        <div class="table-card-header">Commission Records</div>
+
+        <?php if($commissions->isEmpty()): ?>
+            <div style="padding:24px; text-align:center; color:#718096;">No commissions found</div>
+        <?php else: ?>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Agent</th>
+                        <th>Amount</th>
+                        <th>Commission</th>
+                        <th>Method</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php $__currentLoopData = $commissions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $commission): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <tr>
+                        <td><?php echo e($commission->agent->user->name); ?></td>
+                        <td>$<?php echo e(number_format($commission->transfer_amount,2)); ?></td>
+                        <td>$<?php echo e(number_format($commission->commission_amount,2)); ?></td>
+                        <td><?php echo e($commission->calculation_method); ?></td>
+                        <td>
+                            <span class="status-badge status-<?php echo e($commission->status); ?>">
+                                <?php echo e(ucfirst($commission->status)); ?>
+
+                            </span>
+                        </td>
+                        <td><?php echo e($commission->created_at->format('M d, Y')); ?></td>
+                    </tr>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                </tbody>
+            </table>
+
+            <div style="padding: 15px;">
+                <?php echo e($commissions->links()); ?>
+
+            </div>
+        <?php endif; ?>
     </div>
 </div>
-
-<script>
-    function updateDateFields() {
-        const period = document.getElementById('period').value;
-        const startContainer = document.getElementById('start_date_container');
-        const endContainer = document.getElementById('end_date_container');
-        
-        if (period === 'custom') {
-            startContainer.style.display = 'block';
-            endContainer.style.display = 'block';
-        } else {
-            startContainer.style.display = 'none';
-            endContainer.style.display = 'none';
-        }
-    }
-</script>
 
 <?php echo $__env->make('includes.footer', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 <?php /**PATH C:\XAMPP\htdocs\money-transfer2\WebProject\resources\views/admin/commissions/report.blade.php ENDPATH**/ ?>

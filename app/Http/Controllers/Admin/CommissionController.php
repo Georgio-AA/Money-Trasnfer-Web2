@@ -266,9 +266,9 @@ class CommissionController extends Controller
             'total_transfers' => $transfers->count() > 0 ? $transfers->count() : $commissionCount,
             'total_transfer_amount' => $transfers->sum('amount') > 0 ? $transfers->sum('amount') : $totalTransferAmount,
             'total_commission' => $totalCommissions,
-            'pending_commission' => $commissionQuery->clone()->pending()->sum('commission_amount'),
-            'approved_commission' => $commissionQuery->clone()->approved()->sum('commission_amount'),
-            'paid_commission' => $commissionQuery->clone()->paid()->sum('commission_amount'),
+            'pending_commission' => (clone $commissionQuery)->pending()->sum('commission_amount'),
+            'approved_commission' => (clone $commissionQuery)->approved()->sum('commission_amount'),
+            'paid_commission' => (clone $commissionQuery)->paid()->sum('commission_amount'),
             'commission_count' => $commissionCount,
             'average_commission' => $commissionCount > 0 ? $totalCommissions / $commissionCount : 0,
             'average_commission_per_transfer' => $commissionCount > 0 ? $totalCommissions / $commissionCount : 0,
@@ -333,9 +333,10 @@ class CommissionController extends Controller
             'total_commission' => $query->sum('commission_amount'),
             'total_transfers' => $query->count(),
             'average_commission' => $query->count() > 0 ? $query->avg('commission_amount') : 0,
-            'pending' => Commission::where('status', 'pending')->where('created_at', '>=', $dateRange[0])->sum('commission_amount'),
-            'approved' => Commission::where('status', 'approved')->where('created_at', '>=', $dateRange[0])->sum('commission_amount'),
-            'paid' => Commission::where('status', 'paid')->where('created_at', '>=', $dateRange[0])->sum('commission_amount'),
+            // Use the same filtered query and apply status scopes so results respect all filters and date range
+            'pending' => (clone $query)->pending()->sum('commission_amount'),
+            'approved' => (clone $query)->approved()->sum('commission_amount'),
+            'paid' => (clone $query)->paid()->sum('commission_amount'),
         ];
     }
 

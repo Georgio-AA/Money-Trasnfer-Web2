@@ -1,4 +1,4 @@
-@include('includes.header')
+<?php echo $__env->make('includes.header', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
 <style>
 body { background-color: #f3f4f6; }
@@ -19,13 +19,13 @@ body { background-color: #f3f4f6; }
     <div class="row mb-4">
         <div class="col-md-8">
             <h1 class="h3 mb-0">Commission Details</h1>
-            <small class="text-muted">{{ $agent->user->name ?? 'Agent' }} {{ $agent->user->surname ?? '' }}</small>
+            <small class="text-muted"><?php echo e($agent->user->name ?? 'Agent'); ?> <?php echo e($agent->user->surname ?? ''); ?></small>
         </div>
         <div class="col-md-4 text-end">
-            <a href="{{ route('admin.commissions.index') }}" class="btn btn-secondary">
+            <a href="<?php echo e(route('admin.commissions.index')); ?>" class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i> Back
             </a>
-            <a href="{{ route('admin.commissions.report', ['agent_id' => $agent->id]) }}" class="btn btn-primary">
+            <a href="<?php echo e(route('admin.commissions.report', ['agent_id' => $agent->id])); ?>" class="btn btn-primary">
                 <i class="fas fa-download"></i> Export Report
             </a>
         </div>
@@ -40,38 +40,43 @@ body { background-color: #f3f4f6; }
                         <div class="col-md-6">
                             <h5 class="card-title">Agent Information</h5>
                             <p class="mb-2">
-                                <strong>Name:</strong> {{ $agent->user->name ?? 'N/A' }} {{ $agent->user->surname ?? '' }}
+                                <strong>Name:</strong> <?php echo e($agent->user->name ?? 'N/A'); ?> <?php echo e($agent->user->surname ?? ''); ?>
+
                             </p>
                             <p class="mb-2">
-                                <strong>Email:</strong> {{ $agent->user->email ?? 'N/A' }}
+                                <strong>Email:</strong> <?php echo e($agent->user->email ?? 'N/A'); ?>
+
                             </p>
                             <p class="mb-2">
-                                <strong>Store:</strong> {{ $agent->store_name ?? 'N/A' }}
+                                <strong>Store:</strong> <?php echo e($agent->store_name ?? 'N/A'); ?>
+
                             </p>
                             <p class="mb-0">
-                                <strong>Address:</strong> {{ $agent->address ?? 'N/A' }}, {{ $agent->country ?? 'N/A' }}
+                                <strong>Address:</strong> <?php echo e($agent->address ?? 'N/A'); ?>, <?php echo e($agent->country ?? 'N/A'); ?>
+
                             </p>
                         </div>
                         <div class="col-md-6">
                             <h5 class="card-title">Commission Settings</h5>
                             <p class="mb-2">
                                 <strong>Commission Rate:</strong> 
-                                <span class="badge badge-primary">{{ $agent->commission_rate ?? 0 }}%</span>
+                                <span class="badge badge-primary"><?php echo e($agent->commission_rate ?? 0); ?>%</span>
                             </p>
                             <p class="mb-2">
                                 <strong>Commission Type:</strong> 
-                                <span class="badge badge-info">{{ ucfirst($agent->commission_type ?? 'percentage') }}</span>
+                                <span class="badge badge-info"><?php echo e(ucfirst($agent->commission_type ?? 'percentage')); ?></span>
                             </p>
                             <p class="mb-2">
                                 <strong>Status:</strong> 
-                                @if($agent->approved)
+                                <?php if($agent->approved): ?>
                                     <span class="badge badge-success">Approved</span>
-                                @else
+                                <?php else: ?>
                                     <span class="badge badge-warning">Pending Approval</span>
-                                @endif
+                                <?php endif; ?>
                             </p>
                             <p class="mb-0">
-                                <strong>Joined:</strong> {{ $agent->created_at->format('M d, Y') }}
+                                <strong>Joined:</strong> <?php echo e($agent->created_at->format('M d, Y')); ?>
+
                             </p>
                         </div>
                     </div>
@@ -89,10 +94,12 @@ body { background-color: #f3f4f6; }
                         Total Transfers
                     </div>
                     <div class="h3 mb-0 font-weight-bold text-gray-800">
-                        {{ $stats['total_transfers'] ?? 0 }}
+                        <?php echo e($stats['total_transfers'] ?? 0); ?>
+
                     </div>
                     <small class="text-muted">
-                        Period: {{ $dateRange[0]->format('M d') }} - {{ $dateRange[1]->format('M d, Y') }}
+                        Period: <?php echo e($dateRange[0]->format('M d')); ?> - <?php echo e($dateRange[1]->format('M d, Y')); ?>
+
                     </small>
                 </div>
             </div>
@@ -104,7 +111,8 @@ body { background-color: #f3f4f6; }
                         Total Transfer Amount
                     </div>
                     <div class="h3 mb-0 font-weight-bold text-gray-800">
-                        ${{ number_format($stats['total_transfer_amount'] ?? 0, 2) }}
+                        $<?php echo e(number_format($stats['total_transfer_amount'] ?? 0, 2)); ?>
+
                     </div>
                 </div>
             </div>
@@ -116,7 +124,8 @@ body { background-color: #f3f4f6; }
                         Total Commission Earned
                     </div>
                     <div class="h3 mb-0 font-weight-bold text-gray-800">
-                        ${{ number_format($stats['total_commission'] ?? 0, 2) }}
+                        $<?php echo e(number_format($stats['total_commission'] ?? 0, 2)); ?>
+
                     </div>
                 </div>
             </div>
@@ -128,7 +137,8 @@ body { background-color: #f3f4f6; }
                         Average Commission
                     </div>
                     <div class="h3 mb-0 font-weight-bold text-gray-800">
-                        ${{ number_format($stats['average_commission_per_transfer'] ?? 0, 2) }}
+                        $<?php echo e(number_format($stats['average_commission_per_transfer'] ?? 0, 2)); ?>
+
                     </div>
                 </div>
             </div>
@@ -143,7 +153,7 @@ body { background-color: #f3f4f6; }
                     <h6 class="m-0 font-weight-bold">Pending Commission</h6>
                 </div>
                 <div class="card-body">
-                    <h3 class="h5 text-warning">${{ number_format($stats['pending_commission'] ?? 0, 2) }}</h3>
+                    <h3 class="h5 text-warning">$<?php echo e(number_format($stats['pending_commission'] ?? 0, 2)); ?></h3>
                     <small class="text-muted">Awaiting approval</small>
                 </div>
             </div>
@@ -154,7 +164,7 @@ body { background-color: #f3f4f6; }
                     <h6 class="m-0 font-weight-bold">Approved Commission</h6>
                 </div>
                 <div class="card-body">
-                    <h3 class="h5 text-info">${{ number_format($stats['approved_commission'] ?? 0, 2) }}</h3>
+                    <h3 class="h5 text-info">$<?php echo e(number_format($stats['approved_commission'] ?? 0, 2)); ?></h3>
                     <small class="text-muted">Ready to pay out</small>
                 </div>
             </div>
@@ -165,7 +175,7 @@ body { background-color: #f3f4f6; }
                     <h6 class="m-0 font-weight-bold">Paid Commission</h6>
                 </div>
                 <div class="card-body">
-                    <h3 class="h5 text-success">${{ number_format($stats['paid_commission'] ?? 0, 2) }}</h3>
+                    <h3 class="h5 text-success">$<?php echo e(number_format($stats['paid_commission'] ?? 0, 2)); ?></h3>
                     <small class="text-muted">Already paid out</small>
                 </div>
             </div>
@@ -177,29 +187,29 @@ body { background-color: #f3f4f6; }
         <div class="col-md-12">
             <div class="card shadow">
                 <div class="card-body">
-                    <form method="GET" action="{{ route('admin.commissions.detail', $agent->id) }}" class="form-inline">
+                    <form method="GET" action="<?php echo e(route('admin.commissions.detail', $agent->id)); ?>" class="form-inline">
                         <div class="form-group me-3">
                             <label for="period" class="me-2">Period:</label>
                             <select name="period" id="period" class="form-control" onchange="this.form.submit()">
-                                <option value="daily" {{ request('period') === 'daily' ? 'selected' : '' }}>Daily</option>
-                                <option value="weekly" {{ request('period') === 'weekly' ? 'selected' : '' }}>Weekly</option>
-                                <option value="monthly" {{ request('period') === 'monthly' ? 'selected' : '' }}>Monthly</option>
-                                <option value="yearly" {{ request('period') === 'yearly' ? 'selected' : '' }}>Yearly</option>
-                                <option value="custom" {{ request('period') === 'custom' ? 'selected' : '' }}>Custom</option>
+                                <option value="daily" <?php echo e(request('period') === 'daily' ? 'selected' : ''); ?>>Daily</option>
+                                <option value="weekly" <?php echo e(request('period') === 'weekly' ? 'selected' : ''); ?>>Weekly</option>
+                                <option value="monthly" <?php echo e(request('period') === 'monthly' ? 'selected' : ''); ?>>Monthly</option>
+                                <option value="yearly" <?php echo e(request('period') === 'yearly' ? 'selected' : ''); ?>>Yearly</option>
+                                <option value="custom" <?php echo e(request('period') === 'custom' ? 'selected' : ''); ?>>Custom</option>
                             </select>
                         </div>
-                        @if(request('period') === 'custom')
+                        <?php if(request('period') === 'custom'): ?>
                             <div class="form-group me-3">
                                 <label for="start_date" class="me-2">From:</label>
                                 <input type="date" name="start_date" id="start_date" class="form-control" 
-                                       value="{{ request('start_date') }}" onchange="this.form.submit()">
+                                       value="<?php echo e(request('start_date')); ?>" onchange="this.form.submit()">
                             </div>
                             <div class="form-group">
                                 <label for="end_date" class="me-2">To:</label>
                                 <input type="date" name="end_date" id="end_date" class="form-control" 
-                                       value="{{ request('end_date') }}" onchange="this.form.submit()">
+                                       value="<?php echo e(request('end_date')); ?>" onchange="this.form.submit()">
                             </div>
-                        @endif
+                        <?php endif; ?>
                     </form>
                 </div>
             </div>
@@ -213,13 +223,13 @@ body { background-color: #f3f4f6; }
                 <div class="card-header bg-primary text-white py-3">
                     <h5 class="m-0 font-weight-bold">Commission Transactions</h5>
                 </div>
-                @if($commissions->isEmpty())
+                <?php if($commissions->isEmpty()): ?>
                     <div class="card-body">
                         <div class="alert alert-info mb-0">
                             <i class="fas fa-info-circle"></i> No commissions found for this period.
                         </div>
                     </div>
-                @else
+                <?php else: ?>
                     <div class="table-responsive">
                         <table class="table table-hover mb-0">
                             <thead class="table-light">
@@ -234,48 +244,52 @@ body { background-color: #f3f4f6; }
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($commissions as $commission)
+                                <?php $__currentLoopData = $commissions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $commission): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                     <tr>
                                         <td>
-                                            @if($commission->transfer)
-                                                <a href="{{ route('admin.transfers.show', $commission->transfer) }}" class="text-primary">
-                                                    #{{ $commission->transfer_id }}
+                                            <?php if($commission->transfer): ?>
+                                                <a href="<?php echo e(route('admin.transfers.show', $commission->transfer)); ?>" class="text-primary">
+                                                    #<?php echo e($commission->transfer_id); ?>
+
                                                 </a>
-                                            @else
-                                                <span class="text-muted">#{{ $commission->transfer_id }}</span>
-                                            @endif
+                                            <?php else: ?>
+                                                <span class="text-muted">#<?php echo e($commission->transfer_id); ?></span>
+                                            <?php endif; ?>
                                         </td>
-                                        <td>${{ number_format($commission->transfer_amount, 2) }}</td>
+                                        <td>$<?php echo e(number_format($commission->transfer_amount, 2)); ?></td>
                                         <td>
                                             <strong class="text-success">
-                                                ${{ number_format($commission->commission_amount, 2) }}
+                                                $<?php echo e(number_format($commission->commission_amount, 2)); ?>
+
                                             </strong>
                                         </td>
-                                        <td>{{ $commission->commission_rate }}%</td>
+                                        <td><?php echo e($commission->commission_rate); ?>%</td>
                                         <td>
                                             <span class="badge badge-secondary">
-                                                {{ ucfirst($commission->calculation_method) }}
+                                                <?php echo e(ucfirst($commission->calculation_method)); ?>
+
                                             </span>
                                         </td>
                                         <td>
-                                            @if($commission->status === 'paid')
+                                            <?php if($commission->status === 'paid'): ?>
                                                 <span class="badge badge-success">Paid</span>
-                                            @elseif($commission->status === 'approved')
+                                            <?php elseif($commission->status === 'approved'): ?>
                                                 <span class="badge badge-info">Approved</span>
-                                            @else
+                                            <?php else: ?>
                                                 <span class="badge badge-warning">Pending</span>
-                                            @endif
+                                            <?php endif; ?>
                                         </td>
-                                        <td>{{ $commission->created_at->format('M d, Y H:i') }}</td>
+                                        <td><?php echo e($commission->created_at->format('M d, Y H:i')); ?></td>
                                     </tr>
-                                @endforeach
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </tbody>
                         </table>
                     </div>
                     <div class="card-footer">
-                        {{ $commissions->links() }}
+                        <?php echo e($commissions->links()); ?>
+
                     </div>
-                @endif
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -284,4 +298,5 @@ body { background-color: #f3f4f6; }
     </div>
 </div>
 
-@include('includes.footer')
+<?php echo $__env->make('includes.footer', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+<?php /**PATH C:\XAMPP\htdocs\money-transfer2\WebProject\resources\views/admin/commissions/detail.blade.php ENDPATH**/ ?>
