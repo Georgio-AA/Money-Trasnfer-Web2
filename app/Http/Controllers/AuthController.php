@@ -114,7 +114,8 @@ class AuthController extends Controller
             'surname' => 'required|string|max:100',
             'age' => 'required|integer|min:1|max:120',
             'email' => 'required|email|unique:users,email',
-            'phone' => 'required|string|max:20|unique:users,phone',
+            'phone_code' => 'required|string|max:5',
+            'phone' => 'required|string|max:20',
             'password' => [
                 'required',
                 'confirmed',             // must match password_confirmation
@@ -130,12 +131,20 @@ class AuthController extends Controller
 
         $token = Str::random(64);
 
+        // Combine phone code and phone number
+        $fullPhone = $request->phone_code . $request->phone;
+
+        // Check if full phone number is unique
+        if (User::where('phone', $fullPhone)->exists()) {
+            return redirect()->back()->withErrors(['phone' => 'This phone number is already registered.']);
+        }
+
         // Create user
         $user = User::create([
             'name' => $request->name,
             'surname' => $request->surname,
             'age' => $request->age,
-            'phone' => $request->phone,
+            'phone' => $fullPhone,
             'email' => $request->email,
             'password' => Hash::make($request->password),
               'verification_token' => $token,
@@ -147,7 +156,7 @@ class AuthController extends Controller
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
-            'phone' => $request->phone,
+            'phone' => $fullPhone,
             'role' => $user->role,
         ]);
         // Send verification email

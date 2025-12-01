@@ -9,11 +9,16 @@
 <body>
 <header>
     <div class="navbar">
-        <div class="logo">SwiftPay</div>
+        <div class="logo">
+            <ul>
+                 <li><a href="<?php echo e(route('home')); ?>">SwiftPay</a></li>
+            </ul>
+                           
+
+        </div>
+        
         <nav>
             <ul>
-                <li><a href="<?php echo e(route('home')); ?>">Home</a></li>
-                <li><a href="<?php echo e(route('services')); ?>">Services</a></li>
                 <li><a href="<?php echo e(route('agent.applytobeagent')); ?>">Become an Agent</a></li>
                 <?php if(session('user.role') === 'agent'): ?>
                 <li><a href="<?php echo e(route('agent.welcome')); ?>">Agent Dashboard</a></li>
@@ -29,7 +34,7 @@
                     <li><a href="<?php echo e(route('reviews.index')); ?>">Reviews</a></li>
                     <li><a href="<?php echo e(route('disputes.index')); ?>">Disputes</a></li>
                     <?php if(session('user.role') === 'admin'): ?>
-                        <li><a href="<?php echo e(route('admin.dashboard')); ?>" style="color: #f59e0b; font-weight: 600;">Admin Panel</a></li>
+                        <li><a href="<?php echo e(route('admin.dashboard')); ?>">Admin Panel</a></li>
                     <?php endif; ?>
                     <li><a href="<?php echo e(route('transfer-services.index')); ?>">Transfer Services</a></li>
                 <?php else: ?>
@@ -37,17 +42,17 @@
                 <?php endif; ?>
 
                 <?php if(session()->has('user')): ?>
-                    
-                    <?php if(session('user.is_admin')): ?>
-                        <li><a href="<?php echo e(route('admin.dashboard')); ?>">Admin</a></li>
-                    <?php endif; ?>
+                   
                     <li><a href="<?php echo e(route('profile')); ?>" style="color: inherit; text-decoration: none;">Welcome, <?php echo e(session('user.name')); ?></a></li>
                     <li>
                         <form action="<?php echo e(route('logout')); ?>" method="POST" style="display:inline;">
                             <?php echo csrf_field(); ?>
-                            <button type="submit" class="logout-btn">Logout</button>
+                            <button type="submit" class="logout-btn">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </button>
                         </form>
                     </li>
+
                 <?php else: ?>
                     
                     <li><a href="<?php echo e(route('login')); ?>">Login</a></li>
@@ -58,4 +63,26 @@
     </div>
 </header>
 <main>
+
+    <style>
+        .logout-btn {
+    background: #db4646;
+    color: white;
+    padding: 10px 8px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.logout-btn:hover {
+    background: #b91c1c;
+    transform: translateY(-2px);
+}
+    </style>
 <?php /**PATH C:\XAMPP\htdocs\money-transfer2\WebProject\resources\views/includes/header.blade.php ENDPATH**/ ?>
