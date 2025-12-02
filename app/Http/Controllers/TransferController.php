@@ -1775,6 +1775,7 @@ use App\Models\User;
 use App\Models\PaymentTransaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\Agent;    
 
 class TransferController extends Controller
 {
@@ -1832,20 +1833,27 @@ class TransferController extends Controller
             'LBP' => 'Lebanese Pound',
         ];
         
+$agents = Agent::approved()
+        ->whereHas('user', function ($query) {
+            $query->where('role', 'agent');
+        })
+        ->get();
+
         return view('transfers.create', compact(
             'beneficiaries',
             'transferServices',
             'promotions',
             'speeds',
             'countries',
-            'currencies'
+            'currencies',
+            'agents'
         ));
     }
     
     public function store(Request $request)
     {
         $user = session('user');
-        
+
         $validated = $request->validate([
             'beneficiary_id' => 'required|exists:beneficiaries,id',
             'source_currency' => 'required|string|max:10',
@@ -1854,8 +1862,11 @@ class TransferController extends Controller
             'transfer_speed' => 'required|in:instant,same_day,next_day,standard',
             'payout_method' => 'required|string',
             'promotion_id' => 'nullable|exists:promotions,id',
+            //amira
+            'agent_id' => 'nullable|required_if:payout_method,cash_pickup|exists:agents,id', 
         ]);
         
+
         // Get fresh user data from database
         $sender = User::findOrFail($user['id']);
         
@@ -1935,10 +1946,19 @@ class TransferController extends Controller
             $sender->balance -= $amountToDeduct;
             $sender->save();
             
+//amira
+$isCashPickup = $validated['payout_method'] === 'cash_pickup';
+
+$status = $isCashPickup ? 'pending' : 'processing';$agent = Agent::find($validated['agent_id']);
+$agentUserId = $agent ? $agent->user_id : null;
+
+
+
             // Create the transfer
             $transfer = Transfer::create([
                 'sender_id' => $user['id'],
                 'beneficiary_id' => $validated['beneficiary_id'],
+                'agent_id' => $agentUserId,        
                 'source_currency' => $validated['source_currency'],
                 'target_currency' => $validated['target_currency'],
                 'amount' => $amount,

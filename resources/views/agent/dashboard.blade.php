@@ -1,30 +1,54 @@
-<h2>Incoming Transfers</h2>
+<h2>Welcome, {{ $agent->store_name }}</h2>
 
-@if($incomingTransfers->isEmpty())
-    <p>No pending transfers.</p>
-@else
-    <table>
-        <thead>
-            <tr>
-                <th>Sender</th>
-                <th>Amount</th>
-                <th>Beneficiary Name</th>
-                <th>Beneficiary Phone Number</th>
-                <th>Payout Method</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-        @foreach($incomingTransfers as $t)
-            <tr>
-                <td>{{ $t->sender->name }}</td>
-                <td>{{ $t->amount }} {{ $t->currency }}</td>
-                <td>{{ $t->beneficiary->full_name }}</td>
-                <td>{{ $t->beneficiary->phone_number }}</td>
-                <td>{{ $t->payout_method }}</td>
-                <td><a href="{{ route('agent.transfer.process', $t->id) }}">Process</a></td>
-            </tr>
-        @endforeach
-        </tbody>
-    </table>
+@if(session('success'))
+    <p style="color:green;">{{ session('success') }}</p>
 @endif
+@if(session('error'))
+    <p style="color:red;">{{ session('error') }}</p>
+@endif
+
+<table>
+    <thead>
+        <tr>
+            <th>Sender</th>
+            <th>Beneficiary</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach ($transfers as $transfer)
+        <tr>
+            <td>{{ $transfer->sender->name }}</td>
+            <td>{{ $transfer->beneficiary->full_name }}</td>
+            <td>{{ number_format($transfer->amount, 2) }} {{ $transfer->source_currency }}</td>
+            <td>{{ ucfirst($transfer->status) }}</td>
+            <td>
+                @if($transfer->status === 'pending')
+                    <form action="{{ route('agent.transfer.process', $transfer->id) }}" method="POST" style="display:inline;">
+                        @csrf
+                        <button type="submit">Process</button>
+                    </form>
+                @elseif($transfer->status === 'processing')
+                    <form action="{{ route('agent.transfer.complete', $transfer->id) }}" method="POST" style="display:inline;">
+                        @csrf
+                        <button type="submit">Complete Payout</button>
+                    </form>
+                @endif
+            </td>
+        </tr>
+    @endforeach
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+

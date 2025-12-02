@@ -111,7 +111,23 @@
                     @enderror
                 </div>
                 
-               
+               <div class="form-group" id="agentSelect" style="display:{{ old('payout_method') == 'cash_pickup' ? 'block' : 'none' }};">
+    <label for="agent_id">Select Pickup Agent Based on City*</label>
+    <select name="agent_id" id="agent_id" {{ old('payout_method') == 'cash_pickup' ? 'required' : '' }}>
+        <option value="">-- Choose a pickup agent --</option>
+        {{-- Loop through agents passed from the controller --}}
+        @if(isset($agents))
+            @foreach($agents as $agent)
+                <option value="{{ $agent->id }}" {{ old('agent_id') == $agent->id ? 'selected' : '' }}>
+                    {{ $agent->name }} ({{ $agent->city ?? 'N/A' }})
+                </option>
+            @endforeach
+        @endif
+    </select>
+    @error('agent_id')
+        <span class="error">{{ $message }}</span>
+    @enderror
+</div>
 
                 <!-- Promotion Code -->
                 <div class="form-group full-width">
@@ -261,3 +277,64 @@ document.getElementById('payout_method').addEventListener('change', function() {
     }
 });
 </script>-->
+<script>
+document.getElementById('calculateBtn').addEventListener('click', function() {
+    // ... (existing calculate quote logic remains here) ...
+    const amount = document.getElementById('amount').value;
+    const sourceCurrency = document.getElementById('source_currency').value;
+    const targetCurrency = document.getElementById('target_currency').value;
+    const transferSpeed = document.getElementById('transfer_speed').value;
+    
+    if (!amount || !sourceCurrency || !targetCurrency || !transferSpeed) {
+        alert('Please fill in all required fields to calculate quote');
+        return;
+    }
+    
+    fetch('{{ route("transfers.calculate-quote") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({
+            amount: amount,
+            source_currency: sourceCurrency,
+            target_currency: targetCurrency,
+            transfer_speed: transferSpeed
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert(data.error);
+            return;
+        }
+        
+        document.getElementById('quoteAmount').textContent = sourceCurrency + ' ' + data.amount;
+        document.getElementById('quoteRate').textContent = '1 ' + sourceCurrency + ' = ' + data.exchange_rate + ' ' + targetCurrency;
+        document.getElementById('quoteFee').textContent = sourceCurrency + ' ' + data.transfer_fee;
+        document.getElementById('quoteTotal').textContent = sourceCurrency + ' ' + data.total_paid;
+        document.getElementById('quotePayout').textContent = targetCurrency + ' ' + data.payout_amount;
+        document.getElementById('quoteBox').style.display = 'block';
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to calculate quote');
+    });
+});
+
+// NEW LOGIC: Conditional Agent Selection Display
+document.getElementById('payout_method').addEventListener('change', function() {
+    const agentSelectDiv = document.getElementById('agentSelect');
+    const agentIdField = document.getElementById('agent_id');
+    
+    if (this.value === 'cash_pickup') {
+        agentSelectDiv.style.display = 'block';
+        agentIdField.setAttribute('required', 'required'); 
+    } else {
+        agentSelectDiv.style.display = 'none';
+        agentIdField.removeAttribute('required'); 
+        agentIdField.value = ''; // Clear selection when switching away
+    }
+});
+</script>
