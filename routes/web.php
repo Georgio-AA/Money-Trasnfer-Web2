@@ -16,7 +16,10 @@ use App\Http\Controllers\SupportController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\DisputeController;
 use App\Http\Controllers\AgentProfileController;
+use resources\views\agent\dashboard;
+use App\Http\Controllers\AgentDashboardController;
 use Illuminate\Support\Facades\Session;
+use App\Http\kernel;
 // -----------------------------
 // PUBLIC ROUTES (no login required)
 // -----------------------------
@@ -212,6 +215,14 @@ Route::middleware(['auth.session', 'admin'])
 Route::get('/bank-accounts/verify-email/{bankAccount}/{token}', [BankAccountController::class, 'verifyByEmail'])
     ->name('bank-accounts.verify-email');
 
+    
+// -----------------------------
+// AGENT ROUTES (should require auth.session + agent role)
+// -----------------------------
+
+/*Route::middleware(['auth.session', 'agent'])->prefix('agent')->name('agent.')->group(function () {
+   Route::get('/welcome', function () { return view('agent.welcomeagent'); })->name('welcome');});
+
 Route::middleware(['auth.session', 'agent'])
     ->prefix('agent')
     ->name('agent.')
@@ -221,9 +232,28 @@ Route::middleware(['auth.session', 'agent'])
             return view('agent.welcomeagent');
         })->name('welcome');
 
+        Route::get('/dashboard', [AgentProfileController::class, 'dashboard'])
+            ->name('dashboard');
     });
 
-Route::post('/Apply/ApplicationSubmitted',[AgentProfileController::class, 'ApplyToBeAgent'])->name('Apply.submit');
-Route::get('/agent/applytobeagent', function () {
-    return view('agent.applytobeagent');
-})->name('agent.applytobeagent');
+*/
+//amira
+/*Route::middleware(['auth.session', 'agent'])->prefix('agent')->name('agent.')->group(function () {//issue here ot acnt telkl taht role==agent means agents->approved 
+    Route::get('/dashboard', [AgentDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/transfer/{id}/process', [AgentDashboardController::class, 'process'])->name('transfer.process');
+});*/ //i'll come back for this
+Route::get('/agent/dashboard', [AgentDashboardController::class, 'index'])->name('agent.dashboard');//this worked by adding use App\Models\Agent; to controller
+//Route::get('/dashboard', function () { return view('agent.dashboard');})->name('agent.dashboard');
+
+Route::get('/Applytobeagent', function () { return view('agent.applytobeagent');})->name('agent.applytobeagent');
+Route::post('/AgentApplicationSubmitted',[AgentProfileController::class, 'ApplyToBeAgent'])->name('Apply.submit');
+Route::get('/CheckOnYourApplication',[AgentProfileController::class, 'applicationStatus'])->name('agent.applicationstatus');
+
+
+
+
+Route::middleware(['auth.session', 'agent'])->prefix('agent')->name('agent.')->group(function () {
+    Route::get('/cash-operations', [AgentCashController::class, 'index'])->name('cash.index');
+    Route::get('/cash-operations/create', [AgentCashController::class, 'create'])->name('cash.create');
+    Route::post('/cash-operations', [AgentCashController::class, 'store'])->name('cash.store');
+});

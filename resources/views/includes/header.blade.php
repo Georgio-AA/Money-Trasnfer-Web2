@@ -16,7 +16,7 @@
                 <li><a href="{{ route('services') }}">Services</a></li>
                 <li><a href="{{ route('agent.applytobeagent') }}">Become an Agent</a></li>
                 @if(session('user.role') === 'agent')
-                <li><a href="{{ route('agent.welcome') }}">Agent Dashboard</a></li>
+                <li><a href="{{ route('agent.dashboard') }}">Agent Dashboard</a></li>
                 @endif
 
                 @if(session()->has('user'))

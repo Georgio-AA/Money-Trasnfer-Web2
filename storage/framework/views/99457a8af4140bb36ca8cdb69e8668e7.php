@@ -1,4 +1,4 @@
-@include('includes.header')
+<?php echo $__env->make('includes.header', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
 <section class="page-header">
     <h1>Initiate Money Transfer</h1>
@@ -7,21 +7,21 @@
 
 <section class="transfer-form-section">
     <div class="container">
-        @if(session('error'))
-            <div class="alert alert-error">{{ session('error') }}</div>
-        @endif
+        <?php if(session('error')): ?>
+            <div class="alert alert-error"><?php echo e(session('error')); ?></div>
+        <?php endif; ?>
         
         <!-- Balance Display -->
         <div class="balance-card">
             <div class="balance-icon">💰</div>
             <div class="balance-info">
                 <span class="balance-label">Your Available Balance</span>
-                <span class="balance-amount">{{ session('user')['currency'] ?? 'USD' }} {{ number_format(session('user')['balance'] ?? 0, 2) }}</span>
+                <span class="balance-amount"><?php echo e(session('user')['currency'] ?? 'USD'); ?> <?php echo e(number_format(session('user')['balance'] ?? 0, 2)); ?></span>
             </div>
         </div>
         
-        <form method="POST" action="{{ route('transfers.store') }}" class="transfer-form" id="transferForm">
-            @csrf
+        <form method="POST" action="<?php echo e(route('transfers.store')); ?>" class="transfer-form" id="transferForm">
+            <?php echo csrf_field(); ?>
             
             <div class="form-grid">
                 <!-- Beneficiary Selection -->
@@ -29,57 +29,87 @@
                     <label for="beneficiary_id">Select Beneficiary *</label>
                     <select name="beneficiary_id" id="beneficiary_id" required>
                         <option value="">-- Choose a beneficiary --</option>
-                        @foreach($beneficiaries as $beneficiary)
-                            <option value="{{ $beneficiary->id }}" data-country="{{ $beneficiary->country }}">
-                                {{ $beneficiary->full_name }} ({{ $beneficiary->country }})
+                        <?php $__currentLoopData = $beneficiaries; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $beneficiary): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($beneficiary->id); ?>" data-country="<?php echo e($beneficiary->country); ?>">
+                                <?php echo e($beneficiary->full_name); ?> (<?php echo e($beneficiary->country); ?>)
                             </option>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </select>
-                    @if($beneficiaries->isEmpty())
-                        <small class="hint">No beneficiaries found. <a href="{{ route('beneficiaries.create') }}" class="link">Add a beneficiary first</a></small>
-                    @endif
-                    @error('beneficiary_id')
-                        <span class="error">{{ $message }}</span>
-                    @enderror
+                    <?php if($beneficiaries->isEmpty()): ?>
+                        <small class="hint">No beneficiaries found. <a href="<?php echo e(route('beneficiaries.create')); ?>" class="link">Add a beneficiary first</a></small>
+                    <?php endif; ?>
+                    <?php $__errorArgs = ['beneficiary_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <span class="error"><?php echo e($message); ?></span>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
                 
                 <!-- Amount & Currency -->
                 <div class="form-group">
                     <label for="amount">Amount to Send *</label>
-                    <input type="number" name="amount" id="amount" step="0.01" min="1" value="{{ old('amount') }}" required>
-                    @error('amount')
-                        <span class="error">{{ $message }}</span>
-                    @enderror
+                    <input type="number" name="amount" id="amount" step="0.01" min="1" value="<?php echo e(old('amount')); ?>" required>
+                    <?php $__errorArgs = ['amount'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <span class="error"><?php echo e($message); ?></span>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
                 
                 <div class="form-group">
                     <label for="source_currency">Source Currency *</label>
                     <select name="source_currency" id="source_currency" required>
                         <option value="">-- Select currency --</option>
-                        @foreach($currencies as $code => $name)
-                            <option value="{{ $code }}" {{ old('source_currency') == $code ? 'selected' : '' }}>
-                                {{ $code }} - {{ $name }}
+                        <?php $__currentLoopData = $currencies; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $code => $name): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($code); ?>" <?php echo e(old('source_currency') == $code ? 'selected' : ''); ?>>
+                                <?php echo e($code); ?> - <?php echo e($name); ?>
+
                             </option>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </select>
-                    @error('source_currency')
-                        <span class="error">{{ $message }}</span>
-                    @enderror
+                    <?php $__errorArgs = ['source_currency'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <span class="error"><?php echo e($message); ?></span>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
                 
                 <div class="form-group">
                     <label for="target_currency">Target Currency *</label>
                     <select name="target_currency" id="target_currency" required>
                         <option value="">-- Select currency --</option>
-                        @foreach($currencies as $code => $name)
-                            <option value="{{ $code }}" {{ old('target_currency') == $code ? 'selected' : '' }}>
-                                {{ $code }} - {{ $name }}
+                        <?php $__currentLoopData = $currencies; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $code => $name): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($code); ?>" <?php echo e(old('target_currency') == $code ? 'selected' : ''); ?>>
+                                <?php echo e($code); ?> - <?php echo e($name); ?>
+
                             </option>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </select>
-                    @error('target_currency')
-                        <span class="error">{{ $message }}</span>
-                    @enderror
+                    <?php $__errorArgs = ['target_currency'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <span class="error"><?php echo e($message); ?></span>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
                 
                 <!-- Transfer Options -->
@@ -87,28 +117,43 @@
                     <label for="transfer_speed">Transfer Speed *</label>
                     <select name="transfer_speed" id="transfer_speed" required>
                         <option value="">-- Select speed --</option>
-                        @foreach($speeds as $key => $label)
-                            <option value="{{ $key }}" {{ old('transfer_speed') == $key ? 'selected' : '' }}>
-                                {{ $label }}
+                        <?php $__currentLoopData = $speeds; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($key); ?>" <?php echo e(old('transfer_speed') == $key ? 'selected' : ''); ?>>
+                                <?php echo e($label); ?>
+
                             </option>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </select>
-                    @error('transfer_speed')
-                        <span class="error">{{ $message }}</span>
-                    @enderror
+                    <?php $__errorArgs = ['transfer_speed'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <span class="error"><?php echo e($message); ?></span>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
                 
                 <div class="form-group">
                     <label for="payout_method">Payout Method *</label>
                     <select name="payout_method" id="payout_method" required>
                         <option value="">-- Select method --</option>
-                        <option value="bank_deposit" {{ old('payout_method') == 'bank_deposit' ? 'selected' : '' }}>Bank Deposit</option>
-                        <option value="cash_pickup" {{ old('payout_method') == 'cash_pickup' ? 'selected' : '' }}>Cash Pickup</option>
-                        <option value="mobile_wallet" {{ old('payout_method') == 'mobile_wallet' ? 'selected' : '' }}>Mobile Wallet</option>
+                        <option value="bank_deposit" <?php echo e(old('payout_method') == 'bank_deposit' ? 'selected' : ''); ?>>Bank Deposit</option>
+                        <option value="cash_pickup" <?php echo e(old('payout_method') == 'cash_pickup' ? 'selected' : ''); ?>>Cash Pickup</option>
+                        <option value="mobile_wallet" <?php echo e(old('payout_method') == 'mobile_wallet' ? 'selected' : ''); ?>>Mobile Wallet</option>
                     </select>
-                    @error('payout_method')
-                        <span class="error">{{ $message }}</span>
-                    @enderror
+                    <?php $__errorArgs = ['payout_method'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <span class="error"><?php echo e($message); ?></span>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
                 
                
@@ -118,11 +163,11 @@
                     <label for="promotion_id">Promotion Code (Optional)</label>
                     <select name="promotion_id" id="promotion_id">
                         <option value="">-- No promotion --</option>
-                        @foreach($promotions as $promo)
-                            <option value="{{ $promo->id }}" {{ old('promotion_id') == $promo->id ? 'selected' : '' }}>
-                                {{ $promo->title }} - {{ $promo->discount_percent }}% off
+                        <?php $__currentLoopData = $promotions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $promo): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($promo->id); ?>" <?php echo e(old('promotion_id') == $promo->id ? 'selected' : ''); ?>>
+                                <?php echo e($promo->title); ?> - <?php echo e($promo->discount_percent); ?>% off
                             </option>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </select>
                 </div>
             </div>
@@ -158,7 +203,7 @@
             <div class="form-actions">
                 <button type="button" class="btn btn-secondary" id="calculateBtn">Calculate Quote</button>
                 <button type="submit" class="btn btn-primary">Initiate Transfer</button>
-                <a href="{{ route('transfers.index') }}" class="btn btn-outline">Cancel</a>
+                <a href="<?php echo e(route('transfers.index')); ?>" class="btn btn-outline">Cancel</a>
             </div>
         </form>
     </div>
@@ -216,11 +261,11 @@ document.getElementById('calculateBtn').addEventListener('click', function() {
         return;
     }
     
-    fetch('{{ route("transfers.calculate-quote") }}', {
+    fetch('<?php echo e(route("transfers.calculate-quote")); ?>', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>'
         },
         body: JSON.stringify({
             amount: amount,
@@ -250,7 +295,7 @@ document.getElementById('calculateBtn').addEventListener('click', function() {
 });
 </script>
 <!--
-@include('includes.footer')
+<?php echo $__env->make('includes.footer', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 <script>
 document.getElementById('payout_method').addEventListener('change', function() {
     const agentSelect = document.getElementById('agentSelect');
@@ -261,3 +306,4 @@ document.getElementById('payout_method').addEventListener('change', function() {
     }
 });
 </script>-->
+<?php /**PATH C:\Users\user\Desktop\Year 4 Sem 7\Web Programming 2\MoneyTransferWP2\WebProject\resources\views/transfers/create.blade.php ENDPATH**/ ?>
