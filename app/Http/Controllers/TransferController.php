@@ -9,12 +9,19 @@ use App\Models\TransferService;
 use App\Models\Promotion;
 use App\Models\User;
 use App\Models\PaymentTransaction;
+use App\Services\SMSService;
 use App\Http\Controllers\Admin\ExchangeRateController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class TransferController extends Controller
 {
+    protected $smsService;
+
+    public function __construct(SMSService $smsService)
+    {
+        $this->smsService = $smsService;
+    }
     public function create()
     {
         $user = session('user');
@@ -223,6 +230,9 @@ class TransferController extends Controller
             
             DB::commit();
             
+            // Send SMS notification to beneficiary after successful transfer
+            $this->sendTransferNotificationSMS($transfer, $beneficiary, $sender);
+            
             // Show warning if fraud score is high but not critical
             if ($fraudResult['score'] >= 60) {
                 return redirect()->route('transfers.show', $transfer->id)
@@ -427,4 +437,41 @@ class TransferController extends Controller
         
         return back()->with('success', 'Transfer status updated to ' . $newStatus . '.');
     }
+
+    /**
+     * Send SMS notification to beneficiary about money transfer
+     *
+     * @param Transfer $transfer
+     * @param Beneficiary $beneficiary
+     * @param User $sender
+     * @return void
+     */
+    private function sendTransferNotificationSMS($transfer, $beneficiary, $sender)
+    {
+        try {
+            // Format the message with transfer details
+            $message = "You have received a money transfer of {$transfer->target_currency} " . 
+                       number_format($transfer->payout_amount, 2) . " from {$sender->name} via SWIFTPAY.";
+            
+            // Send SMS to beneficiary's phone number
+            $response = $this->smsService->send($beneficiary->phone_number, $message);
+            
+            // Log the SMS response for debugging/monitoring
+            \Illuminate\Support\Facades\Log::info('Transfer SMS sent', [
+                'transfer_id' => $transfer->id,
+                'beneficiary_id' => $beneficiary->id,
+                'phone_number' => $beneficiary->phone_number,
+                'response' => $response,
+            ]);
+            
+        } catch (\Exception $e) {
+            // Log any errors but don't fail the transfer
+            \Illuminate\Support\Facades\Log::error('Failed to send transfer SMS', [
+                'transfer_id' => $transfer->id,
+                'beneficiary_id' => $beneficiary->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
 }
+

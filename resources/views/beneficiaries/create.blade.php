@@ -34,7 +34,7 @@
                             <option value="">Code</option>
                             <option value="+1">+1</option>
                             <option value="+44">+44</option>
-                            <option value="+44">+961</option>
+                            <option value="+961">+961</option>
                             <option value="+91">+91</option>
                             <option value="+86">+86</option>
                             <option value="+81">+81</option>
