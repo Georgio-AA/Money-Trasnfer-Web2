@@ -109,7 +109,7 @@ class FraudDetectionController extends Controller
         $reasons = [];
 
         // Rule 1: Velocity Check - Multiple transfers in short time
-        $recentTransfers = Transfer::where('user_id', $transfer->user_id)
+        $recentTransfers = Transfer::where('sender_id', $transfer->user_id)
             ->where('created_at', '>=', now()->subHours(24))
             ->count();
         
@@ -125,24 +125,24 @@ class FraudDetectionController extends Controller
         $accountAge = now()->diffInDays($transfer->user->created_at);
         if ($accountAge < 7 && $transfer->amount > 1000) {
             $score += 40;
-            $reasons[] = "New account ({$accountAge} days old) with large transfer (${$transfer->amount})";
+            $reasons[] = "New account ({$accountAge} days old) with large transfer ({$transfer->amount})";
         } elseif ($accountAge < 30 && $transfer->amount > 5000) {
             $score += 30;
             $reasons[] = "Young account with very large transfer";
         }
 
         // Rule 3: Unusual amount pattern
-        $avgAmount = Transfer::where('user_id', $transfer->user_id)
+        $avgAmount = Transfer::where('sender_id', $transfer->user_id)
             ->where('status', 'completed')
             ->avg('amount');
         
         if ($avgAmount > 0 && $transfer->amount > ($avgAmount * 5)) {
             $score += 25;
-            $reasons[] = "Amount 5x higher than user's average (${$avgAmount})";
+            $reasons[] = "Amount 5x higher than user's average ({$avgAmount})";
         }
 
         // Rule 4: Multiple failed attempts
-        $failedAttempts = Transfer::where('user_id', $transfer->user_id)
+        $failedAttempts = Transfer::where('sender_id', $transfer->user_id)
             ->where('status', 'failed')
             ->where('created_at', '>=', now()->subDays(7))
             ->count();
@@ -162,7 +162,7 @@ class FraudDetectionController extends Controller
         // Rule 6: Round numbers (common in fraud)
         if ($transfer->amount == round($transfer->amount, -2) && $transfer->amount >= 1000) {
             $score += 5;
-            $reasons[] = "Suspiciously round amount: ${$transfer->amount}";
+            $reasons[] = "Suspiciously round amount: {$transfer->amount}";
         }
 
         // Rule 7: Rapid beneficiary addition
