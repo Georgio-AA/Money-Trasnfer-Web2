@@ -6,102 +6,142 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
 
-</head><style>
-body { background-color: #0e5474ff; }
-/* Page Layout */
-.signup-container {
-    display: flex;
-    justify-content: center;
-    padding: 40px 15px;
-    background: #f4f7fb;
-    min-height: 90vh;
+</head>
+<style>
+:root{
+  --primary:#2563eb;
+  --accent:#06b6d4;
+  --muted:#6b7280;
+  --radius:10px;
+  --card-bg:#ffffff;
+  --page-bg: linear-gradient(180deg,#0e5474 0%, #063b52 100%);
 }
 
-.signup-card {
-    background: white;
-    padding: 35px 40px;
-    width: 420px;
-    border-radius: 12px;
-    box-shadow: 0px 6px 20px rgba(0,0,0,0.08);
+html,body{
+  height:100%;
+  margin:0;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  background: var(--page-bg);
+  color:#0f172a;
 }
 
-/* Title */
-.title {
-    text-align: center;
-    font-size: 24px;
-    font-weight: 700;
-    color: #2c3e50;
-    margin-bottom: 25px;
+/* Centered card container */
+body > form, body > .signup-card, body > .signup-container {
+  display:block;
+  max-width:700px; /* smaller than before */
+  margin:16px auto;
+  padding:0 12px;
 }
 
-/* Form Inputs */
-.signup-form .input-group {
-    margin-bottom: 18px;
+/* Card visual */
+form {
+  background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(250,250,255,0.95));
+  border-radius: var(--radius);
+  padding:16px; /* reduced padding */
+  box-shadow: 0 6px 18px rgba(2,6,23,0.35);
+  border: 1px solid rgba(255,255,255,0.06);
 }
 
-.signup-form label {
-    font-size: 14px;
-    font-weight: bold;
-    color: #34495e;
-    display: block;
-    margin-bottom: 6px;
+/* Headline */
+form h2 {
+  margin:0 0 10px 0; /* less bottom margin */
+  font-size:18px;
+  font-weight:700;
+  text-align:center;
 }
 
-.signup-form input {
-    width: 100%;
-    padding: 11px;
-    border-radius: 6px;
-    border: 1px solid #cfd6df;
-    font-size: 14px;
-    background: #fafbff;
+/* Labels & inputs */
+form label {
+  display:block;
+  font-size:12px; /* slightly smaller */
+  font-weight:600;
+  color: #374151;
+  margin:4px 0 2px; /* closer to input */
 }
 
-.signup-form input:focus {
-    border-color: #4a90e2;
-    outline: none;
-    box-shadow: 0 0 4px rgba(74,144,226,0.3);
+form input[type="text"],
+form input[type="number"],
+form select {
+  max-width:200px; /* shrink horizontally */
+  margin:0 auto;
+  display:block;
+  width:100%;
+  padding:6px 10px; /* smaller height */
+  border-radius:8px;
+  border:1px solid #e5e7eb;
+  background:#ffffff;
+  font-size:13px;
+  color:#0f172a;
+  transition: box-shadow .15s ease, border-color .15s ease;
 }
 
-/* Submit Button */
-.submit-btn {
-    width: 100%;
-    background: #4a8df6;
-    padding: 12px;
-    border: none;
-    border-radius: 6px;
-    color: white;
-    font-size: 15px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.2s;
-    margin-top: 10px;
+form input:focus,
+form select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 4px 10px rgba(37,99,235,0.08);
 }
 
-.submit-btn:hover {
-    background: #2f6fe0;
+/* Two-column layout */
+.two-col {
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:10px;
+  margin-bottom:6px;
 }
 
-/* Login Link */
-.login-note {
-    text-align: center;
-    margin-top: 15px;
-    font-size: 14px;
+/* Buttons */
+form button[type="submit"],
+body > button {
+  width:100%;
+  padding:8px 12px; /* smaller buttons */
+  border-radius:8px;
+  font-weight:700;
+  font-size:13px;
+  cursor:pointer;
+  border:none;
+  color:#fff;
+  background: linear-gradient(90deg,var(--primary), #1d4ed8);
+  box-shadow: 0 5px 16px rgba(37,99,235,0.15);
+  margin-top:10px;
+  transition: transform .06s ease, box-shadow .06s ease, opacity .06s ease;
 }
 
-.login-note a {
-    color: #4a8df6;
-    font-weight: bold;
-    text-decoration: none;
+form button[type="submit"]:hover,
+body > button:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(37,99,235,0.18);
+  opacity:0.98;
 }
 
-/* Social Login */
-.divider {
-    text-align: center;
-    margin: 25px 0 18px;
-    color: #95a5a6;
-    font-size: 14px;
+body > button {
+  margin-top:8px;
+  background: transparent;
+  color:#fff;
+  border: 1px solid rgba(255,255,255,0.12);
+  max-width:260px;
+}
+
+/* Error text */
+span.error {
+  display:block;
+  color:#dc2626;
+  font-size:12px;
+  margin-top:2px;
+}
+
+/* Responsive tweaks */
+@media (max-width:900px){
+  .two-col {
+    grid-template-columns:1fr;
+  }
+  form { padding:14px; }
+  form h2 { font-size:16px; }
+  form button[type="submit"] { font-size:13px; padding:8px; }
 }
 </style>
+
+
 <body>
 
     <form action="{{ route('Apply.submit') }}" method="POST">
@@ -140,11 +180,12 @@ body { background-color: #0e5474ff; }
         <input type="text" id="working_hours" name="working_hours" required>
 
         <label for="commission_rate">Commission Rate</label>
-        <input type="number" id="commission_rate" name="commission_rate" required>
+        <input type="number" id="commission_rate" name="commission_rate" step="0.01" min="0" required>
 
         <button type="submit">Register</button>
         </form>
 
 <button onclick="window.location='{{ route('agent.applicationstatus') }}'">View Your Application Status</button>
+
 </body>
 </html>
