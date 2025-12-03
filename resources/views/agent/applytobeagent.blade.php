@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!--<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -7,139 +7,7 @@
     
 
 </head>
-<style>
-:root{
-  --primary:#2563eb;
-  --accent:#06b6d4;
-  --muted:#6b7280;
-  --radius:10px;
-  --card-bg:#ffffff;
-  --page-bg: linear-gradient(180deg,#0e5474 0%, #063b52 100%);
-}
-
-html,body{
-  height:100%;
-  margin:0;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  background: var(--page-bg);
-  color:#0f172a;
-}
-
-/* Centered card container */
-body > form, body > .signup-card, body > .signup-container {
-  display:block;
-  max-width:700px; /* smaller than before */
-  margin:16px auto;
-  padding:0 12px;
-}
-
-/* Card visual */
-form {
-  background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(250,250,255,0.95));
-  border-radius: var(--radius);
-  padding:16px; /* reduced padding */
-  box-shadow: 0 6px 18px rgba(2,6,23,0.35);
-  border: 1px solid rgba(255,255,255,0.06);
-}
-
-/* Headline */
-form h2 {
-  margin:0 0 10px 0; /* less bottom margin */
-  font-size:18px;
-  font-weight:700;
-  text-align:center;
-}
-
-/* Labels & inputs */
-form label {
-  display:block;
-  font-size:12px; /* slightly smaller */
-  font-weight:600;
-  color: #374151;
-  margin:4px 0 2px; /* closer to input */
-}
-
-form input[type="text"],
-form input[type="number"],
-form select {
-  max-width:200px; /* shrink horizontally */
-  margin:0 auto;
-  display:block;
-  width:100%;
-  padding:6px 10px; /* smaller height */
-  border-radius:8px;
-  border:1px solid #e5e7eb;
-  background:#ffffff;
-  font-size:13px;
-  color:#0f172a;
-  transition: box-shadow .15s ease, border-color .15s ease;
-}
-
-form input:focus,
-form select:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 4px 10px rgba(37,99,235,0.08);
-}
-
-/* Two-column layout */
-.two-col {
-  display:grid;
-  grid-template-columns: 1fr 1fr;
-  gap:10px;
-  margin-bottom:6px;
-}
-
-/* Buttons */
-form button[type="submit"],
-body > button {
-  width:100%;
-  padding:8px 12px; /* smaller buttons */
-  border-radius:8px;
-  font-weight:700;
-  font-size:13px;
-  cursor:pointer;
-  border:none;
-  color:#fff;
-  background: linear-gradient(90deg,var(--primary), #1d4ed8);
-  box-shadow: 0 5px 16px rgba(37,99,235,0.15);
-  margin-top:10px;
-  transition: transform .06s ease, box-shadow .06s ease, opacity .06s ease;
-}
-
-form button[type="submit"]:hover,
-body > button:hover{
-  transform: translateY(-1px);
-  box-shadow: 0 8px 20px rgba(37,99,235,0.18);
-  opacity:0.98;
-}
-
-body > button {
-  margin-top:8px;
-  background: transparent;
-  color:#fff;
-  border: 1px solid rgba(255,255,255,0.12);
-  max-width:260px;
-}
-
-/* Error text */
-span.error {
-  display:block;
-  color:#dc2626;
-  font-size:12px;
-  margin-top:2px;
-}
-
-/* Responsive tweaks */
-@media (max-width:900px){
-  .two-col {
-    grid-template-columns:1fr;
-  }
-  form { padding:14px; }
-  form h2 { font-size:16px; }
-  form button[type="submit"] { font-size:13px; padding:8px; }
-}
-</style>
+<link rel="stylesheet" href="{{ asset('css/agent.css') }}">
 
 
 <body>
@@ -186,6 +54,175 @@ span.error {
         </form>
 
 <button onclick="window.location='{{ route('agent.applicationstatus') }}'">View Your Application Status</button>
+<button onclick="window.location='{{ route('home') }}'">Back to Home</button>
+</body>
+</html>
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Agent Registration</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+
+<div class="form-wrapper">
+
+    <form action="{{ route('Apply.submit') }}" method="POST">
+        @csrf
+        <h2>Register as Agent</h2>
+
+        <label>Store Name</label>
+        <input type="text" name="store_name" required>
+
+        <label>Address</label>
+        <input type="text" name="address" required>
+
+        <label>Country</label>
+        <select name="country" required>
+            <option value="">-- Select --</option>
+            <option value="Lebanon">Lebanon</option>
+            <option value="Syria">Syria</option>
+            <option value="USA">USA</option>
+            <option value="Canada">Canada</option>
+        </select>
+
+        <label>City</label>
+        <input type="text" name="city" required>
+
+        <label>Phone Number</label>
+        <input type="text" name="phone_number" required>
+
+        <label>Latitude</label>
+        <input type="number" step="any" name="latitude" required>
+
+        <label>Longitude</label>
+        <input type="number" step="any" name="longitude" required>
+
+        <label>Working Hours</label>
+        <input type="text" name="working_hours" required>
+
+        <label>Commission Rate</label>
+        <input type="number" step="0.01" min="0" name="commission_rate" required>
+
+        <button type="submit">Register</button>
+    </form>
+
+    <div class="extra-buttons">
+        <button onclick="window.location='{{ route('agent.applicationstatus') }}'">
+            View Application Status
+        </button>
+
+        <button onclick="window.location='{{ route('home') }}'">
+            Back to Home
+        </button>
+    </div>
+
+</div>
 
 </body>
 </html>
+
+<style>:root{
+  --primary:#2563eb;
+  --page-bg: linear-gradient(180deg,#0e5474 0%, #063b52 100%);
+}
+
+html,body{
+  height:100%;
+  margin:0;
+  font-family: system-ui, "Segoe UI", Roboto, Arial;
+  background: var(--page-bg);
+  color:#0f172a;
+}
+
+/* center the form on screen */
+.form-wrapper {
+  max-width: 400px;
+  margin: 40px auto;
+  padding: 0 16px;
+}
+
+/* card */
+form {
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+}
+
+form h2 {
+  text-align:center;
+  margin-bottom: 16px;
+  font-size: 20px;
+}
+
+/* labels + inputs aligned perfectly */
+form label {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 8px 0 4px;
+  display:block;
+}
+
+form input,
+form select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  margin-bottom: 10px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+form input:focus,
+form select:focus {
+  outline:none;
+  border-color: var(--primary);
+  box-shadow: 0 0 8px rgba(37,99,235,0.3);
+}
+
+/* submit button */
+form button {
+  width: 100%;
+  padding: 10px;
+  background: var(--primary);
+  color:#fff;
+  border:none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight:600;
+  margin-top: 10px;
+  cursor:pointer;
+}
+
+form button:hover {
+  opacity:0.95;
+}
+
+/* other buttons below card */
+.extra-buttons {
+  margin-top: 14px;
+  text-align:center;
+}
+
+.extra-buttons button {
+  width:100%;
+  padding:10px;
+  margin-bottom: 8px;
+  border-radius:8px;
+  background: transparent;
+  color:#fff;
+  border:1px solid rgba(255,255,255,0.4);
+  cursor:pointer;
+  font-size:14px;
+}
+
+.extra-buttons button:hover {
+  background: rgba(255,255,255,0.1);
+}
+</style>

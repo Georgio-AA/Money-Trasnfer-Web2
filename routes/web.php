@@ -220,7 +220,7 @@ Route::get('/Applytobeagent', function () { return view('agent.applytobeagent');
 Route::post('/AgentApplicationSubmitted',[AgentProfileController::class, 'ApplyToBeAgent'])->name('Apply.submit');
 Route::get('/CheckOnYourApplication',[AgentProfileController::class, 'applicationStatus'])->name('agent.applicationstatus');
 
-    Route::prefix('agent')->name('agent.')->group(function () {
+Route::prefix('agent')->name('agent.')->group(function () {
     
     Route::get('/dashboard', [AgentDashboardController::class, 'index'])->name('dashboard');
     //Route::get('/transfer/{id}/process', [AgentDashboardController::class, 'process'])->name('transfer.process');
@@ -232,4 +232,9 @@ Route::get('/CheckOnYourApplication',[AgentProfileController::class, 'applicatio
     // Route to show commission/transaction history
     Route::get('/commissions', [AgentDashboardController::class, 'commissionHistory'])->name('commissions');
     
+});
+
+Route::prefix('agent')->name('agent.')->group(function () {
+    Route::get('/profile', [AgentProfileController::class, 'editProfile'])->name('profile.edit');
+    Route::post('/profile', [AgentProfileController::class, 'updateProfile'])->name('profile.update');
 });

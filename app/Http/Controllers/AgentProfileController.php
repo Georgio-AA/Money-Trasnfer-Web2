@@ -70,4 +70,29 @@ public function applicationStatus()
     ]);
 }
 
+
+    public function editProfile()
+    {
+        $user = session('user');
+        $agent = Agent::where('user_id', $user['id'])->firstOrFail();
+
+        return view('agent.profile', compact('agent'));
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $user = session('user');
+        $agent = Agent::where('user_id', $user['id'])->firstOrFail();
+
+        $validated = $request->validate([
+            'working_hours' => 'required|string|max:255',
+            'latitude'      => 'required|numeric',
+            'longitude'     => 'required|numeric',
+        ]);
+
+        $agent->update($validated);
+
+        return redirect()->route('agent.profile.edit')->with('success', 'Profile updated successfully.');
+    }
+
 }
