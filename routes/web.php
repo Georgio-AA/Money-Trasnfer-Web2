@@ -231,10 +231,8 @@ Route::prefix('agent')->name('agent.')->group(function () {
     
     // Route to show commission/transaction history
     Route::get('/commissions', [AgentDashboardController::class, 'commissionHistory'])->name('commissions');
-    
-});
-
-Route::prefix('agent')->name('agent.')->group(function () {
+     
     Route::get('/profile', [AgentProfileController::class, 'editProfile'])->name('profile.edit');
     Route::post('/profile', [AgentProfileController::class, 'updateProfile'])->name('profile.update');
 });
+

@@ -8,6 +8,29 @@
 @if(session('error'))
     <p style="color:red;font-weight: 600;background:#fee2e2;padding:10px;border-radius:8px;">{{ session('error') }}</p>
 @endif
+<!-- Notifications Toggle Button -->
+<div id="notification-panel" class="notification-panel">
+    <div class="panel-header">
+        <span>Notifications</span>
+        <button id="close-panel">&times;</button>
+    </div>
+    <ul>
+        @if($notifications->isEmpty())
+            <li>No new notifications</li>
+        @else
+            @foreach($notifications as $note)
+                <li style="{{ $note->read ? 'opacity:0.6;' : 'font-weight:bold;' }}">
+                    {{ $note->message }}
+                    <span style="font-size:12px;">({{ $note->created_at->diffForHumans() }})</span>
+                </li>
+            @endforeach
+        @endif
+    </ul>
+</div>
+
+<button id="toggle-panel" class="toggle-btn">🔔 Notifications</button>
+
+
 
 <table>
     <thead>
@@ -53,6 +76,19 @@
 
 
 
+<script>
+const panel = document.getElementById('notification-panel');
+const toggleBtn = document.getElementById('toggle-panel');
+const closeBtn = document.getElementById('close-panel');
+
+toggleBtn.addEventListener('click', () => {
+    panel.style.right = '0';
+});
+
+closeBtn.addEventListener('click', () => {
+    panel.style.right = '-300px';
+});
+</script>
 
 
 
