@@ -14,6 +14,8 @@ class Agent extends Model
         'store_name',
         'address',
         'country',
+        'city',
+        'phone_number',
         'latitude',
         'longitude',
         'working_hours',
@@ -36,4 +38,14 @@ class Agent extends Model
     {
         return $this->hasMany(Review::class);
     }
+    public function transactions()
+{
+    return $this->hasMany(AgentTransaction::class);
 }
+// NEW: Local Scope to easily fetch only approved agents
+    public function scopeApproved($query)
+    {
+        return $query->where('approved', 1);
+    }
+}
+

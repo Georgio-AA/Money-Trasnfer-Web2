@@ -1,23 +1,29 @@
-*.log
-.DS_Store
+
+# Environment
+.env
 .env.backup
 .env.production
-.phpactor.json
-.phpunit.result.cache
-/.fleet
+
+# IDEs & system files
 /.idea
-/.nova
-/.phpunit.cache
 /.vscode
-/.zed
-/auth.json
+.DS_Store
+Thumbs.db
+
+# Composer / Node
+/vendor
 /node_modules
+
+# Laravel build / cache files
 /public/build
 /public/hot
 /public/storage
+
 /storage/*.key
 /storage/pail
-/vendor
-Homestead.json
-Homestead.yaml
-Thumbs.db
+
+# Storage, but allow Laravel to write these folders locally
+/storage/app
+/storage/app/public
+/storage/framework
+/storage/logs
