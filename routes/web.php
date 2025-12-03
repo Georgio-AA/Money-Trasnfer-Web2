@@ -47,6 +47,8 @@ Route::get('/session-check', function () {
 
 
 Route::get('/verify/{token}', [AuthController::class, 'verifyEmail'])->name('verify.email');
+Route::get('/password/request', [AuthController::class, 'requestPasswordReset'])->name('password.request');
+Route::post('/password/send-reset-email', [AuthController::class, 'sendPasswordResetEmail'])->name('password.send.reset.email');
 Route::get('/reset-password/{token}', [AuthController::class, 'showResetPasswordForm'])->name('reset.password.form');
 Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('reset.password');
 
@@ -90,8 +92,6 @@ Route::middleware('auth.session')->group(function () {
     Route::get('/profile', [AuthController::class, 'profile'])->name('profile');
     Route::get('/profile/edit', [AuthController::class, 'editProfile'])->name('profile.edit');
     Route::post('/profile/update', [AuthController::class, 'updateProfile'])->name('profile.update');
-    Route::get('/password/request', [AuthController::class, 'requestPasswordReset'])->name('password.request');
-    Route::post('/password/send-reset-email', [AuthController::class, 'sendPasswordResetEmail'])->name('password.send.reset.email');
     Route::post('/password/change', [AuthController::class, 'changePassword'])->name('password.change');
 
     // Transfer services search

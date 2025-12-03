@@ -19,9 +19,14 @@
         
         <nav>
             <ul>
+                <li><a href="<?php echo e(route('home')); ?>">Home</a></li>
+                <li><a href="<?php echo e(route('services')); ?>">Services</a></li>
+                <?php if(session('user.role') !== 'agent'): ?>
                 <li><a href="<?php echo e(route('agent.applytobeagent')); ?>">Become an Agent</a></li>
+                <?php endif; ?>
                 <?php if(session('user.role') === 'agent'): ?>
-                <li><a href="<?php echo e(route('agent.welcome')); ?>">Agent Dashboard</a></li>
+                <li><a href="<?php echo e(route('agent.dashboard')); ?>">Agent Dashboard</a></li>
+                <li><a href="<?php echo e(route('agent.profile.edit')); ?>">Agent Profile</a></li>
                 <?php endif; ?>
 
                 <?php if(session()->has('user')): ?>
@@ -62,6 +67,7 @@
         </nav>
     </div>
 </header>
+
 <main>
 
     <style>

@@ -24,6 +24,7 @@
             <div class="input-group">
                 <label for="password">Password</label>
                 <input type="password" name="password" id="password" required>
+                <a href="<?php echo e(route('password.request')); ?>" class="forgot-password-link">Forgot Password?</a>
             </div>
 
             <button type="submit" class="submit-btn">Login</button>
@@ -113,6 +114,22 @@ height: auto;}
     border-color: #4a90e2;
     outline: none;
     box-shadow: 0 0 4px rgba(74,144,226,0.3);
+}
+
+/* Forgot Password Link */
+.forgot-password-link {
+    font-size: 13px;
+    color: #4a8df6;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-block;
+    margin-top: 8px;
+    transition: 0.2s;
+}
+
+.forgot-password-link:hover {
+    color: #2f6fe0;
+    text-decoration: underline;
 }
 
 /* Submit Button */
