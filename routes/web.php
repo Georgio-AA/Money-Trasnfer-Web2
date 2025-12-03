@@ -148,6 +148,10 @@ Route::middleware('auth.session')->group(function () {
     Route::get('/disputes/{id}', [DisputeController::class, 'show'])->name('disputes.show');
     Route::post('/disputes/{id}/cancel', [DisputeController::class, 'cancel'])->name('disputes.cancel');
     Route::post('/disputes/{id}/request-refund', [DisputeController::class, 'requestRefund'])->name('disputes.request-refund');
+
+    // SwiftPay Card Request Routes
+    Route::get('/card/request', [\App\Http\Controllers\CardRequestController::class, 'create'])->name('card.request.create');
+    Route::post('/card/request', [\App\Http\Controllers\CardRequestController::class, 'store'])->name('card.request.store');
 });
 
 // -----------------------------
@@ -221,6 +225,12 @@ Route::middleware(['auth.session', 'admin'])
                 Route::get('/export/pdf', [\App\Http\Controllers\Admin\CommissionController::class, 'exportPDF'])->name('export.pdf');
                 Route::get('/export/excel', [\App\Http\Controllers\Admin\CommissionController::class, 'exportExcel'])->name('export.excel');
             });
+
+        // Card Request Management
+        Route::get('/card-requests', [\App\Http\Controllers\CardRequestController::class, 'index'])->name('card-requests.index');
+        Route::get('/card-requests/{id}', [\App\Http\Controllers\CardRequestController::class, 'show'])->name('card-requests.show');
+        Route::post('/card-requests/{id}/approve', [\App\Http\Controllers\CardRequestController::class, 'approve'])->name('card-requests.approve');
+        Route::post('/card-requests/{id}/reject', [\App\Http\Controllers\CardRequestController::class, 'reject'])->name('card-requests.reject');
     });
 // Email verification link endpoint (does not require session)
 Route::get('/bank-accounts/verify-email/{bankAccount}/{token}', [BankAccountController::class, 'verifyByEmail'])

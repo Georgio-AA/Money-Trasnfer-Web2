@@ -122,6 +122,12 @@ body { background-color: #f3f4f6; }
 <h3>📊 Commission</h3>
 </a>
 </div>
+<div class="stat-card clickable">
+<a href="<?php echo e(route('admin.card-requests.index')); ?>">
+<h3>🎫 Card Requests</h3>
+<div class="value" style="font-size: 18px; color: #667eea;">Review</div>
+</a>
+</div>
 </div>
 
 <!-- Revenue Stats -->
@@ -282,6 +288,47 @@ y: { beginAtZero: true }
 }
 });
 </script>
+
+<!-- Pending Card Requests Section -->
+<div class="activity-section" style="margin-top: 30px;">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+<h2>Pending Card Requests</h2>
+<a href="<?php echo e(route('admin.card-requests.index')); ?>" style="color: #667eea; text-decoration: none; font-weight: 600;">View All →</a>
+</div>
+
+<?php if(isset($pendingCardRequests) && $pendingCardRequests->count() > 0): ?>
+<table class="activity-table">
+<thead>
+<tr>
+<th>Request ID</th>
+<th>User Name</th>
+<th>Email</th>
+<th>Card Amount</th>
+<th>Submitted</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<?php $__currentLoopData = $pendingCardRequests; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $request): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+<tr>
+<td><strong>#<?php echo e($request->id); ?></strong></td>
+<td><?php echo e($request->user->name); ?></td>
+<td><?php echo e($request->user->email); ?></td>
+<td><strong>$<?php echo e(number_format($request->amount, 2)); ?></strong></td>
+<td><?php echo e($request->created_at->format('M d, Y')); ?></td>
+<td>
+<a href="<?php echo e(route('admin.card-requests.show', $request->id)); ?>" style="color: #667eea; text-decoration: none; font-weight: 600;">Review →</a>
+</td>
+</tr>
+<?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+</tbody>
+</table>
+<?php else: ?>
+<div style="text-align: center; padding: 40px; color: #718096;">
+<p style="margin: 0; font-size: 16px;">✓ No pending card requests</p>
+</div>
+<?php endif; ?>
+</div>
 
 </main></body></html>
 <?php /**PATH C:\XAMPP\htdocs\money-transfer2\WebProject\resources\views/admin/dashboard.blade.php ENDPATH**/ ?>

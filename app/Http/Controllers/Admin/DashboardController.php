@@ -7,6 +7,7 @@ use App\Models\Agent;
 use App\Models\BankAccount;
 use App\Models\Transfer;
 use App\Models\User;
+use App\Models\CardRequest;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\DB;
 
@@ -38,13 +39,21 @@ class DashboardController extends Controller
             ->take(10)
             ->get();
 
+        // Pending card requests
+        $pendingCardRequests = CardRequest::with('user')
+            ->where('status', 'pending')
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
         return view('admin.dashboard', compact(
             'stats', 
             'recentActivity', 
             'revenueStats', 
             'transferStats', 
             'userGrowth', 
-            'transferVolume'
+            'transferVolume',
+            'pendingCardRequests'
         ));
     }
 
