@@ -34,6 +34,11 @@ class AgentApprovalController extends Controller
 
         $agent->forceFill(['approved' => true])->save();
 
+        // Update user's role to 'agent'
+        $user = $agent->user;
+        $user->role = 'agent';
+        $user->save();
+
         return redirect()
             ->route('admin.agents.index')
             ->with('success', 'Agent has been approved successfully.');
@@ -48,6 +53,11 @@ class AgentApprovalController extends Controller
         }
 
         $agent->forceFill(['approved' => false])->save();
+
+        // Revert user's role
+        $user = $agent->user;
+        $user->role = 'user'; 
+        $user->save();
 
         return redirect()
             ->route('admin.agents.index')

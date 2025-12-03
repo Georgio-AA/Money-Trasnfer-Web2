@@ -11,12 +11,13 @@ use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\ComplianceController;
 use App\Http\Controllers\Admin\ExchangeRateController;
 use App\Http\Controllers\Admin\ReportsController;
+use App\Http\Controllers\Admin\FraudDetectionController;
 use App\Http\Controllers\TransferController;
 use App\Http\Controllers\SupportController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\DisputeController;
 use App\Http\Controllers\AgentProfileController;
-use Illuminate\Support\Facades\Session;
+use App\Http\Controllers\AgentDashboardController;
 // -----------------------------
 // PUBLIC ROUTES (no login required)
 // -----------------------------
@@ -236,21 +237,30 @@ Route::middleware(['auth.session', 'admin'])
 Route::get('/bank-accounts/verify-email/{bankAccount}/{token}', [BankAccountController::class, 'verifyByEmail'])
     ->name('bank-accounts.verify-email');
 
-Route::middleware(['auth.session', 'agent'])
-    ->prefix('agent')
-    ->name('agent.')
-    ->group(function () {
+    
+// -----------------------------
+// AGENT ROUTES (should require auth.session + agent role)
+// -----------------------------
+Route::get('/Applytobeagent', function () { return view('agent.applytobeagent');})->name('agent.applytobeagent');
+Route::post('/AgentApplicationSubmitted',[AgentProfileController::class, 'ApplyToBeAgent'])->name('Apply.submit');
+Route::get('/CheckOnYourApplication',[AgentProfileController::class, 'applicationStatus'])->name('agent.applicationstatus');
 
-        Route::get('/welcome', function () {
-            return view('agent.welcomeagent');
-        })->name('welcome');
+Route::prefix('agent')->name('agent.')->group(function () {
+    
+    Route::get('/dashboard', [AgentDashboardController::class, 'index'])->name('dashboard');
+    //Route::get('/transfer/{id}/process', [AgentDashboardController::class, 'process'])->name('transfer.process');
+    Route::post('/transfer/{id}/process', [AgentDashboardController::class, 'processTransfer'])->name('transfer.process');
 
-    });
+    // Route to handle the POST request to confirm payout
+    Route::post('/transfer/{id}/complete', [AgentDashboardController::class, 'completePayout'])->name('transfer.complete');
+    
+    // Route to show commission/transaction history
+    Route::get('/commissions', [AgentDashboardController::class, 'commissionHistory'])->name('commissions');
+     
+    Route::get('/profile', [AgentProfileController::class, 'editProfile'])->name('profile.edit');
+    Route::post('/profile', [AgentProfileController::class, 'updateProfile'])->name('profile.update');
+});
 
-Route::post('/Apply/ApplicationSubmitted',[AgentProfileController::class, 'ApplyToBeAgent'])->name('Apply.submit');
-Route::get('/agent/applytobeagent', function () {
-    return view('agent.applytobeagent');
-})->name('agent.applytobeagent');
 
 
 
@@ -258,3 +268,8 @@ Route::get('/sms-test', function() {
     $sms = new \App\Services\SMSService();
     return $sms->send("+96170123456", "Your SMS Gateway is working!");
 });
+
+
+
+
+

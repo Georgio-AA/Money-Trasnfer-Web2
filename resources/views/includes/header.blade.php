@@ -19,9 +19,14 @@
         
         <nav>
             <ul>
+                <li><a href="{{ route('home') }}">Home</a></li>
+                <li><a href="{{ route('services') }}">Services</a></li>
+                @if(session('user.role') !== 'agent')
                 <li><a href="{{ route('agent.applytobeagent') }}">Become an Agent</a></li>
+                @endif
                 @if(session('user.role') === 'agent')
-                <li><a href="{{ route('agent.welcome') }}">Agent Dashboard</a></li>
+                <li><a href="{{ route('agent.dashboard') }}">Agent Dashboard</a></li>
+                <li><a href="{{ route('agent.profile.edit') }}">Agent Profile</a></li>
                 @endif
 
                 @if(session()->has('user'))
@@ -62,6 +67,7 @@
         </nav>
     </div>
 </header>
+
 <main>
 
     <style>

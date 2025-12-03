@@ -1,0 +1,24 @@
+trigger:
+  branches:
+    include:
+      - master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- checkout: self
+
+- script: |
+    git config --global user.email "azure-pipeline@auto.com"
+    git config --global user.name "Azure Pipeline"
+
+    git clone https://$(GITHUB_USER):$(GITHUB_TOKEN)@github.com/Georgio-AA/Money-Trasnfer-Web2.git repo
+
+    rsync -av --delete --exclude='.git' ./ repo/
+
+    cd repo
+    git add .
+    git commit -m "Sync from Azure DevOps" || echo "No changes to commit"
+    git push
+  displayName: 'Sync Azure DevOps repo to GitHub'

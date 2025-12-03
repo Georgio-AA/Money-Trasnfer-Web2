@@ -1,7 +1,8 @@
 <?php
-
 namespace App\Http\Controllers;
 
+use App\Models\Agent;
+use App\Models\AgentNotification;
 use App\Models\Transfer;
 use App\Models\Beneficiary;
 use App\Models\ExchangeRate;
@@ -75,20 +76,27 @@ class TransferController extends Controller
             'LBP' => 'Lebanese Pound',
         ];
         
+$agents = Agent::approved()
+        ->whereHas('user', function ($query) {
+            $query->where('role', 'agent');
+        })
+        ->get();
+
         return view('transfers.create', compact(
             'beneficiaries',
             'transferServices',
             'promotions',
             'speeds',
             'countries',
-            'currencies'
+            'currencies',
+            'agents'
         ));
     }
     
     public function store(Request $request)
     {
         $user = session('user');
-        
+
         $validated = $request->validate([
             'beneficiary_id' => 'required|exists:beneficiaries,id',
             'source_currency' => 'required|string|max:10',
@@ -97,8 +105,11 @@ class TransferController extends Controller
             'transfer_speed' => 'required|in:instant,same_day,next_day,standard',
             'payout_method' => 'required|string',
             'promotion_id' => 'nullable|exists:promotions,id',
+            //amira
+            'agent_id' => 'nullable|required_if:payout_method,cash_pickup|exists:agents,id', 
         ]);
         
+
         // Get fresh user data from database
         $sender = User::findOrFail($user['id']);
         
@@ -114,13 +125,15 @@ class TransferController extends Controller
             // Same currency, no conversion needed
             $rate = 1.0;
         } else {
-            // Use ExchangeRateController to get rate from file
-            $rate = ExchangeRateController::getRate($validated['source_currency'], $validated['target_currency']);
+            $exchangeRate = ExchangeRate::where('base_currency', $validated['source_currency'])
+                ->where('target_currency', $validated['target_currency'])
+                ->first();
             
-            // If rate is 1.0 but currencies are different, it might mean rate wasn't found
-            // However, getRate returns 1.0 as default. 
-            // We should check if the rate makes sense or if we want to enforce strict checking.
-            // For now, we'll trust getRate as it falls back to defaults which allows testing.
+            if (!$exchangeRate) {
+                return back()->with('error', 'Exchange rate not available for this currency pair.');
+            }
+            
+            $rate = $exchangeRate->rate;
         }
         
         // Calculate amounts
@@ -146,11 +159,18 @@ class TransferController extends Controller
         $amountToDeduct = $totalPaid;
         if ($sender->currency !== $validated['source_currency']) {
             // Need to convert from wallet currency to source currency to check if user has enough
-            // We need rate from source_currency to sender->currency
-            $conversionRate = ExchangeRateController::getRate($validated['source_currency'], $sender->currency);
+            $conversionRate = ExchangeRate::where('base_currency', $validated['source_currency'])
+                ->where('target_currency', $sender->currency)
+                ->first();
+            
+            if (!$conversionRate) {
+                return back()->with('error', 
+                    'Cannot process transfer: No exchange rate found from ' . $validated['source_currency'] . 
+                    ' to ' . $sender->currency . '. Please contact support.');
+            }
             
             // Convert source currency amount to wallet currency
-            $amountToDeduct = $totalPaid * $conversionRate;
+            $amountToDeduct = $totalPaid * $conversionRate->rate;
         }
         
         // Check if sender has sufficient balance in wallet
@@ -169,10 +189,19 @@ class TransferController extends Controller
             $sender->balance -= $amountToDeduct;
             $sender->save();
             
+            // Determine transfer status based on payout method
+            $isCashPickup = $validated['payout_method'] === 'cash_pickup';
+            $status = $isCashPickup ? 'pending' : 'processing';
+            
+            // Get agent if specified
+            $agent = isset($validated['agent_id']) ? Agent::find($validated['agent_id']) : null;
+            $agentUserId = $agent ? $agent->user_id : null;
+
             // Create the transfer
             $transfer = Transfer::create([
                 'sender_id' => $user['id'],
                 'beneficiary_id' => $validated['beneficiary_id'],
+                'agent_id' => $agentUserId,        
                 'source_currency' => $validated['source_currency'],
                 'target_currency' => $validated['target_currency'],
                 'amount' => $amount,
@@ -184,11 +213,20 @@ class TransferController extends Controller
                 'status' => 'pending',
                 'promotion_id' => $validated['promotion_id'],
             ]);
-            
+
+            // Create agent notification if agent is assigned
+            if ($agent) {
+                AgentNotification::create([
+                    'agent_id' => $agent->id,
+                    'type' => 'transfer_request',
+                    'message' => "New transfer request #{$transfer->id} from {$transfer->sender->name} to {$transfer->beneficiary->full_name} for {$transfer->amount} {$transfer->source_currency} requires your action."
+                ]);
+            }
+
             // Run fraud detection check
             $fraudController = new \App\Http\Controllers\Admin\FraudDetectionController();
             $fraudResult = $fraudController->calculateFraudScore($transfer->id);
-            
+
             // If fraud score is critical (>= 80), block the transfer immediately
             if ($fraudResult['score'] >= 80) {
                 $transfer->status = 'fraud_blocked';
@@ -222,12 +260,6 @@ class TransferController extends Controller
             
             // Send email notification to beneficiary after successful transfer
             $this->sendTransferNotificationEmail($transfer, $beneficiary, $sender);
-            
-            // Show warning if fraud score is high but not critical
-            if ($fraudResult['score'] >= 60) {
-                return redirect()->route('transfers.show', $transfer->id)
-                    ->with('warning', 'Transfer initiated successfully! Note: This transfer is under review for security purposes.');
-            }
             
             return redirect()->route('transfers.show', $transfer->id)
                 ->with('success', 'Transfer initiated successfully! Your balance has been deducted.');
@@ -282,12 +314,11 @@ class TransferController extends Controller
         return view('transfers.index', compact('transfers'));
     }
     
-    private function calculateFee($amount, $speed, $currency = 'USD')
+    private function calculateFee($amount, $speed)
     {
-        // Use the ExchangeRateController to calculate base fee
-        $baseFee = ExchangeRateController::calculateFee($amount, $currency);
+        // Base fee calculation - adjust as needed
+        $baseFee = 2.99;
         
-        // Apply speed multiplier
         switch ($speed) {
             case 'instant':
                 $speedMultiplier = 2.0;
@@ -302,7 +333,9 @@ class TransferController extends Controller
                 $speedMultiplier = 1.0;
         }
         
-        return $baseFee * $speedMultiplier;
+        $percentageFee = $amount * 0.01; // 1% of amount
+        
+        return ($baseFee + $percentageFee) * $speedMultiplier;
     }
     
     public function calculateQuote(Request $request)
@@ -314,27 +347,33 @@ class TransferController extends Controller
             'transfer_speed' => 'required|string',
         ]);
         
+        // Get exchange rate
+        if ($validated['source_currency'] === $validated['target_currency']) {
+            // Same currency, no conversion needed
+            $rate = 1.0;
+        } else {
+            $exchangeRate = ExchangeRate::where('base_currency', $validated['source_currency'])
+                ->where('target_currency', $validated['target_currency'])
+                ->first();
+            
+            if (!$exchangeRate) {
+                return response()->json(['error' => 'Exchange rate not available'], 404);
+            }
+            
+            $rate = $exchangeRate->rate;
+        }
+        
         $amount = $validated['amount'];
-        $sourceCurrency = $validated['source_currency'];
-        $targetCurrency = $validated['target_currency'];
-        
-        // Get exchange rate from ExchangeRateController
-        $rate = ExchangeRateController::getRate($sourceCurrency, $targetCurrency);
-        
-        // Calculate fee using ExchangeRateController
-        $fee = $this->calculateFee($amount, $validated['transfer_speed'], $sourceCurrency);
-        
+        $fee = $this->calculateFee($amount, $validated['transfer_speed']);
         $totalPaid = $amount + $fee;
         $payoutAmount = $amount * $rate;
         
         return response()->json([
             'amount' => number_format($amount, 2),
-            'exchange_rate' => number_format($rate, 6),
+            'exchange_rate' => number_format($rate, 4),
             'transfer_fee' => number_format($fee, 2),
             'total_paid' => number_format($totalPaid, 2),
             'payout_amount' => number_format($payoutAmount, 2),
-            'source_currency' => $sourceCurrency,
-            'target_currency' => $targetCurrency,
         ]);
     }
     

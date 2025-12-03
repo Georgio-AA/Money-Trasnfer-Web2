@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http;
+use App\Models\Agent;
 
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
