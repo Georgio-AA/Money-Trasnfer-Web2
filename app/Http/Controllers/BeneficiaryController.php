@@ -34,6 +34,7 @@ class BeneficiaryController extends Controller
         
         $validated = $request->validate([
             'full_name' => 'required|string|max:255',
+            'phone_code' => 'required|string|max:5',
             'phone_number' => 'required|string|max:20',
             'email' => 'nullable|email|max:255',
             'relationship' => 'nullable|string|max:50',
@@ -46,8 +47,11 @@ class BeneficiaryController extends Controller
             'mobile_wallet_provider' => 'nullable|string|max:50',
         ]);
         
+        // Combine phone code and phone number
+        $fullPhoneNumber = $validated['phone_code'] . $validated['phone_number'];
+        
         // Check if the phone number exists in the users table
-        $recipientUser = User::where('phone', $validated['phone_number'])->first();
+        $recipientUser = User::where('phone', $fullPhoneNumber)->first();
         
         if (!$recipientUser) {
             return redirect()->back()
@@ -64,7 +68,7 @@ class BeneficiaryController extends Controller
         
         // Check if beneficiary already exists for this user
         $existingBeneficiary = Beneficiary::where('user_id', $user['id'])
-            ->where('phone_number', $validated['phone_number'])
+            ->where('phone_number', $fullPhoneNumber)
             ->first();
         
         if ($existingBeneficiary) {
@@ -74,6 +78,8 @@ class BeneficiaryController extends Controller
         }
         
         $validated['user_id'] = $user['id'];
+        // Update phone_number with the combined full phone number
+        $validated['phone_number'] = $fullPhoneNumber;
         
         $beneficiary = Beneficiary::create($validated);
         

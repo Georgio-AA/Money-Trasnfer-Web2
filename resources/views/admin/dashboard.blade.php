@@ -116,6 +116,18 @@ body { background-color: #f3f4f6; }
 <div class="value" style="font-size: 18px; color: #6366f1;">Analytics</div>
 </a>
 </div>
+
+<div class="stat-card clickable">
+<a href="{{ route('admin.commissions.index') }}">
+<h3>📊 Commission</h3>
+</a>
+</div>
+<div class="stat-card clickable">
+<a href="{{ route('admin.card-requests.index') }}">
+<h3>🎫 Card Requests</h3>
+<div class="value" style="font-size: 18px; color: #667eea;">Review</div>
+</a>
+</div>
 </div>
 
 <!-- Revenue Stats -->
@@ -275,5 +287,46 @@ y: { beginAtZero: true }
 }
 });
 </script>
+
+<!-- Pending Card Requests Section -->
+<div class="activity-section" style="margin-top: 30px;">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+<h2>Pending Card Requests</h2>
+<a href="{{ route('admin.card-requests.index') }}" style="color: #667eea; text-decoration: none; font-weight: 600;">View All →</a>
+</div>
+
+@if(isset($pendingCardRequests) && $pendingCardRequests->count() > 0)
+<table class="activity-table">
+<thead>
+<tr>
+<th>Request ID</th>
+<th>User Name</th>
+<th>Email</th>
+<th>Card Amount</th>
+<th>Submitted</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+@foreach($pendingCardRequests as $request)
+<tr>
+<td><strong>#{{ $request->id }}</strong></td>
+<td>{{ $request->user->name }}</td>
+<td>{{ $request->user->email }}</td>
+<td><strong>${{ number_format($request->amount, 2) }}</strong></td>
+<td>{{ $request->created_at->format('M d, Y') }}</td>
+<td>
+<a href="{{ route('admin.card-requests.show', $request->id) }}" style="color: #667eea; text-decoration: none; font-weight: 600;">Review →</a>
+</td>
+</tr>
+@endforeach
+</tbody>
+</table>
+@else
+<div style="text-align: center; padding: 40px; color: #718096;">
+<p style="margin: 0; font-size: 16px;">✓ No pending card requests</p>
+</div>
+@endif
+</div>
 
 </main></body></html>

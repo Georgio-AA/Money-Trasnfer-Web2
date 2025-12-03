@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\Agent;
 use App\Models\AgentNotification;
 use App\Models\Transfer;
 use App\Models\Beneficiary;
@@ -9,12 +10,18 @@ use App\Models\TransferService;
 use App\Models\Promotion;
 use App\Models\User;
 use App\Models\PaymentTransaction;
+use App\Mail\TransferNotificationMail;
+use App\Http\Controllers\Admin\ExchangeRateController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Models\Agent;    
+use Illuminate\Support\Facades\Mail;
 
 class TransferController extends Controller
 {
+    public function __construct()
+    {
+        //
+    }
     public function create()
     {
         $user = session('user');
@@ -182,13 +189,13 @@ $agents = Agent::approved()
             $sender->balance -= $amountToDeduct;
             $sender->save();
             
-//amira
-$isCashPickup = $validated['payout_method'] === 'cash_pickup';
-
-$status = $isCashPickup ? 'pending' : 'processing';$agent = Agent::find($validated['agent_id']);
-$agentUserId = $agent ? $agent->user_id : null;
-
-
+            // Determine transfer status based on payout method
+            $isCashPickup = $validated['payout_method'] === 'cash_pickup';
+            $status = $isCashPickup ? 'pending' : 'processing';
+            
+            // Get agent if specified
+            $agent = isset($validated['agent_id']) ? Agent::find($validated['agent_id']) : null;
+            $agentUserId = $agent ? $agent->user_id : null;
 
             // Create the transfer
             $transfer = Transfer::create([
@@ -206,13 +213,33 @@ $agentUserId = $agent ? $agent->user_id : null;
                 'status' => 'pending',
                 'promotion_id' => $validated['promotion_id'],
             ]);
-//amira
-AgentNotification::create([
-    'agent_id' => $user['id'],
-    'type' => 'transfer_request',
-    'message' => "New transfer request #{$transfer->id} from {$transfer->sender->name} to {$transfer->beneficiary->full_name} for {$transfer->amount} {$transfer->source_currency} requires your action."
-]);
 
+            // Create agent notification if agent is assigned
+            if ($agent) {
+                AgentNotification::create([
+                    'agent_id' => $agent->id,
+                    'type' => 'transfer_request',
+                    'message' => "New transfer request #{$transfer->id} from {$transfer->sender->name} to {$transfer->beneficiary->full_name} for {$transfer->amount} {$transfer->source_currency} requires your action."
+                ]);
+            }
+
+            // Run fraud detection check
+            $fraudController = new \App\Http\Controllers\Admin\FraudDetectionController();
+            $fraudResult = $fraudController->calculateFraudScore($transfer->id);
+
+            // If fraud score is critical (>= 80), block the transfer immediately
+            if ($fraudResult['score'] >= 80) {
+                $transfer->status = 'fraud_blocked';
+                $transfer->save();
+                
+                // Refund the sender
+                $sender->balance += $amountToDeduct;
+                $sender->save();
+                
+                DB::commit();
+                
+                return back()->with('error', 'This transfer has been blocked due to suspicious activity. Please contact support if you believe this is an error.');
+            }
             
             // Create payment transaction record
             PaymentTransaction::create([
@@ -230,6 +257,9 @@ AgentNotification::create([
             session(['user' => $sender->toArray()]);
             
             DB::commit();
+            
+            // Send email notification to beneficiary after successful transfer
+            $this->sendTransferNotificationEmail($transfer, $beneficiary, $sender);
             
             return redirect()->route('transfers.show', $transfer->id)
                 ->with('success', 'Transfer initiated successfully! Your balance has been deducted.');
@@ -436,4 +466,43 @@ AgentNotification::create([
         
         return back()->with('success', 'Transfer status updated to ' . $newStatus . '.');
     }
+
+    /**
+     * Send SMS notification to beneficiary about money transfer
+     *
+     * @param Transfer $transfer
+     * @param Beneficiary $beneficiary
+     * @param User $sender
+     * @return void
+     */
+    private function sendTransferNotificationEmail($transfer, $beneficiary, $sender)
+    {
+        try {
+            // Send email to beneficiary after successful transfer
+            Mail::to($beneficiary->email)->send(new TransferNotificationMail(
+                $beneficiary->full_name,
+                $sender->name,
+                $transfer->payout_amount,
+                $transfer->target_currency,
+                'TRX-' . $transfer->id
+            ));
+            
+            // Log the email for debugging/monitoring
+            \Illuminate\Support\Facades\Log::info('Transfer notification email sent', [
+                'transfer_id' => $transfer->id,
+                'beneficiary_id' => $beneficiary->id,
+                'email' => $beneficiary->email,
+            ]);
+            
+        } catch (\Exception $e) {
+            // Log any errors but don't fail the transfer
+            \Illuminate\Support\Facades\Log::error('Failed to send transfer notification email', [
+                'transfer_id' => $transfer->id,
+                'beneficiary_id' => $beneficiary->id,
+                'email' => $beneficiary->email,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
 }
+

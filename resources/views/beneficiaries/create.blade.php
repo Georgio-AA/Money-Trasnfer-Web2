@@ -29,8 +29,44 @@
                 
                 <div class="form-group">
                     <label for="phone_number">Phone Number *</label>
-                    <input type="tel" name="phone_number" id="phone_number" value="{{ old('phone_number') }}" required placeholder="+1234567890">
-                    <small class="hint">Include country code (e.g., +1, +63, +234)</small>
+                    <div class="phone-input-group" style="display: flex; gap: 8px; margin-top: 8px;">
+                        <select name="phone_code" id="phone_code" class="phone-code-select" required style="flex: 0 0 90px; padding: 10px 8px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; background: #fafbff;">
+                            <option value="">Code</option>
+                            <option value="+1">+1</option>
+                            <option value="+44">+44</option>
+                            <option value="+961">+961</option>
+                            <option value="+91">+91</option>
+                            <option value="+86">+86</option>
+                            <option value="+81">+81</option>
+                            <option value="+33">+33</option>
+                            <option value="+49">+49</option>
+                            <option value="+39">+39</option>
+                            <option value="+34">+34</option>
+                            <option value="+61">+61</option>
+                            <option value="+64">+64</option>
+                            <option value="+27">+27</option>
+                            <option value="+234">+234</option>
+                            <option value="+254">+254</option>
+                            <option value="+256">+256</option>
+                            <option value="+255">+255</option>
+                            <option value="+57">+57</option>
+                            <option value="+55">+55</option>
+                            <option value="+56">+56</option>
+                            <option value="+507">+507</option>
+                            <option value="+65">+65</option>
+                            <option value="+60">+60</option>
+                            <option value="+66">+66</option>
+                            <option value="+84">+84</option>
+                            <option value="+63">+63</option>
+                            <option value="+880">+880</option>
+                            <option value="+92">+92</option>
+                            <option value="+20">+20</option>
+                            <option value="+212">+212</option>
+                            <option value="+216">+216</option>
+                        </select>
+                        <input type="text" name="phone_number" id="phone_number" value="{{ old('phone_number') }}" required placeholder="Enter phone number" style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;">
+                    </div>
+                    <small class="hint" style="display: block; margin-top: 5px;">Select country code and enter phone number</small>
                     @error('phone_number')
                         <span class="error">{{ $message }}</span>
                     @enderror

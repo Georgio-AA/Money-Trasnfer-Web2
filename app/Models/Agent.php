@@ -38,10 +38,21 @@ class Agent extends Model
     {
         return $this->hasMany(Review::class);
     }
+
+    /**
+     * Get all commissions earned by this agent.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function commissions()
+    {
+        return $this->hasMany(Commission::class, 'agent_id');
+    }
+
     public function transactions()
-{
-    return $this->hasMany(AgentTransaction::class);
-}
+    {
+        return $this->hasMany(AgentTransaction::class);
+    }
 // NEW: Local Scope to easily fetch only approved agents
     public function scopeApproved($query)
     {

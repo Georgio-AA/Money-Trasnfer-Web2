@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\ComplianceController;
 use App\Http\Controllers\Admin\ExchangeRateController;
 use App\Http\Controllers\Admin\ReportsController;
+use App\Http\Controllers\Admin\FraudDetectionController;
 use App\Http\Controllers\TransferController;
 use App\Http\Controllers\SupportController;
 use App\Http\Controllers\ReviewController;
@@ -148,6 +149,10 @@ Route::middleware('auth.session')->group(function () {
     Route::get('/disputes/{id}', [DisputeController::class, 'show'])->name('disputes.show');
     Route::post('/disputes/{id}/cancel', [DisputeController::class, 'cancel'])->name('disputes.cancel');
     Route::post('/disputes/{id}/request-refund', [DisputeController::class, 'requestRefund'])->name('disputes.request-refund');
+
+    // SwiftPay Card Request Routes
+    Route::get('/card/request', [\App\Http\Controllers\CardRequestController::class, 'create'])->name('card.request.create');
+    Route::post('/card/request', [\App\Http\Controllers\CardRequestController::class, 'store'])->name('card.request.store');
 });
 
 // -----------------------------
@@ -207,6 +212,26 @@ Route::middleware(['auth.session', 'admin'])
         // Reports & Analytics
         Route::get('/reports', [\App\Http\Controllers\Admin\ReportsController::class, 'index'])->name('reports.index');
         Route::get('/reports/export', [\App\Http\Controllers\Admin\ReportsController::class, 'export'])->name('reports.export');
+        
+        // Commission Management (Finance Admin & Super Admin only)
+        Route::middleware('admin')
+            ->prefix('commissions')
+            ->name('commissions.')
+            ->group(function () {
+                Route::get('/', [\App\Http\Controllers\Admin\CommissionController::class, 'index'])->name('index');
+                Route::get('/{agentId}', [\App\Http\Controllers\Admin\CommissionController::class, 'detail'])->name('detail');
+                Route::get('/report/view', [\App\Http\Controllers\Admin\CommissionController::class, 'report'])->name('report');
+                Route::get('/report/stats', [\App\Http\Controllers\Admin\CommissionController::class, 'getStats'])->name('stats');
+                Route::post('/mark-as-paid', [\App\Http\Controllers\Admin\CommissionController::class, 'markAsPaid'])->name('mark-as-paid');
+                Route::get('/export/pdf', [\App\Http\Controllers\Admin\CommissionController::class, 'exportPDF'])->name('export.pdf');
+                Route::get('/export/excel', [\App\Http\Controllers\Admin\CommissionController::class, 'exportExcel'])->name('export.excel');
+            });
+
+        // Card Request Management
+        Route::get('/card-requests', [\App\Http\Controllers\CardRequestController::class, 'index'])->name('card-requests.index');
+        Route::get('/card-requests/{id}', [\App\Http\Controllers\CardRequestController::class, 'show'])->name('card-requests.show');
+        Route::post('/card-requests/{id}/approve', [\App\Http\Controllers\CardRequestController::class, 'approve'])->name('card-requests.approve');
+        Route::post('/card-requests/{id}/reject', [\App\Http\Controllers\CardRequestController::class, 'reject'])->name('card-requests.reject');
     });
 // Email verification link endpoint (does not require session)
 Route::get('/bank-accounts/verify-email/{bankAccount}/{token}', [BankAccountController::class, 'verifyByEmail'])
@@ -235,4 +260,16 @@ Route::prefix('agent')->name('agent.')->group(function () {
     Route::get('/profile', [AgentProfileController::class, 'editProfile'])->name('profile.edit');
     Route::post('/profile', [AgentProfileController::class, 'updateProfile'])->name('profile.update');
 });
+
+
+
+
+Route::get('/sms-test', function() {
+    $sms = new \App\Services\SMSService();
+    return $sms->send("+96170123456", "Your SMS Gateway is working!");
+});
+
+
+
+
 

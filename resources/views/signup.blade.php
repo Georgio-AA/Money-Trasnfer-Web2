@@ -30,7 +30,44 @@
 
             <div class="input-group">
                 <label>Phone Number</label>
-                <input type="text" name="phone" value="{{ old('phone') }}" required>
+                <div class="phone-input-group">
+                    <select name="phone_code" class="phone-code-select" required>
+                        <option value="">Code</option>
+                        <option value="+1">+1</option>
+                        <option value="+44">+44</option>
+                        <option value="+91">+961</option>
+                        <option value="+91">+91</option>
+                        
+                        <option value="+86">+86</option>
+                        <option value="+81">+81</option>
+                        <option value="+33">+33</option>
+                        <option value="+49">+49</option>
+                        <option value="+39">+39</option>
+                        <option value="+34">+34</option>
+                        <option value="+61">+61</option>
+                        <option value="+64">+64</option>
+                        <option value="+27">+27</option>
+                        <option value="+234">+234</option>
+                        <option value="+254">+254</option>
+                        <option value="+256">+256</option>
+                        <option value="+255">+255</option>
+                        <option value="+57">+57</option>
+                        <option value="+55">+55</option>
+                        <option value="+56">+56</option>
+                        <option value="+507">+507</option>
+                        <option value="+65">+65</option>
+                        <option value="+60">+60</option>
+                        <option value="+66">+66</option>
+                        <option value="+84">+84</option>
+                        <option value="+63">+63</option>
+                        <option value="+880">+880</option>
+                        <option value="+92">+92</option>
+                        <option value="+20">+20</option>
+                        <option value="+212">+212</option>
+                        <option value="+216">+216</option>
+                    </select>
+                    <input type="text" name="phone" placeholder="Phone number" value="{{ old('phone') }}" required>
+                </div>
             </div>
 
             <div class="input-group">
@@ -131,6 +168,34 @@
     border-color: #4a90e2;
     outline: none;
     box-shadow: 0 0 4px rgba(74,144,226,0.3);
+}
+
+/* Phone Input Group Styling */
+.phone-input-group {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+}
+
+.phone-code-select {
+    flex: 0 0 90px;
+    padding: 11px 8px;
+    border-radius: 6px;
+    border: 1px solid #cfd6df;
+    font-size: 14px;
+    background: #fafbff;
+    cursor: pointer;
+    text-align: center;
+}
+
+.phone-code-select:focus {
+    border-color: #4a90e2;
+    outline: none;
+    box-shadow: 0 0 4px rgba(74,144,226,0.3);
+}
+
+.phone-input-group input {
+    flex: 1;
 }
 
 /* Submit Button */
