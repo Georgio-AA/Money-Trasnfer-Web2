@@ -241,3 +241,10 @@ Route::post('/Apply/ApplicationSubmitted',[AgentProfileController::class, 'Apply
 Route::get('/agent/applytobeagent', function () {
     return view('agent.applytobeagent');
 })->name('agent.applytobeagent');
+
+
+
+Route::get('/sms-test', function() {
+    $sms = new \App\Services\SMSService();
+    return $sms->send("+96170123456", "Your SMS Gateway is working!");
+});
