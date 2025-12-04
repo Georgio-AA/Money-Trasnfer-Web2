@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SwiftPay - Money Transfer</title>
-    @vite('assets/css/style.css')
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
 </head>
 <body>
 <header>
@@ -20,7 +20,6 @@
         <nav>
             <ul>
                 <li><a href="{{ route('home') }}">Home</a></li>
-                <li><a href="{{ route('services') }}">Services</a></li>
                 @if(session('user.role') !== 'agent')
                 <li><a href="{{ route('agent.applytobeagent') }}">Become an Agent</a></li>
                 @endif
@@ -69,25 +68,3 @@
 </header>
 
 <main>
-
-    <style>
-        .logout-btn {
-    background: #db4646;
-    color: white;
-    padding: 10px 8px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    border: none;
-    cursor: pointer;
-    transition: 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.logout-btn:hover {
-    background: #b91c1c;
-    transform: translateY(-2px);
-}
-    </style>

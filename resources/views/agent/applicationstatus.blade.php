@@ -35,6 +35,9 @@
             @else
                 <p>Status: <span class="badge bg-warning text-dark">Pending Approval</span></p>
                 <p>Your application is currently under review. You will be notified once approved.</p>
+                <div class="mt-3">
+                    <a href="{{ route('home') }}" class="btn btn-primary">Back to Home</a>
+                </div>
             @endif
             @else
                 <p>You have not applied to be an agent yet.</p>
@@ -52,6 +55,9 @@
                 <li><strong>Working Hours:</strong> {{ $agent->working_hours }}</li>
                 <li><strong>Commission Rate:</strong> {{ $agent->commission_rate }}%</li>
             </ul>
+            <div class="mt-3">
+                <a href="{{ route('home') }}" class="btn btn-primary">Back to Home</a>
+            </div>
         </div>
     @endif
 
