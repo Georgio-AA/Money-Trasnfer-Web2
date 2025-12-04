@@ -399,6 +399,9 @@ $agents = Agent::approved()
                 $recipient = User::where('phone', $transfer->beneficiary->phone_number)->first();
                 
                 if (!$recipient) {
+                    if ($request->expectsJson()) {
+                        return response()->json(['error' => 'Recipient user not found.'], 404);
+                    }
                     return back()->with('error', 'Recipient user not found.');
                 }
                 
@@ -446,24 +449,45 @@ $agents = Agent::approved()
                             ' (converted from ' . $transfer->target_currency . ')' : ''),
                 ]);
                 
-                // Update transfer status
+                // Update transfer status and set completed_at
                 $transfer->status = $newStatus;
+                $transfer->completed_at = now();
                 $transfer->save();
                 
                 DB::commit();
                 
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Transfer completed successfully! Recipient has been credited.',
+                        'transfer' => $transfer
+                    ]);
+                }
                 return back()->with('success', 'Transfer completed successfully! Recipient has been credited.');
                 
             } catch (\Exception $e) {
                 DB::rollBack();
+                if ($request->expectsJson()) {
+                    return response()->json(['error' => 'Failed to complete transfer: ' . $e->getMessage()], 500);
+                }
                 return back()->with('error', 'Failed to complete transfer: ' . $e->getMessage());
             }
         }
         
         // For other status changes, just update the status
         $transfer->status = $newStatus;
+        if ($newStatus === 'completed') {
+            $transfer->completed_at = now();
+        }
         $transfer->save();
         
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Transfer status updated to ' . $newStatus . '.',
+                'transfer' => $transfer
+            ]);
+        }
         return back()->with('success', 'Transfer status updated to ' . $newStatus . '.');
     }
 

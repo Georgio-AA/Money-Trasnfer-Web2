@@ -9,7 +9,7 @@ class ExchangeRateSeeder extends Seeder
 {
     public function run(): void
     {
-        $currencies = ['USD', 'EUR', 'GBP', 'JPY', 'CAD', 'AUD', 'CHF', 'CNY', 'SEK', 'NZD', 'MXN', 'SGD', 'HKD', 'NOK', 'KRW', 'TRY', 'RUB', 'INR', 'BRL', 'ZAR', 'LBP'];
+        $currencies = ['USD', 'EUR', 'GBP', 'JPY', 'CAD', 'AUD', 'CHF', 'CNY', 'SEK', 'NZD', 'MXN', 'SGD', 'HKD', 'NOK', 'KRW', 'TRY', 'RUB', 'INR', 'BRL', 'ZAR', 'LBP', 'SAR', 'AED', 'EGP', 'PKR', 'BDT', 'THB', 'VND', 'PHP', 'IDR', 'MYR'];
         
         // Exchange rates relative to 1 USD
         $rates = [
@@ -33,7 +33,17 @@ class ExchangeRateSeeder extends Seeder
             'INR' => 83.12,
             'BRL' => 4.97,
             'ZAR' => 18.65,
-            'LBP' => 89500
+            'LBP' => 89500,
+            'SAR' => 3.75,      // Saudi Riyal
+            'AED' => 3.67,      // UAE Dirham
+            'EGP' => 30.90,     // Egyptian Pound
+            'PKR' => 278.50,    // Pakistani Rupee
+            'BDT' => 110.50,    // Bangladeshi Taka
+            'THB' => 35.80,     // Thai Baht
+            'VND' => 24500,     // Vietnamese Dong
+            'PHP' => 56.20,     // Philippine Peso
+            'IDR' => 15700,     // Indonesian Rupiah
+            'MYR' => 4.68       // Malaysian Ringgit
         ];
 
         $count = 0;

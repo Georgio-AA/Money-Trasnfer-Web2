@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Agent;
 use Illuminate\Http\Request;
+use App\Services\GeocodingService;
 
 class AgentProfileController extends Controller
 {
@@ -21,26 +22,29 @@ class AgentProfileController extends Controller
             'country' => 'required|string',
             'city' => 'required|string',
             'phone_number' =>'required|string',
-            'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric',
             'working_hours' => 'required|string',
             'commission_rate' => 'required|numeric|min:0|max:100',
         ]);
 
-// Create the Agent application (pending)
-$agent = Agent::create([
-    'user_id'         => $userId,
-    'store_name'      => $validated['store_name'],
-    'address'         => $validated['address'],
-    'country'         => $validated['country'],
-    'city'            => $validated['city'],
-    'phone_number'    => $validated['phone_number'],
-    'latitude'        => $validated['latitude'],
-    'longitude'       => $validated['longitude'],
-    'working_hours'   => $validated['working_hours'],
-    'commission_rate' => $validated['commission_rate'],
-    'approved'        => false,
-]);
+        $geo = app(GeocodingService::class)->geocode(
+            $validated['address'],
+            $validated['city'],
+            $validated['country']
+        );
+
+        $agent = Agent::create([
+            'user_id'         => $userId,
+            'store_name'      => $validated['store_name'],
+            'address'         => $validated['address'],
+            'country'         => $validated['country'],
+            'city'            => $validated['city'],
+            'phone_number'    => $validated['phone_number'],
+            'latitude'        => $geo['latitude'] ?? null,
+            'longitude'       => $geo['longitude'] ?? null,
+            'working_hours'   => $validated['working_hours'],
+            'commission_rate' => $validated['commission_rate'],
+            'approved'        => false,
+        ]);
 
 $user = session('user');
 return view('agent.applicationstatus', compact('user', 'agent'));
@@ -85,10 +89,24 @@ public function applicationStatus()
         $agent = Agent::where('user_id', $user['id'])->firstOrFail();
 
         $validated = $request->validate([
+            'store_name'    => 'sometimes|max:255|string',
+            'address'       => 'sometimes|max:255|string',
+            'country'       => 'sometimes|string',
+            'city'          => 'sometimes|string',
+            'phone_number'  => 'sometimes|string',
             'working_hours' => 'required|string|max:255',
-            'latitude'      => 'required|numeric',
-            'longitude'     => 'required|numeric',
         ]);
+
+        // If address/city/country changed, re-geocode
+        if (isset($validated['address']) || isset($validated['city']) || isset($validated['country'])) {
+            $geo = app(GeocodingService::class)->geocode(
+                $validated['address'] ?? $agent->address,
+                $validated['city'] ?? $agent->city,
+                $validated['country'] ?? $agent->country
+            );
+            $validated['latitude'] = $geo['latitude'] ?? $agent->latitude;
+            $validated['longitude'] = $geo['longitude'] ?? $agent->longitude;
+        }
 
         $agent->update($validated);
 

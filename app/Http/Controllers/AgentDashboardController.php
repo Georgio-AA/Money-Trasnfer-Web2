@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Agent;
 use App\Models\Transfer;
+use App\Models\ExchangeRate;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
@@ -63,14 +64,13 @@ class AgentDashboardController extends Controller
         ->findOrFail($id);
 
     // Commission calculation
-    $commissionRate = $agent->commission_rate ?? 0; // fallback if null
-    $commissionAmount = $transfer->payout_amount * $commissionRate;
-\Log::info("Incrementing balance by amount1: " . $transfer->payout_amount);
-    // --- Begin DB transaction for safety ---
+    $commissionRate = $agent->commission_rate ?? 0;
+    $commissionAmount = $transfer->payout_amount * ($commissionRate / 100);
+    \Log::info("Incrementing balance by amount1: " . $transfer->payout_amount);
     
-     DB::beginTransaction();
-            
-            try {
+    DB::beginTransaction();
+    
+    try {
                 // Find recipient by phone number
                 $recipient = User::where('phone', $transfer->beneficiary->phone_number)->first();
                 
@@ -107,22 +107,21 @@ class AgentDashboardController extends Controller
                 // Credit the recipient's balance
                 $recipient->balance += $amountToCredit;
                 $recipient->save();
+
                 // Update transfer
                 $transfer->status = 'completed';
                 $transfer->agent_commission = $commissionAmount;
                 $transfer->completed_at = now();
-                $transfer->save(); // <--- THIS IS MISSING
-                
+                $transfer->save();
+
                 DB::commit();
-                
-                return back()->with('success', 'Transfer completed successfully! Recipient has been credited.');
-                
-            } catch (\Exception $e) {
+
+                return redirect()->route('agent.dashboard')
+                    ->with('success', 'Payout completed and beneficiary balance updated.');
+            } catch (\Throwable $e) {
                 DB::rollBack();
                 return back()->with('error', 'Failed to complete transfer: ' . $e->getMessage());
             }
-    return redirect()->route('agent.dashboard')
-        ->with('success', 'Payout completed and beneficiary balance updated.');
 }
 
 
