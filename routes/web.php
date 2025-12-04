@@ -153,6 +153,12 @@ Route::middleware('auth.session')->group(function () {
     // SwiftPay Card Request Routes
     Route::get('/card/request', [\App\Http\Controllers\CardRequestController::class, 'create'])->name('card.request.create');
     Route::post('/card/request', [\App\Http\Controllers\CardRequestController::class, 'store'])->name('card.request.store');
+
+    // Store Routes (Buy Digital Services)
+    Route::get('/store', [\App\Http\Controllers\StoreController::class, 'index'])->name('store.index');
+    Route::post('/store/buy/{product}', [\App\Http\Controllers\StoreController::class, 'buy'])->name('store.buy');
+    Route::get('/store/confirmation/{order}', [\App\Http\Controllers\StoreController::class, 'confirmation'])->name('store.confirmation');
+    Route::get('/store/my-purchases', [\App\Http\Controllers\StoreController::class, 'myPurchases'])->name('store.my-purchases');
 });
 
 // -----------------------------
@@ -232,6 +238,18 @@ Route::middleware(['auth.session', 'admin'])
         Route::get('/card-requests/{id}', [\App\Http\Controllers\CardRequestController::class, 'show'])->name('card-requests.show');
         Route::post('/card-requests/{id}/approve', [\App\Http\Controllers\CardRequestController::class, 'approve'])->name('card-requests.approve');
         Route::post('/card-requests/{id}/reject', [\App\Http\Controllers\CardRequestController::class, 'reject'])->name('card-requests.reject');
+
+        // Store Product Management
+        Route::prefix('store')->name('store.')->group(function () {
+            Route::get('/products', [\App\Http\Controllers\Admin\StoreProductController::class, 'index'])->name('products.index');
+            Route::get('/products/create', [\App\Http\Controllers\Admin\StoreProductController::class, 'create'])->name('products.create');
+            Route::post('/products', [\App\Http\Controllers\Admin\StoreProductController::class, 'store'])->name('products.store');
+            Route::get('/products/{id}/edit', [\App\Http\Controllers\Admin\StoreProductController::class, 'edit'])->name('products.edit');
+            Route::put('/products/{id}', [\App\Http\Controllers\Admin\StoreProductController::class, 'update'])->name('products.update');
+            Route::put('/products/{id}/toggle', [\App\Http\Controllers\Admin\StoreProductController::class, 'toggle'])->name('products.toggle');
+            Route::delete('/products/{id}', [\App\Http\Controllers\Admin\StoreProductController::class, 'destroy'])->name('products.destroy');
+            Route::get('/orders', [\App\Http\Controllers\Admin\StoreProductController::class, 'viewOrders'])->name('orders.index');
+        });
     });
 // Email verification link endpoint (does not require session)
 Route::get('/bank-accounts/verify-email/{bankAccount}/{token}', [BankAccountController::class, 'verifyByEmail'])

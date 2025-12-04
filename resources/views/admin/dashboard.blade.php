@@ -128,6 +128,12 @@ body { background-color: #f3f4f6; }
 <div class="value" style="font-size: 18px; color: #667eea;">Review</div>
 </a>
 </div>
+<div class="stat-card clickable">
+<a href="{{ route('admin.store.products.index') }}">
+<h3>🛍️ Store Management</h3>
+<div class="value" style="font-size: 18px; color: #11998e;">Manage</div>
+</a>
+</div>
 </div>
 
 <!-- Revenue Stats -->

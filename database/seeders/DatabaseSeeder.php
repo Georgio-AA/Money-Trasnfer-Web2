@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
         AdminUserSeeder::class,
         TransferServiceSeeder::class,
         ExchangeRateSeeder::class,
+        StoreProductSeeder::class,
          ]);
 
         User::factory()->create([

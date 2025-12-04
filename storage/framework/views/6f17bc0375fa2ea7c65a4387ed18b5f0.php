@@ -156,6 +156,31 @@ endif;
 unset($__errorArgs, $__bag); ?>
                 </div>
                 
+               <div class="form-group" id="agentSelect" style="display:<?php echo e(old('payout_method') == 'cash_pickup' ? 'block' : 'none'); ?>;">
+    <label for="agent_id">Select Pickup Agent Based on City*</label>
+    <select name="agent_id" id="agent_id" <?php echo e(old('payout_method') == 'cash_pickup' ? 'required' : ''); ?>>
+        <option value="">-- Choose a pickup agent --</option>
+        
+        <?php if(isset($agents)): ?>
+            <?php $__currentLoopData = $agents; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $agent): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <option value="<?php echo e($agent->id); ?>" <?php echo e(old('agent_id') == $agent->id ? 'selected' : ''); ?>>
+                    <?php echo e($agent->name); ?> (<?php echo e($agent->city ?? 'N/A'); ?>)
+                </option>
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+        <?php endif; ?>
+    </select>
+    <?php $__errorArgs = ['agent_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+        <span class="error"><?php echo e($message); ?></span>
+    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+</div>
+
                 <!-- Promotion Code -->
                 <div class="form-group full-width">
                     <label for="promotion_id">Promotion Code (Optional)</label>
@@ -292,6 +317,77 @@ document.getElementById('calculateBtn').addEventListener('click', function() {
     });
 });
 </script>
-
+<!--
 <?php echo $__env->make('includes.footer', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+<script>
+document.getElementById('payout_method').addEventListener('change', function() {
+    const agentSelect = document.getElementById('agentSelect');
+    if (this.value === 'cash_pickup') {
+        agentSelect.style.display = 'block';
+    } else {
+        agentSelect.style.display = 'none';
+    }
+});
+</script>-->
+<script>
+document.getElementById('calculateBtn').addEventListener('click', function() {
+    // ... (existing calculate quote logic remains here) ...
+    const amount = document.getElementById('amount').value;
+    const sourceCurrency = document.getElementById('source_currency').value;
+    const targetCurrency = document.getElementById('target_currency').value;
+    const transferSpeed = document.getElementById('transfer_speed').value;
+    
+    if (!amount || !sourceCurrency || !targetCurrency || !transferSpeed) {
+        alert('Please fill in all required fields to calculate quote');
+        return;
+    }
+    
+    fetch('<?php echo e(route("transfers.calculate-quote")); ?>', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>'
+        },
+        body: JSON.stringify({
+            amount: amount,
+            source_currency: sourceCurrency,
+            target_currency: targetCurrency,
+            transfer_speed: transferSpeed
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert(data.error);
+            return;
+        }
+        
+        document.getElementById('quoteAmount').textContent = sourceCurrency + ' ' + data.amount;
+        document.getElementById('quoteRate').textContent = '1 ' + sourceCurrency + ' = ' + data.exchange_rate + ' ' + targetCurrency;
+        document.getElementById('quoteFee').textContent = sourceCurrency + ' ' + data.transfer_fee;
+        document.getElementById('quoteTotal').textContent = sourceCurrency + ' ' + data.total_paid;
+        document.getElementById('quotePayout').textContent = targetCurrency + ' ' + data.payout_amount;
+        document.getElementById('quoteBox').style.display = 'block';
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to calculate quote');
+    });
+});
+
+// NEW LOGIC: Conditional Agent Selection Display
+document.getElementById('payout_method').addEventListener('change', function() {
+    const agentSelectDiv = document.getElementById('agentSelect');
+    const agentIdField = document.getElementById('agent_id');
+    
+    if (this.value === 'cash_pickup') {
+        agentSelectDiv.style.display = 'block';
+        agentIdField.setAttribute('required', 'required'); 
+    } else {
+        agentSelectDiv.style.display = 'none';
+        agentIdField.removeAttribute('required'); 
+        agentIdField.value = ''; // Clear selection when switching away
+    }
+});
+</script>
 <?php /**PATH C:\XAMPP\htdocs\money-transfer2\WebProject\resources\views/transfers/create.blade.php ENDPATH**/ ?>

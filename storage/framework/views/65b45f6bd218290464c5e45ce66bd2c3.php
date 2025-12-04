@@ -32,6 +32,7 @@
                 <?php if(session()->has('user')): ?>
                     <li><a href="<?php echo e(route('wallet.index')); ?>" class="wallet-link">💰 My Wallet</a></li>
                     <li><a href="<?php echo e(route('transfers.create')); ?>" class="send-money-link">Send Money</a></li>
+                    <li><a href="<?php echo e(route('store.index')); ?>" class="store-link">🛍️ Store</a></li>
                     <li><a href="<?php echo e(route('transfers.index')); ?>">My Transfers</a></li>
                     <li><a href="<?php echo e(route('beneficiaries.index')); ?>">Beneficiaries</a></li>
                     <li><a href="<?php echo e(route('bank-accounts.index')); ?>">My Accounts</a></li>

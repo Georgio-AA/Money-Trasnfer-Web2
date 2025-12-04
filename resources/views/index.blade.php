@@ -91,6 +91,76 @@
     </div>
 </section>
 
+<section class="store-section">
+    <div class="store-container">
+        <div class="store-content">
+            <div class="store-badge">New Feature</div>
+            <h2>SwiftPay Store</h2>
+            <p class="store-description">Buy digital services using your account balance. Get mobile recharges, streaming subscriptions, and more instantly.</p>
+            
+            <div class="store-features">
+                <div class="store-feature-item">
+                    <div class="store-feature-icon">📱</div>
+                    <h4>Mobile Recharge</h4>
+                    <p>Quick recharges for MTC, Alfa, and more</p>
+                </div>
+                <div class="store-feature-item">
+                    <div class="store-feature-icon">🎬</div>
+                    <h4>Streaming Services</h4>
+                    <p>Netflix, Disney+, and popular streaming apps</p>
+                </div>
+                <div class="store-feature-item">
+                    <div class="store-feature-icon">🎵</div>
+                    <h4>Music & Audio</h4>
+                    <p>Spotify, Apple Music, Anghami subscriptions</p>
+                </div>
+                <div class="store-feature-item">
+                    <div class="store-feature-icon">🎮</div>
+                    <h4>Gaming</h4>
+                    <p>PlayStation Plus, Xbox Game Pass</p>
+                </div>
+            </div>
+
+            @if(session()->has('user'))
+                <a href="{{ route('store.index') }}" class="store-cta-btn">Browse Store Now</a>
+            @else
+                <a href="{{ route('login') }}" class="store-cta-btn">Login to Access Store</a>
+            @endif
+        </div>
+        
+        <div class="store-visual">
+            <div class="store-showcase">
+                <div class="product-card">
+                    <div class="product-icon">📱</div>
+                    <div class="product-name">MTC Recharge</div>
+                    <div class="product-price">$10</div>
+                </div>
+                <div class="product-card">
+                    <div class="product-icon">🎬</div>
+                    <div class="product-name">Netflix 1 Month</div>
+                    <div class="product-price">$9.99</div>
+                </div>
+                <div class="product-card">
+                    <div class="product-icon">🎵</div>
+                    <div class="product-name">Spotify Premium</div>
+                    <div class="product-price">$10.99</div>
+                </div>
+                <div class="product-card">
+                    <div class="product-icon">🎮</div>
+                    <div class="product-name">PS Plus 1 Month</div>
+                    <div class="product-price">$9.99</div>
+                </div>
+            </div>
+            <div class="store-benefits">
+                <div class="benefit">✓ Instant Delivery</div>
+                <div class="benefit">✓ Unique Codes</div>
+                <div class="benefit">✓ No Extra Fees</div>
+                <div class="benefit">✓ 24/7 Available</div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <section class="testimonials">
     <h2>What Our Customers Say</h2>
     <div class="grid">
@@ -331,6 +401,184 @@
 
         .card-perks {
             grid-template-columns: 1fr;
+        }
+    }
+
+    /* Store Section Styles */
+    .store-section {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        padding: 80px 20px;
+        margin: 60px 0;
+    }
+
+    .store-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 50px;
+        align-items: center;
+    }
+
+    .store-content {
+        color: white;
+    }
+
+    .store-badge {
+        display: inline-block;
+        background-color: rgba(255, 255, 255, 0.2);
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+        margin-bottom: 20px;
+        text-transform: uppercase;
+    }
+
+    .store-content h2 {
+        font-size: 42px;
+        margin: 0 0 15px 0;
+        font-weight: 700;
+    }
+
+    .store-description {
+        font-size: 18px;
+        margin-bottom: 30px;
+        opacity: 0.95;
+    }
+
+    .store-features {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .store-feature-item {
+        background-color: rgba(255, 255, 255, 0.1);
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        text-align: center;
+    }
+
+    .store-feature-icon {
+        font-size: 32px;
+        margin-bottom: 10px;
+    }
+
+    .store-feature-item h4 {
+        margin: 0 0 8px 0;
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    .store-feature-item p {
+        margin: 0;
+        font-size: 13px;
+        opacity: 0.9;
+    }
+
+    .store-cta-btn {
+        display: inline-block;
+        background-color: white;
+        color: #11998e;
+        padding: 14px 40px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 16px;
+        transition: transform 0.3s, box-shadow 0.3s;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .store-cta-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .store-visual {
+        color: white;
+    }
+
+    .store-showcase {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+
+    .product-card {
+        background-color: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        transition: transform 0.3s, background-color 0.3s;
+    }
+
+    .product-card:hover {
+        transform: translateY(-3px);
+        background-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .product-icon {
+        font-size: 32px;
+        margin-bottom: 10px;
+    }
+
+    .product-name {
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .product-price {
+        font-size: 20px;
+        font-weight: 700;
+    }
+
+    .store-benefits {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .benefit {
+        background-color: rgba(255, 255, 255, 0.15);
+        padding: 12px 15px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* Responsive Design for Store */
+    @media (max-width: 768px) {
+        .store-container {
+            grid-template-columns: 1fr;
+            gap: 30px;
+        }
+
+        .store-content h2 {
+            font-size: 28px;
+        }
+
+        .store-description {
+            font-size: 16px;
+        }
+
+        .store-features {
+            grid-template-columns: 1fr;
+        }
+
+        .store-showcase {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .store-benefits {
+            grid-template-columns: 1fr 1fr;
         }
     }
 </style>
