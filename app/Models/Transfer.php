@@ -16,6 +16,12 @@ class Transfer extends Model
         'payout_amount','transfer_speed','status','completed_at'
     ];
 
+    protected $casts = [
+        'completed_at' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+
     protected $appends = ['user_id'];
 
     // Virtual attribute for compatibility

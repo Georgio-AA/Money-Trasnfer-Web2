@@ -296,6 +296,41 @@ setInterval(function() {
     location.reload();
 }, 30000);
 @endif
+
+// Automatic status progression for instant transfers
+@if($transfer->transfer_speed === 'instant' && $transfer->status === 'pending')
+(function() {
+    // After 5 seconds, update to processing
+    setTimeout(function() {
+        updateTransferStatus('processing', 'Payment Processed');
+    }, 5000);
+    
+    // After 8 seconds (3 seconds after processing), update to completed
+    setTimeout(function() {
+        updateTransferStatus('completed', 'Transfer Complete');
+    }, 8000);
+    
+    function updateTransferStatus(status, message) {
+        fetch('{{ route('transfers.update-status', $transfer->id) }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ status: status })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(message + ':', data);
+            // Reload page to show updated status
+            location.reload();
+        })
+        .catch(error => {
+            console.error('Error updating status:', error);
+        });
+    }
+})();
+@endif
 </script>
 
 @include('includes.footer')
