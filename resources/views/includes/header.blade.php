@@ -37,9 +37,15 @@
                     <li><a href="{{ route('support.index') }}">Support</a></li>
                     <li><a href="{{ route('reviews.index') }}">Reviews</a></li>
                     <li><a href="{{ route('disputes.index') }}">Disputes</a></li>
-                    @if(session('user.role') === 'admin')
+                    
+                    @php
+                        $userRole = session('user.role');
+                    @endphp
+                    
+                    @if($userRole === 'admin')
                         <li><a href="{{ route('admin.dashboard') }}">Admin Panel</a></li>
                     @endif
+                    
                     <li><a href="{{ route('transfer-services.index') }}">Transfer Services</a></li>
                 @else
                     <li><a href="{{ route('login') }}">Send Money</a></li>
