@@ -1,9 +1,10 @@
 @include('includes.header')
 
-<section class="login-container">
-    <div class="login-card">
+<section class="password-request-container">
+    <div class="password-request-card">
 
-        <h2 class="title">Login to Your Account</h2>
+        <h2 class="title">Reset Your Password</h2>
+        <p class="subtitle">Enter your email address and we'll send you a link to reset your password.</p>
 
         @if (session('error'))
             <div class="alert error">{{ session('error') }}</div>
@@ -13,48 +14,44 @@
             <div class="alert success">{{ session('success') }}</div>
         @endif
 
-        <form method="POST" action="{{ route('login.submit') }}" class="login-form">
+        <form method="POST" action="{{ route('password.send.reset.email') }}" class="password-form">
             @csrf
 
             <div class="input-group">
                 <label for="email">Email Address</label>
-                <input type="email" name="email" id="email" required>
+                <input type="email" name="email" id="email" placeholder="Enter your registered email" required>
+                @error('email')
+                    <span class="error-text">{{ $message }}</span>
+                @enderror
             </div>
 
-            <div class="input-group">
-                <label for="password">Password</label>
-                <input type="password" name="password" id="password" required>
-                <a href="{{ route('password.request') }}" class="forgot-password-link">Forgot Password?</a>
-            </div>
+            <button type="submit" class="submit-btn">Send Reset Link</button>
 
-            <button type="submit" class="submit-btn">Login</button>
-
-            <p class="signup-note">
-                Don't have an account?
-                <a href="{{ route('signup') }}">Sign up here</a>.
+            <p class="back-to-login">
+                Remember your password?
+                <a href="{{ route('login') }}">Back to login</a>
             </p>
         </form>
 
     </div>
 </section>
 
-
 <style>
 /* Page Layout */
-.login-container {
+.password-request-container {
     display: flex;
     justify-content: center;
     padding: 40px 15px;
     background: #f4f7fb;
-height: auto;}
+    min-height: 100vh;
+}
 
-.login-card {
+.password-request-card {
     background: #ffffff;
     padding: 35px 40px;
     width: 420px;
     border-radius: 12px;
     box-shadow: 0px 6px 20px rgba(0,0,0,0.08);
-    height: auto;
 }
 
 /* Title */
@@ -63,7 +60,15 @@ height: auto;}
     font-size: 24px;
     font-weight: 700;
     color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    text-align: center;
+    font-size: 14px;
+    color: #7f8c8d;
     margin-bottom: 25px;
+    line-height: 1.6;
 }
 
 /* Alerts */
@@ -89,11 +94,11 @@ height: auto;}
 }
 
 /* Form Inputs */
-.login-form .input-group {
+.password-form .input-group {
     margin-bottom: 18px;
 }
 
-.login-form label {
+.password-form label {
     font-size: 14px;
     font-weight: bold;
     color: #34495e;
@@ -101,35 +106,28 @@ height: auto;}
     margin-bottom: 6px;
 }
 
-.login-form input {
+.password-form input {
     width: 100%;
     padding: 11px;
     border-radius: 6px;
     border: 1px solid #cfd6df;
     background: #fafbff;
     font-size: 14px;
+    box-sizing: border-box;
 }
 
-.login-form input:focus {
+.password-form input:focus {
     border-color: #4a90e2;
     outline: none;
     box-shadow: 0 0 4px rgba(74,144,226,0.3);
 }
 
-/* Forgot Password Link */
-.forgot-password-link {
-    font-size: 13px;
-    color: #4a8df6;
-    text-decoration: none;
-    font-weight: 600;
-    display: inline-block;
-    margin-top: 8px;
-    transition: 0.2s;
-}
-
-.forgot-password-link:hover {
-    color: #2f6fe0;
-    text-decoration: underline;
+/* Error Text */
+.error-text {
+    color: #d63939;
+    font-size: 12px;
+    margin-top: 4px;
+    display: block;
 }
 
 /* Submit Button */
@@ -151,17 +149,25 @@ height: auto;}
     background: #2f6fe0;
 }
 
-/* Signup Text */
-.signup-note {
+.submit-btn:active {
+    transform: translateY(1px);
+}
+
+/* Back to Login */
+.back-to-login {
     text-align: center;
     margin-top: 15px;
     font-size: 14px;
 }
 
-.signup-note a {
+.back-to-login a {
     color: #4a8df6;
     font-weight: bold;
     text-decoration: none;
+}
+
+.back-to-login a:hover {
+    text-decoration: underline;
 }
 </style>
 

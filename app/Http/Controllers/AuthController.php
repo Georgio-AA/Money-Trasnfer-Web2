@@ -330,36 +330,62 @@ class AuthController extends Controller
 
     public function changePassword(Request $request)
     {
-        // This method now sends a reset email instead of asking for current password
-        // Redirect to request password reset
-        return redirect()->route('password.request');
+        if (!Session::has('user')) {
+            return redirect()->route('login');
+        }
+
+        $request->validate([
+            'current_password' => 'required|string',
+            'new_password' => [
+                'required',
+                'string',
+                'min:8',
+                'confirmed',
+                'regex:/[A-Z]/',
+                'regex:/[a-z]/',
+                'regex:/[0-9]/',
+                'regex:/[@$!%*?&]/',
+            ],
+        ], [
+            'new_password.regex' => 'Password must contain uppercase, lowercase, number, and special character.',
+        ]);
+
+        $userId = Session::get('user.id');
+        $user = User::find($userId);
+
+        if (!$user || !Hash::check($request->current_password, $user->password)) {
+            return back()->with('error', 'Current password is incorrect.');
+        }
+
+        if ($request->current_password === $request->new_password) {
+            return back()->with('error', 'New password must be different from current password.');
+        }
+
+        $user->update([
+            'password' => Hash::make($request->new_password),
+        ]);
+
+        return back()->with('success', 'Password changed successfully!');
     }
 
     public function requestPasswordReset()
     {
-        if (!Session::has('user')) {
-            return redirect()->route('login');
-        }
-        
-        return view('request-password-reset');
+        return view('password-request');
     }
 
     public function sendPasswordResetEmail(Request $request)
     {
-        if (!Session::has('user')) {
-            return redirect()->route('login');
-        }
-        
-        $userId = Session::get('user.id');
-        $user = User::find($userId);
-        
-        if (!$user) {
-            return redirect()->route('login')->with('error', 'User not found.');
-        }
-        
         $request->validate([
             'email' => 'required|email|exists:users,email',
+        ], [
+            'email.exists' => 'No account found with this email address.',
         ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return back()->with('error', 'No account found with this email address.');
+        }
 
         // Generate reset token
         $resetToken = Str::random(64);
@@ -371,10 +397,10 @@ class AuthController extends Controller
         // Send email with reset link
         try {
             Mail::to($user->email)->send(new \App\Mail\PasswordResetMail($user, $resetToken));
-            return redirect()->route('profile')->with('success', 'Password reset link sent to your email!');
+            return redirect()->route('login')->with('success', 'Password reset link has been sent to your email! Check your inbox and follow the link to reset your password.');
         } catch (\Throwable $e) {
             Log::error('Failed to send password reset email: ' . $e->getMessage());
-            return back()->with('error', 'Failed to send reset email. Please try again.');
+            return back()->with('error', 'Failed to send reset email. Please try again later.');
         }
     }
 
